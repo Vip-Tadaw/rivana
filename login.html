@@ -227,10 +227,15 @@
 </div>
 
 <script type="module">
-  // --- إعدادات Firebase ---
-  // تمت إضافة sendPasswordResetEmail للمكتبة
+    // تمت إضافة دوال تثبيت الجلسة (setPersistence و browserLocalPersistence) للمكتبة
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { 
+      getAuth, 
+      signInWithEmailAndPassword, 
+      sendPasswordResetEmail,
+      setPersistence, 
+      browserLocalPersistence 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
@@ -288,7 +293,6 @@
           return;
       }
 
-      // إظهار حالة التحميل للزر
       forgotPasswordBtn.innerText = "جاري الإرسال...";
       forgotPasswordBtn.style.pointerEvents = "none";
 
@@ -308,13 +312,12 @@
               errorBox.style.display = 'block';
           })
           .finally(() => {
-              // إعادة الزر لحالته الطبيعية
               forgotPasswordBtn.innerText = "نسيت كلمة المرور؟";
               forgotPasswordBtn.style.pointerEvents = "auto";
           });
   });
 
-  // --- معالجة تسجيل الدخول بـ Firebase ---
+  // --- معالجة تسجيل الدخول بـ Firebase مع تثبيت الجلسة ---
   loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     clearMessages();
@@ -322,7 +325,6 @@
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     
-    // تفعيل حالة التحميل
     submitBtn.disabled = true;
     btnText.style.display = 'none';
     btnArrow.style.display = 'none';
@@ -330,13 +332,17 @@
     inputs.forEach(input => input.disabled = true);
     forgotPasswordBtn.style.pointerEvents = "none";
 
-    signInWithEmailAndPassword(auth, email, password)
+    // 1. إجبار Firebase على حفظ الجلسة محلياً بشكل دائم
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+          // 2. البدء بعملية تسجيل الدخول بعد ضمان إعداد الجلسة
+          return signInWithEmailAndPassword(auth, email, password);
+      })
       .then((userCredential) => {
-          // نجاح تسجيل الدخول، توجيه للصفحة الرئيسية
+          // نجاح تسجيل الدخول والجلسة أصبحت محفوظة
           window.location.href = "home.html";
       })
       .catch((error) => {
-          // إلغاء حالة التحميل في حال الخطأ
           submitBtn.disabled = false;
           btnText.style.display = 'block';
           btnArrow.style.display = 'block';
@@ -352,6 +358,7 @@
           errorBox.style.display = 'block';
       });
   });
+
 </script>
 </body>
 </html>
