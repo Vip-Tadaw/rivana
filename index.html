@@ -408,11 +408,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-
 <script>
 (function(){
   // 🔴 🔴 🔴 إعدادات Firebase الخاصة بك 🔴 🔴 🔴
- // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
   authDomain: "reivana-8e377.firebaseapp.com",
@@ -439,7 +437,7 @@ const firebaseConfig = {
   
   // متغيرات حقل كود الدعوة الجديد
   const inviteCode = $('inviteCode'), inviteCodeWrap = $('inviteCodeWrap'), inviteCodeError = $('inviteCodeError');
-  let isInviteCodeVerified = true; // افتراضياً صحيح لأنه اختياري في حال كان فارغاً
+  let isInviteCodeVerified = true; 
   let inviteTimeout;
 
   const submitBtn = $('submitBtn');
@@ -554,7 +552,6 @@ const firebaseConfig = {
     return v.length > 0 && match;
   }
 
-  // 🔍 دالة التحقق التلقائي من كود الدعوة عبر الـ Firebase
   function validateInviteCode() {
     const v = inviteCode.value.trim().toUpperCase();
     const isLangAr = document.documentElement.lang === 'ar';
@@ -567,7 +564,6 @@ const firebaseConfig = {
       return;
     }
 
-    // إظهار حالة الفحص المؤقت لمنع الإرسال أثناء التحقق
     clearTimeout(inviteTimeout);
     setState(inviteCodeWrap, '');
     inviteCodeError.textContent = isLangAr ? 'جاري التحقق من كود الدعوة...' : 'Verifying code...';
@@ -576,7 +572,6 @@ const firebaseConfig = {
     isInviteCodeVerified = false;
     updateSubmitState();
 
-    // تأخير الفحص 800ms لضمان انتهاء كتابة الكود كاملًا
     inviteTimeout = setTimeout(() => {
       db.collection('users').where('inviteCode', '==', v).get()
         .then((querySnapshot) => {
@@ -631,7 +626,6 @@ const firebaseConfig = {
     el.addEventListener('blur', () => { touched[key] = true; fn(); updateSubmitState(); });
   });
 
-  // تفعيل مستمع الحدث لكود الدعوة
   inviteCode.addEventListener('input', validateInviteCode);
 
   function showToast(msg, type){
@@ -641,12 +635,11 @@ const firebaseConfig = {
     showToast._t = setTimeout(() => toast.classList.remove('show'), 2800);
   }
 
-  // 🛠️ دالة مساعدة لتوليد كود دعوة عشوائي فريد لكل مستخدم جديد لكي يستخدمه مستقبلاً
   function generateUserInviteCode() {
     return 'RI-' + Math.random().toString(36).substr(2, 6).toUpperCase();
   }
 
-  // ربط عملية التسجيل بقاعدة بيانات Firebase
+  // 🛠️ ربط عملية التسجيل بقاعدة بيانات Firebase وتثبيت الجلسة
   document.getElementById('signupForm').addEventListener('submit', (e) => {
     e.preventDefault();
     Object.keys(touched).forEach(k => touched[k] = true);
@@ -661,17 +654,22 @@ const firebaseConfig = {
     submitBtn.disabled = true;
     submitBtn.querySelector('span').textContent = isAr ? 'جارٍ إنشاء الحساب...' : 'Creating Account...';
     
-    auth.createUserWithEmailAndPassword(email.value, password.value)
+    // إجبار المتصفح على حفظ الجلسة محلياً قبل إنشاء الحساب
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => {
+        // البدء بعملية إنشاء الحساب
+        return auth.createUserWithEmailAndPassword(email.value, password.value);
+      })
       .then((userCredential) => {
         const user = userCredential.user;
         
-        // حفظ البيانات في قاعدة بيانات Firestore مع إدراج كود الدعوة المستخدم وتوليد كود جديد للمستخدم
+        // حفظ البيانات في قاعدة بيانات Firestore
         return db.collection('users').doc(user.uid).set({
           fullName: fullName.value,
           phone: iti.getNumber(),
           email: email.value,
-          usedInviteCode: inviteCode.value.trim().toUpperCase() || null, // كود الشخص الذي دعاه
-          inviteCode: generateUserInviteCode(), // كود الدعوة الخاص بهذا الحساب الجديد ليدعو به غيره
+          usedInviteCode: inviteCode.value.trim().toUpperCase() || null, 
+          inviteCode: generateUserInviteCode(), 
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
       })
@@ -688,30 +686,31 @@ const firebaseConfig = {
       });
   });
 
-    // 🛠️ ربط زر جوجل (Google) بـ Firebase بعد حل مشكلة عدم حفظ البيانات في Firestore
+  // 🛠️ ربط زر جوجل وتثبيت الجلسة
   document.getElementById('googleBtn').addEventListener('click', () => {
     const isAr = document.documentElement.lang === 'ar';
     const provider = new firebase.auth.GoogleAuthProvider();
     
-    auth.signInWithPopup(provider)
+    // إجبار المتصفح على حفظ الجلسة قبل تسجيل الدخول بحساب جوجل
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => {
+         return auth.signInWithPopup(provider);
+      })
       .then(async (result) => {
         const user = result.user;
-        
-        // الإشارة إلى مستند المستخدم في Firestore
         const userRef = db.collection('users').doc(user.uid);
         const docSnap = await userRef.get();
         
-        // 🚨 إذا كان المستخدم يسجل لأول مرة عبر جوجل، ننشئ له البيانات الأساسية والـ VIP والطلب
         if (!docSnap.exists) {
           await userRef.set({
             fullName: user.displayName || "مستخدم جوجل",
             phone: user.phoneNumber || "",
             email: user.email,
-            usedInviteCode: null, // جوجل لا يتيح حقل إدخال كود دعوة في نافذة الـ Popup
-            inviteCode: generateUserInviteCode(), // توليد كود دعوة خاص به ليدعو الآخرين
-            balance: 0.00,        // رصيد افتراضي يبدأ من الصفر
-            vipLevel: 0,          // مستوى VIP افتراضي
-            vipProgress: 0,       // شريط تقدم افتراضي
+            usedInviteCode: null, 
+            inviteCode: generateUserInviteCode(), 
+            balance: 0.00,        
+            vipLevel: 0,          
+            vipProgress: 0,       
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         }
@@ -793,7 +792,6 @@ const firebaseConfig = {
     document.querySelector('label[for="password"]').textContent = t.pwL; $('password').placeholder = t.pwP;
     document.querySelector('label[for="confirmPassword"]').textContent = t.cpL; $('confirmPassword').placeholder = t.cpP;
     
-    // ترجمة حقل كود الدعوة الجديد
     document.querySelector('label[for="inviteCode"]').textContent = t.invL; $('inviteCode').placeholder = t.invP;
     
     document.querySelector('.strength-label').textContent = t.ps;
