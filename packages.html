@@ -227,15 +227,29 @@
         </div>
 
         <div class="user-profile-sidebar" data-redirect="profile.html">
-            <div class="avatar-container">
-                <img src="https://i.pravatar.cc/150?img=11" alt="محمد أحمد" class="avatar-img">
-                <div class="vip-badge"><i class="fa-solid fa-crown" style="margin-left: 2px;"></i> VIP 2</div>
-            </div>
-            <div class="user-info">
-                <h3>محمد أحمد</h3>
-                <p>RVN-7845-2211</p>
-            </div>
+    <div class="avatar-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="صورة المستخدم" class="avatar-img" id="user-profile-img">
+        <div class="vip-badge"><i class="fa-solid fa-crown" style="margin-left: 2px;"></i> VIP</div>
+    </div>
+    <div class="user-info">
+        <h3 id="user-profile-name">جاري التحميل...</h3>
+        <p id="user-profile-id">---</p>
+    </div>
+</div>
+
+<div class="page-header">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <button id="dynamic-back-btn" style="cursor:pointer; width: 44px; height: 44px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--text-main); text-decoration: none; transition: var(--transition);" onmouseover="this.style.background='var(--bg-hover)'; this.style.color='var(--light-purple)';" onmouseout="this.style.background='var(--bg-card)'; this.style.color='var(--text-main)';">
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        
+        <div class="header-titles">
+            <h1 style="margin-bottom: 0;"><i class="fa-solid fa-crown"></i> الباقات</h1>
+            <p style="margin-top: 5px;">اختر الباقة المناسبة وارتق بتجربتك الاستثمارية</p>
         </div>
+    </div>
+    </div>
+
 
         <div class="balance-card" data-redirect="wallet.html">
             <div class="balance-info">
@@ -503,80 +517,87 @@ const firebaseConfig = {
   measurementId: "G-TD9YWWDEDT"
 };
         
-        // تهيئة الـ Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+       // تهيئة الـ Firebase (تأكد أن إعداداتك صحيحة)
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-        // معرف المستخدم الحالي (سيتم جلبه تلقائياً عند تسجيل الدخول)
-        let currentUserId = null;
-        let userBalance = 0;
-        let currentActivePackage = null;
+let currentUserId = null;
+let userBalance = 0;
+let currentActivePackage = null;
+let dynamicPackagesData = {}; // لتخزين بيانات الباقات من السيرفر
 
-        // 2. مراقبة حالة تسجيل دخول المستخدم وجلب بياناته
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUserId = user.uid;
-                loadUserData(user.uid);
-            } else {
-                // إذا لم يكن مسجل دخول، يتم توجيهه لصفحة تسجيل الدخول
-                // يمكنك تفعيل هذا السطر إذا أردت توجيهه:
-                // window.location.href = "login.html";
-                console.log("المستخدم غير مسجل دخول");
-            }
-        });
+// 1. مراقبة حالة تسجيل الدخول وجلب بيانات المستخدم الحقيقية
+auth.onAuthStateChanged(user => {
+    if (user) {
+        currentUserId = user.uid;
+        loadUserData(user.uid);
+    } else {
+        window.location.href = "login.html"; // توجيه غير المسجلين فوراً
+    }
+});
 
-        // جلب رصيد وحالة اشتراك المستخدم الحالية من Firestore
-        function loadUserData(userId) {
-            db.collection("users").doc(userId).onSnapshot(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    userBalance = data.balance || 0;
-                    currentActivePackage = data.activePackage || null;
+// 2. جلب رصيد، اسم، صورة، وحالة اشتراك المستخدم من Firestore
+function loadUserData(userId) {
+    db.collection("users").doc(userId).onSnapshot(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            userBalance = data.balance || 0;
+            currentActivePackage = data.activePackage || null;
 
-                    // تحديث واجهة المستخدم بالرصيد الحقيقي
-                    document.querySelector('.balance-info h3').innerHTML = `${userBalance.toLocaleString()} <span style="font-size:11px; display:inline; color:var(--text-main)">IQD</span>`;
-                    
-                    // إذا كان لديه باقة نشطة، نقوم بتعطيل الأزرار أو توضيح الباقة المشترك بها
-                    updatePackageButtons();
-                }
-            });
+            // --- جلب البيانات الشخصية الحقيقية ---
+            // نتحقق من حقل الاسم (name أو fullName حسب ما سميته في قاعدة بياناتك)
+            const userName = data.name || data.fullName || "مستخدم ريفانا";
+            // نتحقق من حقل الصورة
+            const userImg = data.photoURL || data.profileImage || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+            // نتحقق من الـ ID أو الكود الخاص به
+            const userCode = data.userCode || userId.substring(0, 8).toUpperCase();
+
+            // تحديث واجهة المستخدم (الاسم والصورة)
+            document.getElementById('user-profile-name').innerText = userName;
+            document.getElementById('user-profile-img').src = userImg;
+            document.getElementById('user-profile-id').innerText = userCode;
+
+            // تحديث الرصيد
+            document.querySelector('.balance-info h3').innerHTML = `${userBalance.toLocaleString()} <span style="font-size:11px; display:inline; color:var(--text-main)">IQD</span>`;
+            
+            // تحديث حالة الأزرار بناءً على الاشتراك
+            updatePackageButtons();
         }
+    }, error => {
+        console.error("خطأ في جلب بيانات المستخدم:", error);
+    });
+}
 
-      let dynamicPackagesData = {};
-
-// 1. جلب إعدادات الباقات من قاعدة البيانات عند فتح الصفحة
+// 3. جلب إعدادات الباقات من قاعدة البيانات الحقيقية
 function loadPackagesSettings() {
     db.collection("packages_settings").onSnapshot((snapshot) => {
         snapshot.forEach((doc) => {
             dynamicPackagesData[doc.id] = doc.data();
             
-            // تحديث الأسعار والأرباح في واجهة المستخدم فوراً
+            // تحديث السعر في الواجهة فوراً
             const packageCard = document.querySelector(`.package-card.${doc.id}`);
-            if(packageCard) {
-                packageCard.querySelector('.pkg-price h2').innerHTML = `${doc.data().price.toLocaleString()} <span>IQD</span>`;
-                // نفترض أنك أضفت class="profit-text" للـ span الخاص بالربح في الـ HTML
-                // packageCard.querySelector('.profit-text').innerText = `أرباح يومية حتى ${doc.data().profit}%`;
+            if(packageCard && dynamicPackagesData[doc.id].price) {
+                packageCard.querySelector('.pkg-price h2').innerHTML = `${dynamicPackagesData[doc.id].price.toLocaleString()} <span>IQD</span>`;
             }
         });
+    }, error => {
+        console.error("خطأ في جلب إعدادات الباقات:", error);
     });
 }
-
-// استدعاء الدالة عند بداية التحميل
 loadPackagesSettings();
 
-// 2. تحديث دالة الاشتراك لتسجيل النشاط للأدمن
+// 4. دالة الاشتراك الآمنة (بدمج الدالتين السابقتين لمنع التضارب)
 async function subscribeToPackage(packageKey) {
     if(!currentUserId) return alert("يرجى تسجيل الدخول أولاً.");
     
-    // استخدام البيانات القادمة من السيرفر بدلاً من البيانات الثابتة
     const selectedPackage = dynamicPackagesData[packageKey]; 
-    if(!selectedPackage) return alert("جاري تحميل بيانات الباقة، انتظر لحظة...");
+    if(!selectedPackage) return alert("جاري تحميل بيانات الباقات، انتظر لحظة...");
 
-    if (currentActivePackage) return alert("لديك باقة نشطة بالفعل مسبقاً!");
-    if (userBalance < selectedPackage.price) return alert("رصيدك غير كافٍ.");
+    if (currentActivePackage) return alert("لديك باقة نشطة بالفعل مسبقاً! لا يمكنك الاشتراك بباقة أخرى.");
+    if (userBalance < selectedPackage.price) return alert("رصيدك الحالي غير كافٍ. يرجى الشحن أولاً.");
 
-    if (!confirm(`هل أنت متأكد من الاشتراك بـ ${selectedPackage.price.toLocaleString()} دينار؟`)) return;
+    if (!confirm(`هل أنت متأكد من الاشتراك بباقة ${packageKey} بقيمة ${selectedPackage.price.toLocaleString()} دينار؟`)) return;
 
     try {
         const startDate = new Date();
@@ -585,9 +606,15 @@ async function subscribeToPackage(packageKey) {
 
         const userRef = db.collection("users").doc(currentUserId);
         
+        // استخدام Transaction لضمان عدم الخصم الخاطئ لو كان الإنترنت ضعيفاً
         await db.runTransaction(async (transaction) => {
             const userDoc = await transaction.get(userRef);
-            const newBalance = userDoc.data().balance - selectedPackage.price;
+            if (!userDoc.exists) throw "المستخدم غير موجود!";
+            
+            const currentBalance = userDoc.data().balance || 0;
+            if (currentBalance < selectedPackage.price) throw "رصيد غير كافٍ أثناء تأكيد العملية.";
+            
+            const newBalance = currentBalance - selectedPackage.price;
             
             // تحديث بيانات المستخدم
             transaction.update(userRef, {
@@ -596,163 +623,136 @@ async function subscribeToPackage(packageKey) {
                     type: packageKey,
                     startDate: startDate.toISOString(),
                     endDate: endDate.toISOString(),
+                    status: "active"
                 },
-                dailyProfitPercentage: selectedPackage.profit
+                dailyProfitPercentage: selectedPackage.profit || 0,
+                tradingCommission: packageKey === 'bronze' ? 1.5 : (packageKey === 'gold' ? 1.0 : 0.5),
+                maxDailyWithdrawals: packageKey === 'bronze' ? 1 : (packageKey === 'gold' ? 2 : 999) 
             });
         });
 
-        // ==========================================
-        // الكود الجديد: تسجيل النشاط ليراه الأدمن
-        // ==========================================
+        // تسجيل النشاط في لوحة تحكم الأدمن بشكل منفصل لتأكيد العملية
         await db.collection("user_activities").add({
             userId: currentUserId,
             activityType: "package_subscription",
             packageId: packageKey,
             amountDeducted: selectedPackage.price,
-            profitSet: selectedPackage.profit,
+            profitSet: selectedPackage.profit || 0,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        alert("تم التفعيل بنجاح!");
+        alert("تم الاشتراك وتفعيل الباقة بنجاح!");
     } catch (error) {
-        console.error(error);
-        alert("فشلت العملية.");
+        console.error("فشلت العملية:", error);
+        alert(error === "رصيد غير كافٍ أثناء تأكيد العملية." ? error : "فشلت العملية، يرجى المحاولة لاحقاً.");
     }
 }
 
+// 5. تحديث شكل الأزرار بناءً على الاشتراك
+function updatePackageButtons() {
+    const cards = document.querySelectorAll('.package-card');
+    cards.forEach(card => {
+        const btn = card.querySelector('.pkg-btn');
+        let pkgKey = card.classList.contains('bronze') ? 'bronze' : 
+                     card.classList.contains('gold') ? 'gold' : 
+                     card.classList.contains('platinum') ? 'platinum' : '';
 
-        // دالة لتحديث حالة الأزرار بناءً على الاشتراك الحالي
-        function updatePackageButtons() {
-            const cards = document.querySelectorAll('.package-card');
-            cards.forEach(card => {
-                const btn = card.querySelector('.pkg-btn');
-                let pkgKey = "";
-                
-                if(card.classList.contains('bronze')) pkgKey = 'bronze';
-                if(card.classList.contains('gold')) pkgKey = 'gold';
-                if(card.classList.contains('platinum')) pkgKey = 'platinum';
-
-                if (currentActivePackage && currentActivePackage.type === pkgKey) {
-                    btn.innerText = "باقتك الحالية";
-                    btn.style.background = "var(--success-green)";
-                    btn.style.color = "#fff";
-                    btn.style.border = "none";
-                    btn.disabled = true;
-                } else if (currentActivePackage) {
-                    btn.innerText = "لديك باقة نشطة بالفعل";
-                    btn.disabled = true;
-                    btn.style.opacity = "0.5";
-                    btn.style.cursor = "not-allowed";
-                } else {
-                    btn.innerText = "اختر الباقة";
-                    btn.disabled = false;
-                    btn.style.opacity = "1";
-                    btn.style.cursor = "pointer";
-                    // إعادة التصميم الافتراضي
-                    if(pkgKey === 'bronze') {
-                        btn.style.background = "transparent";
-                        btn.style.color = "var(--bronze-color)";
-                        btn.style.border = "1px solid var(--bronze-color)";
-                    } else if(pkgKey === 'platinum') {
-                        btn.style.background = "transparent";
-                        btn.style.color = "var(--platinum-color)";
-                        btn.style.border = "1px solid var(--platinum-color)";
-                    } else if (pkgKey === 'gold') {
-                        btn.style.background = "var(--warning-gold)";
-                        btn.style.color = "#000";
-                        btn.style.border = "none";
-                    }
-                }
-            });
-        }
-
-        // 4. دالة معالجة عملية الاشتراك عند الضغط على الزر
-        async function subscribeToPackage(packageKey) {
-            if(!currentUserId) {
-                alert("يرجى تسجيل الدخول أولاً للاشتراك في الباقات.");
-                return;
-            }
-
-            const selectedPackage = packagesData[packageKey];
+        if (currentActivePackage && currentActivePackage.type === pkgKey) {
+            btn.innerText = "باقتك الحالية";
+            btn.style.background = "var(--success-green)";
+            btn.style.color = "#fff";
+            btn.style.border = "none";
+            btn.disabled = true;
+        } else if (currentActivePackage) {
+            btn.innerText = "لديك باقة نشطة";
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            btn.style.cursor = "not-allowed";
+        } else {
+            btn.innerText = "اختر الباقة";
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
             
-            // التحقق من وجود باقة نشطة
-            if (currentActivePackage) {
-                alert("لا يمكنك الاشتراك في باقة جديدة، لديك باقة نشطة بالفعل مسبقاً!");
-                return;
-            }
-
-            // التحقق من كفاية الرصيد
-            if (userBalance < selectedPackage.price) {
-                alert("رصيدك الحالي غير كافٍ للاشتراك في هذه الباقة. يرجى شحن المحفظة أولاً.");
-                return;
-            }
-
-            const confirmSubscription = confirm(`هل أنت متأكد من رغبتك في الاشتراك بـ (الباقة ${selectedPackage.name}) بقيمة ${selectedPackage.price.toLocaleString()} دينار عراقي؟`);
-            
-            if (!confirmSubscription) return;
-
-            try {
-                // حساب تواريخ التفعيل والانتهاء
-                const startDate = new Date();
-                const endDate = new Date();
-                endDate.setDate(startDate.getDate() + selectedPackage.duration);
-
-                // تنفيذ العملية داخل Firestore (Transaction) لضمان الأمان
-                const userRef = db.collection("users").doc(currentUserId);
-                
-                await db.runTransaction(async (transaction) => {
-                    const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists) throw "المستخدم غير موجود!";
-                    
-                    const newBalance = userDoc.data().balance - selectedPackage.price;
-                    
-                    // تحديث بيانات المستخدم
-                    transaction.update(userRef, {
-                        balance: newBalance,
-                        activePackage: {
-                            type: packageKey,
-                            name: selectedPackage.name,
-                            startDate: startDate.toISOString(),
-                            endDate: endDate.toISOString(),
-                            status: "active"
-                        },
-                        // إرسال نسب الأرباح والميزات مباشرة لتعتمد عليها صفحة الصفقات والتداول
-                        dailyProfitPercentage: selectedPackage.profit,
-                        tradingCommission: packageKey === 'bronze' ? 1.5 : (packageKey === 'gold' ? 1.0 : 0.5),
-                        maxDailyWithdrawals: packageKey === 'bronze' ? 1 : (packageKey === 'gold' ? 2 : 999) 
-                    });
-                });
-
-                alert(`تهانينا! تم تفعيل الباقة ${selectedPackage.name} بنجاح وتم خصم المبلغ من رصيدك.`);
-
-            } catch (error) {
-                console.error("حدث خطأ أثناء الاشتراك: ", error);
-                alert("فشلت العملية، يرجى المحاولة مرة أخرى لاحقاً.");
+            // إعادة التصميم الافتراضي للزر
+            if(pkgKey === 'bronze') {
+                btn.style.background = "transparent"; btn.style.color = "var(--bronze-color)"; btn.style.border = "1px solid var(--bronze-color)";
+            } else if(pkgKey === 'platinum') {
+                btn.style.background = "transparent"; btn.style.color = "var(--platinum-color)"; btn.style.border = "1px solid var(--platinum-color)";
+            } else if (pkgKey === 'gold') {
+                btn.style.background = "var(--warning-gold)"; btn.style.color = "#000"; btn.style.border = "none";
             }
         }
+    });
+}
+// 6. التعامل مع زر الرجوع الديناميكي وإخفاء القائمة الجانبية
+document.addEventListener("DOMContentLoaded", () => {
+    // ربط الأزرار بدالة الاشتراك
+    const bronzeBtn = document.querySelector('.package-card.bronze .pkg-btn');
+    const goldBtn = document.querySelector('.package-card.gold .pkg-btn');
+    const platinumBtn = document.querySelector('.package-card.platinum .pkg-btn');
+    
+    if(bronzeBtn) bronzeBtn.addEventListener('click', () => subscribeToPackage('bronze'));
+    if(goldBtn) goldBtn.addEventListener('click', () => subscribeToPackage('gold'));
+    if(platinumBtn) platinumBtn.addEventListener('click', () => subscribeToPackage('platinum'));
 
-        // ربط أزرار الباقات بالدالة البرمجية للاشتراك
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelector('.package-card.bronze .pkg-btn').addEventListener('click', () => subscribeToPackage('bronze'));
-            document.querySelector('.package-card.gold .pkg-btn').addEventListener('click', () => subscribeToPackage('gold'));
-            document.querySelector('.package-card.platinum .pkg-btn').addEventListener('click', () => subscribeToPackage('platinum'));
-        });
+    // ==========================================
+    // لوجيك زر الرجوع الذكي وإخفاء القائمة الجانبية
+    // ==========================================
+    const backBtn = document.getElementById('dynamic-back-btn');
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.querySelector('.menu-btn');
+    
+    // قراءة مسار الصفحة السابقة تلقائياً من المتصفح
+    const referrer = document.referrer.toLowerCase();
+    const urlParams = new URLSearchParams(window.location.search);
+    const refParam = urlParams.get('ref');
 
-        // دالة لفتح وإغلاق القائمة الجانبية في الموبايل
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.querySelector('.sidebar-overlay').classList.toggle('active');
-        }
+    // التحقق من مصدر الدخول
+    const isFromProfile = referrer.includes('profile.html') || refParam === 'profile';
+    const isFromHome = referrer.includes('home.html') || refParam === 'home';
 
-        // تفعيل التنقل بين الصفحات من القائمة الجانبية
-        document.querySelectorAll('[data-redirect]').forEach(element => {
-            element.addEventListener('click', function() {
-                const targetUrl = this.getAttribute('data-redirect');
-                if(targetUrl) {
-                    window.location.href = targetUrl;
-                }
-            });
-        });
+    // 1. برمجة زر الرجوع الذكي
+    if (backBtn) {
+        backBtn.onclick = (e) => {
+            e.preventDefault();
+            if (isFromProfile) {
+                window.location.href = 'profile.html'; // العودة للبروفايل
+            } else if (isFromHome) {
+                window.location.href = 'home.html'; // العودة للرئيسية
+            } else {
+                // إذا جاء من مسار آخر، يعود خطوة للوراء أو للرئيسية كافتراضي
+                window.history.length > 1 ? window.history.back() : window.location.href = 'home.html';
+            }
+        };
+    }
+
+    // 2. إخفاء القائمة الجانبية (Sidebar) فقط إذا جاء من البروفايل
+    if (isFromProfile) {
+        if (sidebar) sidebar.style.display = 'none'; // إخفاء القائمة للشاشات الكبيرة
+        if (menuBtn) menuBtn.style.display = 'none'; // إخفاء زر الهمبرغر للموبايل
+    }
+});
+
+
+// فتح وإغلاق القائمة في الموبايل (للوضع العادي)
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    if(sidebar && overlay) {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+}
+
+// تفعيل روابط القائمة
+document.querySelectorAll('[data-redirect]').forEach(element => {
+    element.addEventListener('click', function() {
+        const targetUrl = this.getAttribute('data-redirect');
+        if(targetUrl) window.location.href = targetUrl;
+    });
+});
+
     </script>
 </body>
 </html>
