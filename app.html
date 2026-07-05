@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rivana | التطبيق المتكامل</title>
+
+    <style>
+        /* إخفاء الصفحات افتراضياً مع أنيميشن ظهور ناعم جداً */
+        .page-view {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        /* إظهار الصفحة النشطة فقط */
+        .page-view.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-page" class="page-view active">
+        
+        </div>
+
+
+    <div id="withdraw-page" class="page-view">
+        
+        </div>
+
+
+    <script>
+        function navigateTo(pageId) {
+            // إخفاء كل الصفحات
+            document.querySelectorAll('.page-view').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // إظهار الصفحة المطلوبة فوراً وبنعومة
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                
+                // تشغيل واجهة السحب تلقائياً إذا انتقل لصفحة السحب
+                if (pageId === 'withdraw-page' && typeof renderCurrencyUI === 'function') {
+                    renderCurrencyUI(activeCurrency);
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>

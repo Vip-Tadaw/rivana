@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rivana - الإعدادات المتقدمة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #06080e;
+            --bg-sidebar: #0a0c14;
+            --bg-card: #111424;
+            --bg-hover: #181d33;
+            --primary-purple: #7c3aed;
+            --light-purple: #a78bfa;
+            --neon-purple: #8b5cf6;
+            --text-main: #ffffff;
+            --text-muted: #8b94a5;
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+            --warning-gold: #fbbf24;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* إخفاء شريط التمرير (التبرير) تماماً في المتصفحات */
+        html, body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden; 
+            position: relative;
+        }
+        ::-webkit-scrollbar {
+            display: none; /* لمتصفحات Chrome, Safari, Opera */
+        }
+        * {
+            scrollbar-width: none; /* لمتصفح Firefox */
+            -ms-overflow-style: none; /* لمتصفح IE و Edge */
+        }
+
+        body {
+            display: flex;
+        }
+
+        /* ================= Sidebar ================= */
+        .sidebar {
+            width: 280px; background-color: var(--bg-sidebar); border-left: 1px solid var(--border-color);
+            display: flex; flex-direction: column; height: 100%; overflow-y: auto;
+            transition: var(--transition); z-index: 100;
+        }
+
+        .logo {
+            padding: 30px 20px; display: flex; align-items: center; gap: 10px; font-size: 24px;
+            font-weight: 800; color: var(--text-main); letter-spacing: 1px; cursor: pointer;
+        }
+        .logo span { color: #fbbf24; }
+
+        .user-profile-sidebar {
+            display: flex; flex-direction: column; align-items: center; padding: 10px 20px 20px; text-align: center;
+        }
+       .avatar-container {
+    position: relative; 
+    margin-bottom: 12px; 
+    cursor: pointer;
+    /* نقلنا الإطار والمسافة للحاوية الخارجية */
+    width: 86px; 
+    height: 86px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-purple);
+    padding: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.avatar-img {
+    width: 100%;         
+    height: 100%;        
+    border-radius: 50%;   
+    object-fit: cover;   
+    transition: var(--transition);
+}
+
+/* باقي الأكواد مثل hover تبقى كما هي */
+.avatar-container:hover .avatar-img { opacity: 0.7; }
+.avatar-container::after {
+    content: "\f030"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 20px; color: white; opacity: 0; transition: var(--transition);
+}
+.avatar-container:hover::after { opacity: 1; }
+
+
+        .avatar-container:hover .avatar-img { opacity: 0.7; }
+        .avatar-container::after {
+            content: "\f030"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 20px; color: white; opacity: 0; transition: var(--transition);
+        }
+        .avatar-container:hover::after { opacity: 1; }
+        
+        .vip-badge {
+            position: absolute; bottom: 0; right: -10px; background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+            display: flex; align-items: center; gap: 4px; border: 2px solid var(--bg-sidebar);
+            box-shadow: 0 2px 10px rgba(124, 58, 237, 0.5);
+        }
+        .user-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+        .user-uid { font-size: 11px; color: var(--light-purple); margin-bottom: 2px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; justify-content: center;}
+        .user-email { font-size: 12px; color: var(--text-muted); }
+
+        .balance-card {
+            margin: 0 20px 20px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(30, 27, 75, 0.5) 100%);
+            border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 16px; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .balance-info span { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+        .balance-info h3 { font-size: 18px; font-weight: 800; }
+        .balance-info p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .wallet-icon { font-size: 24px; color: var(--light-purple); opacity: 0.8; }
+
+        .nav-links { list-style: none; padding: 0 15px; flex: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 15px; margin-bottom: 5px;
+            border-radius: 12px; cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight: 600;
+            transition: var(--transition);
+        }
+        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
+        .nav-item:hover { color: var(--text-main); background-color: var(--bg-hover); }
+        .nav-item.active {
+            background-color: rgba(124, 58, 237, 0.1); color: var(--light-purple);
+            border-right: 3px solid var(--primary-purple); border-radius: 12px 0 0 12px;
+        }
+
+        .login-btn {
+            margin: 20px 15px; padding: 12px 15px; display: flex; align-items: center; gap: 12px;
+            color: var(--danger-red); font-size: 14px; font-weight: 700; cursor: pointer;
+            border-radius: 12px; transition: var(--transition);
+        }
+        .login-btn:hover { background-color: rgba(239, 68, 68, 0.1); }
+
+        /* ================= Main Content ================= */
+        .main-content {
+            flex: 1; display: flex; flex-direction: column; background-color: var(--bg-body);
+            height: 100%; overflow-y: auto;
+        }
+        .content-wrapper { padding: 30px 40px; max-width: 900px; margin: 0 auto; width: 100%; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 15px; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle {
+            display: none; font-size: 20px; background: var(--bg-card); border: 1px solid var(--border-color);
+            color: var(--text-main); width: 40px; height: 40px; border-radius: 10px;
+            justify-content: center; align-items: center; cursor: pointer;
+        }
+        .back-btn {
+            display: flex; font-size: 18px; background: var(--bg-card); border: 1px solid var(--border-color);
+            color: var(--text-main); width: 40px; height: 40px; border-radius: 10px;
+            justify-content: center; align-items: center; cursor: pointer; text-decoration: none;
+            transition: var(--transition);
+        }
+        .back-btn:hover { background: var(--bg-hover); color: var(--light-purple); }
+
+        .page-title { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; }
+        .page-title i { color: var(--primary-purple); }
+        
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .notification-bell {
+            position: relative; width: 40px; height: 40px; background: var(--bg-card); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border-color);
+        }
+        .notification-badge {
+            position: absolute; top: 0; right: 0; background: var(--primary-purple); color: white;
+            font-size: 10px; font-weight: bold; width: 16px; height: 16px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-body);
+        }
+
+        .settings-banner {
+            background: linear-gradient(90deg, #1e1b4b 0%, #171033 100%); border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 20px; padding: 30px; margin-bottom: 30px; display: flex; justify-content: space-between;
+            align-items: center; position: relative; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .banner-text h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        .banner-text p { font-size: 13px; color: var(--text-muted); }
+        .banner-illustration {
+            position: relative; z-index: 2; font-size: 80px; color: var(--light-purple);
+            filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.5)); display: flex; justify-content: center; align-items: center;
+        }
+        .banner-bg-glow {
+            position: absolute; left: 50px; top: 50%; transform: translateY(-50%); width: 150px; height: 150px;
+            background: var(--primary-purple); border-radius: 50%; filter: blur(60px); opacity: 0.3; z-index: 1;
+        }
+
+        .section-container { margin-bottom: 30px; }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .section-title i { color: var(--primary-purple); }
+        
+        .settings-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 0; position: relative; }
+
+        .account-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px; }
+        .info-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+        .info-group .info-value { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        
+        .verified-badge {
+            color: var(--success-green); font-size: 10px; font-weight: 700; background: rgba(16, 185, 129, 0.1);
+            padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .unverified-badge {
+            color: var(--warning-gold); font-size: 10px; font-weight: 700; background: rgba(251, 191, 36, 0.1);
+            padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .rejected-badge {
+            color: var(--danger-red); font-size: 10px; font-weight: 700; background: rgba(239, 68, 68, 0.1);
+            padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;
+        }
+        
+        .edit-btn {
+            position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);
+            color: var(--text-muted); padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: var(--transition); display: flex; align-items: center; gap: 6px;
+        }
+        .edit-btn:hover { background: rgba(124, 58, 237, 0.1); color: var(--light-purple); }
+        .btn-full-width { position: static; margin: 15px auto; width: calc(100% - 30px); justify-content: center; }
+
+        .settings-list { list-style: none; }
+        .settings-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color); transition: var(--transition); cursor: pointer;
+        }
+        .settings-item:last-child { border-bottom: none; }
+        .settings-item:hover { background-color: rgba(255,255,255,0.02); }
+        
+        .item-main { display: flex; align-items: center; gap: 15px; }
+        .item-icon {
+            width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center;
+            font-size: 18px; color: var(--text-muted); transition: var(--transition);
+        }
+        
+        .item-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .item-text p { font-size: 11px; color: var(--text-muted); }
+        .item-action { color: var(--text-muted); font-size: 14px; }
+
+        /* تصفيف خاص بحقول رفع ملفات الـ KYC */
+        .file-upload-wrapper {
+            margin-bottom: 15px;
+        }
+        .file-upload-label {
+            display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px;
+        }
+        .custom-file-input {
+            width: 100%; padding: 10px; background: var(--bg-body); border: 1px dashed var(--border-color);
+            border-radius: 12px; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: center;
+        }
+        .custom-file-input:hover { border-color: var(--primary-purple); color: var(--text-main); }
+
+        .toast-notification {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: rgba(124, 58, 237, 0.95); color: white; padding: 12px 25px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 9999; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .toast-notification.show { bottom: 30px; }
+
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 99;
+        }
+
+        /* Modals */
+        .custom-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        }
+        .custom-modal.active { display: flex; }
+        .modal-content-box {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px;
+            width: 90%; max-width: 420px; padding: 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-main); text-align: center;}
+        .modal-input {
+            width: 100%; padding: 12px 15px; background: var(--bg-body); border: 1px solid var(--border-color);
+            border-radius: 12px; color: var(--text-main); margin-bottom: 15px; outline: none; font-family: 'Cairo';
+        }
+        .modal-input:focus { border-color: var(--primary-purple); }
+        .modal-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-submit {
+            flex: 1; background: var(--primary-purple); color: white; border: none; padding: 12px;
+            border-radius: 12px; cursor: pointer; font-weight: 700; transition: var(--transition);
+        }
+        .btn-submit:hover { background: var(--neon-purple); }
+        .btn-cancel {
+            flex: 1; background: transparent; color: var(--text-muted); border: 1px solid var(--border-color);
+            padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; transition: var(--transition);
+        }
+        .btn-cancel:hover { background: rgba(255,255,255,0.05); color: white;}
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: flex; }
+            .sidebar { position: fixed; right: -280px; top: 0; height: 100%; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+            .sidebar.active { right: 0; }
+            .sidebar-overlay.active { display: block; }
+            .content-wrapper { padding: 20px; }
+            .account-info-grid { grid-template-columns: 1fr; gap: 15px; }
+            .settings-banner { flex-direction: column; text-align: center; gap: 20px; padding: 20px; }
+            .banner-illustration { font-size: 60px; }
+            .edit-btn:not(.btn-full-width) { position: static; margin: 15px 25px 0; width: calc(100% - 50px); justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar" id="sidebarMenu">
+        <div class="logo" data-redirect="home.html">
+            <span>R</span> RIVANA
+        </div>
+
+        <div class="user-profile-sidebar">
+            <div class="avatar-container" id="avatarTrigger">
+                <img src="https://i.pravatar.cc/150?img=11" alt="الصورة الشخصية" class="avatar-img" id="sidebarAvatar">
+                <div class="vip-badge" id="sidebarVipBadge"><i class="fa-solid fa-crown"></i> VIP 1</div>
+                <input type="file" id="avatarUploadInput" style="display: none;" accept="image/*">
+            </div>
+            <h3 class="user-name" id="displayUserName">جاري التحميل...</h3>
+            <span class="user-uid" id="displayUserId">RVN-0000-0000 <i class="fa-regular fa-copy" style="font-size: 10px;"></i></span>
+            <span class="user-email" id="displayUserEmail">...</span>
+        </div>
+
+        <div class="balance-card" style="cursor: pointer;" data-redirect="wallet.html">
+            <div class="balance-info">
+                <span>إجمالي الرصيد</span>
+                <h3><span id="balanceIqd">0.00</span> <span style="font-size:12px; display:inline; color:var(--text-main)">IQD</span></h3>
+                <p>≈ <span id="balanceUsd">0.00</span> USD</p>
+            </div>
+            <div class="wallet-icon"><i class="fa-solid fa-wallet"></i></div>
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-item" data-redirect="home.html"><i class="fa-solid fa-house"></i> لوحة التحكم</li>
+            <li class="nav-item" data-redirect="trades.html"><i class="fa-solid fa-chart-line"></i> الصفقات</li>
+            <li class="nav-item" data-redirect="invest.html"><i class="fa-solid fa-bolt"></i> تداول سريع</li>
+            <li class="nav-item" data-redirect="packages.html"><i class="fa-solid fa-box-open"></i> الباقات</li>
+            <li class="nav-item" data-redirect="invite.html"><i class="fa-solid fa-user-plus"></i> دعوة صديق</li>
+            <li class="nav-item" data-redirect="history.html"><i class="fa-solid fa-file-invoice-dollar"></i> سجل العمليات</li>
+            <li class="nav-item" data-redirect="wallet.html"><i class="fa-solid fa-wallet"></i> المحفظة</li>
+            <li class="nav-item" data-redirect="transfer.html"><i class="fa-solid fa-money-bill-transfer"></i> تحويل الأموال</li>
+            <li class="nav-item active" data-redirect="profile.html"><i class="fa-solid fa-gear"></i> الإعدادات</li>
+            <li class="nav-item" data-redirect="support.html"><i class="fa-solid fa-headset"></i> الدعم والمساعدة</li>
+        </ul>
+
+        <div class="login-btn" id="logoutBtn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-wrapper">
+            
+            <div class="page-header">
+                <div class="header-right">
+                    <button class="back-btn" onclick="history.back()">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <button class="menu-toggle" id="menuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1 class="page-title"><i class="fa-solid fa-shield-halved" style="font-size: 24px;"></i> الإعدادات</h1>
+                </div>
+
+                <div class="header-actions">
+                    <div class="notification-bell" data-redirect="notifications.html">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-banner">
+                <div class="banner-text">
+                    <h2>إعدادات الحساب</h2>
+                    <p>إدارة معلومات حسابك وتفضيلاتك<br>بكل سهولة وأمان</p>
+                </div>
+                <div class="banner-illustration">
+                    <div class="banner-bg-glow"></div>
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+            </div>
+
+            <div class="section-container">
+                <h3 class="section-title"><i class="fa-solid fa-angle-left"></i> معلومات الحساب</h3>
+                <div class="settings-card">
+                    <button class="edit-btn" id="openEditInfoModal"><i class="fa-solid fa-pen"></i> تعديل البيانات</button>
+                    <div class="account-info-grid" style="margin-top: 20px;">
+                        <div class="info-group">
+                            <label>الاسم الكامل</label>
+                            <div class="info-value" id="cardUserName">...</div>
+                        </div>
+                        <div class="info-group">
+                            <label>رقم الهاتف</label>
+                            <div class="info-value" dir="ltr" style="text-align: right;">
+                                <span class="verified-badge"><i class="fa-solid fa-check"></i> موثق</span>
+                                <span id="cardUserPhone">...</span>
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <label>البريد الإلكتروني</label>
+                            <div class="info-value" id="cardUserEmail">...</div>
+                        </div>
+                        <div class="info-group">
+                            <label>كود الدعوة الخاص بك (ID)</label>
+                            <div class="info-value" style="color: var(--warning-gold); cursor: pointer;" id="cardUserUid">
+                                RVN-0000-0000 <i class="fa-regular fa-copy" style="font-size: 11px; margin-right: 4px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-container">
+                <h3 class="section-title"><i class="fa-solid fa-id-card-clip"></i> توثيق الهوية المطور (KYC)</h3>
+                <div class="settings-card">
+                    <div class="account-info-grid">
+                        <div class="info-group">
+                            <label>حالة التوثيق</label>
+                            <div class="info-value" id="kycStatus">
+                                <span class="unverified-badge"><i class="fa-solid fa-triangle-exclamation"></i> غير موثق</span>
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <label>الاسم الحقيقي المطابق للهوية</label>
+                            <div class="info-value" id="kycName">-</div>
+                        </div>
+                        <div class="info-group">
+                            <label>رقم الهوية الوطنية / الجواز</label>
+                            <div class="info-value" id="kycIdNumber">-</div>
+                        </div>
+                    </div>
+                    <button class="edit-btn btn-full-width" id="openKycModal"><i class="fa-solid fa-upload"></i> رفع وثائق التوثيق الرسمية</button>
+                </div>
+            </div>
+
+            <div class="section-container">
+                <h3 class="section-title"><i class="fa-solid fa-shield-check"></i> الأمان والحماية</h3>
+                <div class="settings-card">
+                    <ul class="settings-list">
+                        <li class="settings-item" id="openPasswordModal">
+                            <div class="item-main">
+                                <div class="item-icon"><i class="fa-solid fa-lock"></i></div>
+                                <div class="item-text">
+                                    <h4>تغيير كلمة المرور بشكل آمن</h4>
+                                    <p>يتطلب إدخال الكلمة القديمة وتأكيد الجديدة</p>
+                                </div>
+                            </div>
+                            <div class="item-action"><i class="fa-solid fa-angle-left"></i></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-info">
+                Rivana Pro 2.5.0
+                <span><i class="fa-solid fa-circle" style="font-size: 6px;"></i> أحدث إصدار</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="custom-modal" id="passwordModal">
+        <div class="modal-content-box">
+            <h3 class="modal-title">تغيير كلمة المرور الحقيقي</h3>
+            <input type="password" id="oldPassword" class="modal-input" placeholder="كلمة المرور الحالية (القديمة)">
+            <input type="password" id="newPassword" class="modal-input" placeholder="كلمة المرور الجديدة">
+            <input type="password" id="confirmPassword" class="modal-input" placeholder="تأكيد كلمة المرور الجديدة">
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeModal('passwordModal')">إلغاء</button>
+                <button class="btn-submit" id="submitPassword">تحديث وتأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-modal" id="editInfoModal">
+        <div class="modal-content-box">
+            <h3 class="modal-title">تعديل معلومات الحساب</h3>
+            <input type="text" id="inputEditName" class="modal-input" placeholder="الاسم الكامل الجديد">
+            <input type="text" id="inputEditPhone" class="modal-input" placeholder="رقم الهاتف الجديد">
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeModal('editInfoModal')">إلغاء</button>
+                <button class="btn-submit" id="submitEditInfo">حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-modal" id="kycModal">
+        <div class="modal-content-box">
+            <h3 class="modal-title">توثيق الهوية والملفات (KYC)</h3>
+            <input type="text" id="kycInputName" class="modal-input" placeholder="الاسم الحقيقي الكامل (كما في الهوية)">
+            <input type="text" id="kycInputIdNumber" class="modal-input" placeholder="رقم الهوية الوطنية أو الجواز">
+            
+            <div class="file-upload-wrapper">
+                <label class="file-upload-label">صورة البطاقة الوطنية (الوجهين في صورة واحدة أو الوجه الأمامي)</label>
+                <input type="file" id="kycNationalCardFile" class="custom-file-input" accept="image/*">
+            </div>
+
+            <div class="file-upload-wrapper">
+                <label class="file-upload-label">صورة بطاقة السكن الرسمية</label>
+                <input type="file" id="kycHousingCardFile" class="custom-file-input" accept="image/*">
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeModal('kycModal')">إلغاء</button>
+                <button class="btn-submit" id="submitKyc">رفع وإرسال للأدمن</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-notification" id="toastAlert">تم الإجراء بنجاح!</div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+            authDomain: "reivana-8e377.firebaseapp.com",
+            projectId: "reivana-8e377",
+            storageBucket: "reivana-8e377.firebasestorage.app",
+            messagingSenderId: "1066129522960",
+            appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+            measurementId: "G-TD9YWWDEDT"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        let currentUserId = null;
+        let originalUid = ""; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUserId = user.uid;
+                    originalUid = user.uid;
+                    loadUserProfile(user);
+                } else {
+                    window.location.href = "login.html";
+                }
+            });
+
+            // القائمة الجانبية
+            const menuBtn = document.getElementById('menuBtn');
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            if(menuBtn && sidebarMenu && sidebarOverlay) {
+                menuBtn.addEventListener('click', () => { sidebarMenu.classList.add('active'); sidebarOverlay.classList.add('active'); });
+                sidebarOverlay.addEventListener('click', () => { sidebarMenu.classList.remove('active'); sidebarOverlay.classList.remove('active'); });
+            }
+
+            document.querySelectorAll('[data-redirect]').forEach(element => {
+                element.addEventListener('click', function(event) {
+                    event.stopPropagation(); 
+                    const destinationFile = this.getAttribute('data-redirect');
+                    if (destinationFile) window.location.href = destinationFile;
+                });
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                auth.signOut().then(() => window.location.href = "login.html");
+            });
+
+            // تفعيل نسخ الـ ID عند الضغط
+            document.getElementById('displayUserId').addEventListener('click', () => copyUidToClipboard());
+            document.getElementById('cardUserUid').addEventListener('click', () => copyUidToClipboard());
+
+            // 1. ضع مفتاح الـ API الخاص بك من موقع ImgBB هنا
+const IMGBB_API_KEY = "6f7fb0f343b0bee90b0976864a54bd9a"; 
+
+// 2. دالة فرعية مسؤولة عن إرسال الصورة للسيرفر وجلب الرابط المباشر
+async function uploadToImgBB(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: "POST",
+        body: formData
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        return result.data.url; // يعيد رابط الصورة المباشر بنجاح
+    } else {
+        throw new Error(result.error.message || "فشل الرفع إلى ImgBB");
+    }
+}
+
+// 3. رفع الصورة الشخصية المباشر وتثبيتها عبر ImgBB
+const avatarTrigger = document.getElementById('avatarTrigger');
+const avatarUploadInput = document.getElementById('avatarUploadInput');
+avatarTrigger.addEventListener('click', () => avatarUploadInput.click());
+
+avatarUploadInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+        // تأثير بصري أثناء الرفع
+        document.getElementById('sidebarAvatar').style.opacity = '0.4';
+        showToast("جاري رفع وتثبيت الصورة الشخصية...");
+
+        // الرفع لـ ImgBB واستلام الرابط
+        const downloadURL = await uploadToImgBB(file);
+        
+        // تحديث الرابط الحقيقي في Firebase Auth
+        await auth.currentUser.updateProfile({ photoURL: downloadURL });
+        
+        // تحديث وتثبيت الرابط في قاعدة بيانات Firestore للمستخدم
+        await db.collection("users").doc(currentUserId).update({ photoURL: downloadURL });
+        
+        // عرض الصورة فوراً في الواجهة
+        document.getElementById('sidebarAvatar').src = downloadURL;
+        showToast("تم تحديث صورتك الشخصية وتثبيتها بنجاح 🎉");
+    } catch (error) {
+        console.error(error);
+        showToast("فشل تحميل الصورة: " + error.message);
+    } finally {
+        document.getElementById('sidebarAvatar').style.opacity = '1';
+    }
+});
+
+
+            // فتح وتحديث نافذة البيانات (الاسم والهاتف)
+            document.getElementById('openEditInfoModal').addEventListener('click', () => {
+                document.getElementById('editInfoModal').classList.add('active');
+            });
+
+            document.getElementById('submitEditInfo').addEventListener('click', async () => {
+                const newName = document.getElementById('inputEditName').value.trim();
+                const newPhone = document.getElementById('inputEditPhone').value.trim();
+
+                if(!newName || !newPhone) return showToast("يرجى ملء الحقلين");
+
+                try {
+                    await db.collection("users").doc(currentUserId).update({
+                        name: newName,
+                        phone: newPhone
+                    });
+                    showToast("تم تحديث الاسم ورقم الهاتف بنجاح");
+                    closeModal('editInfoModal');
+                } catch (error) {
+                    showToast("خطأ أثناء التحديث: " + error.message);
+                }
+            });
+
+            // تغيير كلمة المرور المتقدم والآمن (تأكيد الهوية)
+            document.getElementById('openPasswordModal').addEventListener('click', () => {
+                document.getElementById('passwordModal').classList.add('active');
+            });
+
+            document.getElementById('submitPassword').addEventListener('click', async () => {
+                const oldPass = document.getElementById('oldPassword').value;
+                const newPass = document.getElementById('newPassword').value;
+                const confPass = document.getElementById('confirmPassword').value;
+                const user = auth.currentUser;
+
+                if (!oldPass || !newPass || !confPass) return showToast("يرجى ملء كافة حقول كلمة المرور");
+                if (newPass.length < 6) return showToast("كلمة المرور الجديدة يجب أن تكون من 6 خانات على الأقل");
+                if (newPass !== confPass) return showToast("كلمتا المرور الجديدتان غير متطابقتين");
+
+                try {
+                    // إجراء التحقق الحقيقي من كلمة المرور القديمة أولاً عن طريق Re-authentication
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
+                    await user.reauthenticateWithCredential(credential);
+                    
+                    // إذا نجح التحقق، قم بتغييرها
+                    await user.updatePassword(newPass);
+                    showToast("تم تحديث كلمة المرور بنجاح تام");
+                    closeModal('passwordModal');
+                    document.getElementById('oldPassword').value = "";
+                    document.getElementById('newPassword').value = "";
+                    document.getElementById('confirmPassword').value = "";
+                } catch (error) {
+                    if(error.code === 'auth/wrong-password') {
+                        showToast("كلمة المرور الحالية (القديمة) غير صحيحة!");
+                    } else {
+                        showToast("خطأ: " + error.message);
+                    }
+                }
+            });
+
+            // رفع ملفات ومستندات الـ KYC المطور (البطاقة الوطنية + بطاقة السكن)
+            document.getElementById('openKycModal').addEventListener('click', () => {
+                document.getElementById('kycModal').classList.add('active');
+            });
+
+            document.getElementById('submitKyc').addEventListener('click', async () => {
+                const name = document.getElementById('kycInputName').value.trim();
+                const idNum = document.getElementById('kycInputIdNumber').value.trim();
+                const nationalFile = document.getElementById('kycNationalCardFile').files[0];
+                const housingFile = document.getElementById('kycHousingCardFile').files[0];
+
+                if(!name || !idNum || !nationalFile || !housingFile) {
+                    return showToast("يرجى كتابة البيانات ورفع الصورتين معاً المطلوبين");
+                }
+
+                try {
+                    showToast("جاري رفع المستندات، يرجى الانتظار...");
+                    
+                    // 1. رفع صورة البطاقة الوطنية
+                    const nationalRef = storage.ref(`kyc_documents/${currentUserId}_national_${Date.now()}`);
+                    await nationalRef.put(nationalFile);
+                    const nationalUrl = await nationalRef.getDownloadURL();
+
+                    // 2. رفع صورة بطاقة السكن
+                    const housingRef = storage.ref(`kyc_documents/${currentUserId}_housing_${Date.now()}`);
+                    await housingRef.put(housingFile);
+                    const housingUrl = await housingRef.getDownloadURL();
+
+                    // 3. تحديث المستند في الـ Firestore ليكون جاهز في لوحة الأدمن
+                    await db.collection("users").doc(currentUserId).update({
+                        kyc: {
+                            realName: name,
+                            idNumber: idNum,
+                            nationalCardImage: nationalUrl,
+                            housingCardImage: housingUrl,
+                            status: "pending"
+                        }
+                    });
+
+                    showToast("تم رفع الصورتين والبيانات بنجاح. قيد المراجعة!");
+                    closeModal('kycModal');
+                } catch (error) {
+                    showToast("حدث خطأ أثناء الرفع: " + error.message);
+                }
+            });
+        });
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastAlert');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        function copyUidToClipboard() {
+            if(!originalUid) return;
+            navigator.clipboard.writeText(originalUid).then(() => {
+                showToast(`تم نسخ الـ ID الحقيقي الخاص بك: ${originalUid}`);
+            });
+        }
+
+        function loadUserProfile(user) {
+            const email = user.email || "لا يوجد بريد";
+            const uidFormatted = `RVN-${user.uid.substring(0, 8).toUpperCase()}`;
+
+            document.getElementById('displayUserEmail').innerText = email;
+            document.getElementById('cardUserEmail').innerText = email;
+            document.getElementById('displayUserId').innerHTML = `${uidFormatted} <i class="fa-regular fa-copy" style="font-size:10px; color:var(--light-purple)"></i>`;
+            document.getElementById('cardUserUid').innerHTML = `${uidFormatted} <i class="fa-regular fa-copy" style="font-size:11px; color:var(--warning-gold)"></i>`;
+
+            db.collection("users").doc(user.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    document.getElementById('displayUserName').innerText = data.name || "مستخدم ريفانا";
+                    document.getElementById('cardUserName').innerText = data.name || "مستخدم ريفانا";
+                    document.getElementById('cardUserPhone').innerText = data.phone || "غير متوفر";
+                    
+                    // تعبئة حقول التعديل مسبقاً للسهولة
+                    document.getElementById('inputEditName').value = data.name || "";
+                    document.getElementById('inputEditPhone').value = data.phone || "";
+
+                    if(data.photoURL) {
+                        document.getElementById('sidebarAvatar').src = data.photoURL;
+                    }
+
+                    const iqdBalance = data.balanceIqd || 0;
+                    const usdBalance = data.balanceUsd || 0;
+                    document.getElementById('balanceIqd').innerText = Number(iqdBalance).toLocaleString('en-US', { minimumFractionDigits: 2 });
+                    document.getElementById('balanceUsd').innerText = Number(usdBalance).toLocaleString('en-US', { minimumFractionDigits: 2 });
+
+                    const vipLevel = data.vipLevel || 1;
+                    document.getElementById('sidebarVipBadge').innerHTML = `<i class="fa-solid fa-crown"></i> VIP ${vipLevel}`;
+
+                    const kycStatusBadge = document.getElementById('kycStatus');
+                    const kycBtn = document.getElementById('openKycModal');
+
+                    if (data.kyc) {
+                        document.getElementById('kycName').innerText = data.kyc.realName || "-";
+                        document.getElementById('kycIdNumber').innerText = data.kyc.idNumber || "-";
+
+                        if (data.kyc.status === "approved") {
+                            kycStatusBadge.innerHTML = `<span class="verified-badge"><i class="fa-solid fa-check-circle"></i> موثق بالكامل</span>`;
+                            kycBtn.style.display = "none";
+                        } else if (data.kyc.status === "pending") {
+                            kycStatusBadge.innerHTML = `<span class="unverified-badge"><i class="fa-solid fa-clock"></i> قيد المراجعة</span>`;
+                            kycBtn.innerText = "تعديل الملفات المرفوعة";
+                        } else if (data.kyc.status === "rejected") {
+                            kycStatusBadge.innerHTML = `<span class="rejected-badge"><i class="fa-solid fa-circle-xmark"></i> مرفوض من الأدمن</span>`;
+                            kycBtn.innerText = "إعادة رفع الملفات";
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

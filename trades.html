@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rivana - الصفقات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* الألوان الأساسية */
+            --bg-body: #06080e;
+            --bg-sidebar: #0a0c14;
+            --bg-card: #111424;
+            --bg-hover: #181d33;
+            
+            --primary-purple: #7c3aed;
+            --light-purple: #a78bfa;
+            --neon-purple: #8b5cf6;
+            
+            --text-main: #ffffff;
+            --text-muted: #8b94a5;
+            
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+            --warning-gold: #fbbf24;
+            --info-blue: #3b82f6;
+            
+            --border-color: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; }
+
+        /* ================= Sidebar ================= */
+        .sidebar { width: 280px; background-color: var(--bg-sidebar); border-left: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; overflow-y: auto; scrollbar-width: none; flex-shrink: 0; transition: var(--transition); }
+        .sidebar::-webkit-scrollbar { display: none; }
+        .logo { padding: 30px 20px; display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; letter-spacing: 1px; text-decoration: none; color: var(--text-main); }
+        .logo span { color: var(--warning-gold); }
+
+        .user-profile-sidebar { display: flex; flex-direction: column; align-items: center; padding: 10px 20px 20px; text-align: center; text-decoration: none; color: inherit; transition: var(--transition); border-radius: 12px; margin: 0 10px; }
+        .user-profile-sidebar:hover { background-color: var(--bg-hover); }
+        .avatar-container { position: relative; margin-bottom: 12px; }
+        .avatar-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-purple); padding: 2px; }
+        .vip-badge { position: absolute; bottom: 0; right: -10px; background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; display: flex; align-items: center; gap: 4px; border: 2px solid var(--bg-sidebar); }
+        .user-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+        .user-email { font-size: 12px; color: var(--text-muted); }
+
+        .balance-card { margin: 0 20px 20px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(30, 27, 75, 0.3) 100%); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .balance-info span { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+        .balance-info h3 { font-size: 18px; font-weight: 800; }
+        .balance-info p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .chart-icon { color: var(--primary-purple); font-size: 24px; opacity: 0.8;}
+
+        .nav-links { list-style: none; padding: 0 15px; flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; margin-bottom: 5px; border-radius: 12px; cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight: 600; transition: var(--transition); text-decoration: none; }
+        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
+        .nav-item:hover { color: var(--text-main); background-color: var(--bg-hover); }
+        .nav-item.active { background-color: rgba(124, 58, 237, 0.1); color: var(--light-purple); border-right: 3px solid var(--primary-purple); border-radius: 12px 0 0 12px; }
+
+        .promo-box { margin: 10px 15px 20px; background: linear-gradient(180deg, rgba(124, 58, 237, 0.15) 0%, rgba(17, 20, 36, 0.8) 100%); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 20px; padding: 20px 15px; text-align: center; position: relative; overflow: hidden; }
+        .promo-box::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; background: var(--primary-purple); filter: blur(40px); opacity: 0.3; }
+        .promo-box h4 { font-size: 15px; font-weight: 800; margin-bottom: 5px; position: relative; z-index: 2; color: var(--light-purple); }
+        .promo-box p { font-size: 11px; color: var(--text-muted); margin-bottom: 15px; position: relative; z-index: 2; }
+        .promo-img { width: 80px; margin-bottom: 15px; position: relative; z-index: 2; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); }
+        .promo-btn { width: 100%; background: transparent; border: 1px solid var(--primary-purple); color: var(--light-purple); padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); position: relative; z-index: 2; }
+        .promo-btn:hover { background: var(--primary-purple); color: white; }
+
+        .logout-btn { margin: 0 15px 20px; padding: 12px 15px; display: flex; align-items: center; gap: 12px; color: var(--danger-red); font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 12px; transition: var(--transition); border-top: 1px solid var(--border-color); text-decoration: none; }
+        .logout-btn:hover { background-color: rgba(239, 68, 68, 0.1); }
+
+        /* ================= Mobile Header ================= */
+        .mobile-header { display: none; background-color: var(--bg-sidebar); border-bottom: 1px solid var(--border-color); padding: 15px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99; }
+        .mobile-logo { font-size: 20px; font-weight: 800; color: var(--text-main); text-decoration: none; }
+        .mobile-logo span { color: var(--warning-gold); }
+        .menu-toggle { background: none; border: none; color: var(--text-main); font-size: 22px; cursor: pointer; }
+
+        /* ================= Main Content ================= */
+        .main-content { flex: 1; background-color: var(--bg-body); height: 100%; overflow-y: auto; display: flex; flex-direction: column; }
+        .content-wrapper { padding: 30px 40px; max-width: 1100px; width: 100%; margin: 0 auto; flex: 1; }
+
+        /* الهيدر */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; }
+        .header-titles h1 { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .header-titles h1 i { color: var(--primary-purple); }
+        .header-titles p { font-size: 13px; color: var(--text-muted); }
+        
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        .search-bar { position: relative; }
+        .search-bar input { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 10px 40px 10px 15px; color: white; font-size: 13px; width: 230px; outline: none; transition: var(--transition); }
+        .search-bar input:focus { border-color: var(--primary-purple); box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2); }
+        .search-bar i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        
+        .filter-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); width: 40px; height: 40px; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: var(--transition); }
+        .filter-btn:hover { background: var(--bg-hover); color: var(--light-purple); }
+        .notification-bell { position: relative; width: 40px; height: 40px; background: var(--bg-card); border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border-color); font-size: 16px; transition: var(--transition); }
+        .notification-badge { position: absolute; top: -5px; right: -5px; background: var(--primary-purple); color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-body); }
+
+        /* الكروت العلوية (الإحصائيات) */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; transition: var(--transition); }
+        .stat-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.1); }
+        .stat-icon { font-size: 24px; margin-bottom: 15px; }
+        .stat-title { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+        .stat-value { font-size: 22px; font-weight: 800; display: flex; align-items: baseline; gap: 5px; margin-bottom: 5px;}
+        .stat-value span { font-size: 12px; color: var(--text-muted); font-weight: 600;}
+        .stat-sub { font-size: 11px; color: var(--text-muted); }
+        
+        .stat-card.c-purple .stat-icon { color: var(--light-purple); }
+        .stat-card.c-green .stat-icon { color: var(--success-green); }
+        .stat-card.c-green .stat-sub { color: var(--success-green); }
+        .stat-card.c-gold .stat-icon { color: var(--warning-gold); }
+        .stat-card.c-gold .stat-value { color: var(--success-green); }
+        .stat-card.c-red .stat-icon { color: var(--danger-red); }
+        .stat-card.c-red .stat-value { color: var(--danger-red); }
+
+        /* قسم الرسم البياني والأداء */
+        .performance-section { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .chart-box, .donut-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px; }
+        
+        .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .box-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .box-title i { color: var(--primary-purple); }
+        .time-filter { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 8px; font-size: 11px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        
+        .chart-area { height: 200px; position: relative; width: 100%; border-left: 1px dashed rgba(255,255,255,0.1); border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 20px; }
+        .y-axis { position: absolute; left: -40px; top: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
+        .x-axis { position: absolute; bottom: -20px; left: 0; width: 100%; display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
+        
+        .donut-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        .donut-chart { width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(var(--success-green) 75%, var(--danger-red) 0); position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+        .donut-inner { width: 120px; height: 120px; background: var(--bg-card); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .donut-inner h3 { font-size: 28px; font-weight: 800; margin-bottom: -5px; }
+        .donut-inner p { font-size: 10px; color: var(--text-muted); }
+        
+        .donut-legend { width: 100%; }
+        .legend-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; }
+        .legend-label { display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.green { background: var(--success-green); box-shadow: 0 0 5px var(--success-green); }
+        .dot.red { background: var(--danger-red); box-shadow: 0 0 5px var(--danger-red); }
+        .legend-val.green { color: var(--success-green); font-weight: 600; }
+        .legend-val.red { color: var(--text-muted); }
+
+        /* قسم جدول الصفقات */
+        .table-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 20px; margin-bottom: 30px; }
+        
+        .table-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; gap: 20px; overflow-x: auto; scrollbar-width: none; }
+        .table-tabs::-webkit-scrollbar { display: none; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; padding: 10px 0; cursor: pointer; position: relative; transition: var(--transition); white-space: nowrap; }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: var(--light-purple); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: var(--primary-purple); box-shadow: 0 0 10px var(--primary-purple); }
+
+        .table-wrapper { width: 100%; overflow-x: auto; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { text-align: right; padding: 15px 10px; font-size: 12px; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border-color); }
+        td { padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); vertical-align: middle; transition: var(--transition); }
+        tr:hover td { background: rgba(255,255,255,0.01); }
+        
+        .tx-id { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; display: block; }
+        .tx-sub { font-size: 11px; color: var(--text-muted); }
+        
+        .type-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .type-user { background: rgba(124, 58, 237, 0.1); color: var(--light-purple); border: 1px solid rgba(124, 58, 237, 0.2); }
+        .type-bank { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .type-invest { background: rgba(251, 191, 36, 0.1); color: var(--warning-gold); border: 1px solid rgba(251, 191, 36, 0.2); }
+        .type-intl { background: rgba(59, 130, 246, 0.1); color: var(--info-blue); border: 1px solid rgba(59, 130, 246, 0.2); }
+        .type-card { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
+
+        .amt-main { font-size: 14px; font-weight: 700; display: block; margin-bottom: 2px; }
+        .amt-profit { font-size: 13px; font-weight: 800; display: block; margin-bottom: 2px; }
+        .amt-profit.green { color: var(--success-green); }
+        .amt-profit.red { color: var(--danger-red); }
+
+        .status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .s-success { color: var(--success-green); }
+        .s-pending { color: var(--warning-gold); }
+        .s-failed { color: var(--danger-red); }
+        .s-info { color: var(--info-blue); }
+
+        .date-text { font-size: 12px; color: var(--text-main); margin-bottom: 2px; display: block; white-space: nowrap; }
+        .action-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; transition: var(--transition); }
+        .action-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+
+        .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); gap: 15px; flex-wrap: wrap; }
+        .page-info { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
+        .rows-select { background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-main); padding: 4px 8px; border-radius: 6px; font-size: 12px; outline: none; }
+        
+        .pages { display: flex; gap: 5px; }
+        .page-btn { background: var(--bg-body); border: 1px solid var(--border-color); color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 12px; cursor: pointer; transition: var(--transition); }
+        .page-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+        .page-btn.active { background: var(--primary-purple); border-color: var(--primary-purple); color: white; box-shadow: 0 0 10px rgba(124, 58, 237, 0.4); }
+        .page-dots { color: var(--text-muted); display: flex; align-items: end; padding: 0 5px; }
+
+        .features-footer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding-bottom: 40px; }
+        .feat-item { display: flex; align-items: center; gap: 15px; }
+        .feat-icon { width: 50px; height: 50px; border-radius: 12px; background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--light-purple); flex-shrink: 0; }
+        .feat-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .feat-text p { font-size: 11px; color: var(--text-muted); }
+
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 998; backdrop-filter: blur(4px); }
+
+        @media (max-width: 992px) {
+            body { flex-direction: column; overflow: auto; }
+            .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100vh; z-index: 999; box-shadow: -5px 0 25px rgba(0,0,0,0.5); }
+            .sidebar.active { right: 0; }
+            .sidebar-overlay.active { display: block; }
+            .mobile-header { display: flex; }
+            .main-content { overflow-y: visible; height: auto; }
+            .content-wrapper { padding: 20px 15px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .search-bar { flex: 1; }
+            .search-bar input { width: 100%; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .performance-section { grid-template-columns: 1fr; }
+            .features-footer { grid-template-columns: 1fr; gap: 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .content-wrapper { padding: 15px 10px; } 
+            .stat-card { padding: 15px; }
+            .box-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .time-filter { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar" id="sidebarMenu">
+        <a href="home.html" class="logo">
+            <span>R</span> RIVANA
+        </a>
+
+        <a href="profile.html" class="user-profile-sidebar">
+            <div class="avatar-container">
+                <img id="userAvatar" src="https://i.pravatar.cc/150?img=0" alt="صورة المستخدم" class="avatar-img">
+                <div class="vip-badge"><i class="fa-solid fa-crown"></i> <span id="userVip">VIP 0</span></div>
+            </div>
+            <h3 class="user-name" id="userName">جاري التحميل...</h3>
+            <span class="user-email" id="userEmail">loading...</span>
+        </a>
+
+        <div class="balance-card">
+            <div class="balance-info">
+                <span>إجمالي الرصيد</span>
+                <h3 id="userBalanceIQD">0.00 <span style="font-size:12px; display:inline; color:var(--text-main)">IQD</span></h3>
+                <p id="userBalanceUSD">≈ 0.00 USD</p>
+            </div>
+            <div class="chart-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+        </div>
+
+        <ul class="nav-links">
+            <a href="home.html" class="nav-item"><i class="fa-solid fa-house"></i> لوحة التحكم</a>
+            <a href="trades.html" class="nav-item active"><i class="fa-solid fa-arrow-right-arrow-left"></i> الصفقات</a>
+            <a href="invest.html" class="nav-item"><i class="fa-solid fa-bolt"></i> تداول سريع</a>
+            <a href="packages.html" class="nav-item"><i class="fa-solid fa-box-open"></i> الباقات</a>
+            <a href="transfer.html" class="nav-item"><i class="fa-solid fa-money-bill-transfer"></i> تحويل الأموال</a>
+            <a href="history.html" class="nav-item"><i class="fa-solid fa-file-invoice-dollar"></i> سجل العمليات</a>
+            <a href="wallet.html" class="nav-item"><i class="fa-solid fa-wallet"></i> المحفظة</a>
+            <a href="invite.html" class="nav-item"><i class="fa-solid fa-user-plus"></i> دعوة صديق</a>
+            <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> التحليلات</a>
+            <a href="profile.html" class="nav-item"><i class="fa-solid fa-gear"></i> الإعدادات</a>
+            <a href="support.html" class="nav-item"><i class="fa-solid fa-headset"></i> الدعم والمساعدة</a>
+        </ul>
+
+        <div class="promo-box">
+            <img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" alt="Gift" class="promo-img">
+            <h4>ادعُ أصدقاءك</h4>
+            <p>واحصل على مكافآت حصرية</p>
+            <button class="promo-btn">دعوة الآن</button>
+        </div>
+
+        <a href="#" id="logoutBtn" class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج
+        </a>
+    </div>
+
+    <div class="mobile-header">
+        <a href="home.html" class="mobile-logo"><span>R</span> RIVANA</a>
+        <button class="menu-toggle" id="menuToggleBtn"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <div class="main-content">
+        <div class="content-wrapper">
+            
+          <div class="page-header">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <a href="profile.html" style="width: 44px; height: 44px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--text-main); text-decoration: none; transition: var(--transition);" onmouseover="this.style.background='var(--bg-hover)'; this.style.color='var(--light-purple)';" onmouseout="this.style.background='var(--bg-card)'; this.style.color='var(--text-main)';">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        
+        <div class="header-titles">
+            <h1 style="margin-bottom: 0;"><i class="fa-solid fa-arrow-right-arrow-left"></i> الصفقات</h1>
+            <p style="margin-top: 5px;">إدارة ومتابعة جميع صفقاتك في مكان واحد</p>
+        </div>
+    </div>
+
+    <div class="header-actions">
+
+                    <div class="search-bar">
+                        <input type="text" placeholder="بحث عن صفقة...">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <button class="filter-btn"><i class="fa-solid fa-filter"></i></button>
+                    <div class="notification-bell">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card c-purple">
+                    <div class="stat-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                    <div class="stat-title">إجمالي الصفقات</div>
+                    <div class="stat-value" id="totalTrades">0</div>
+                    <div class="stat-sub">كل الصفقات</div>
+                </div>
+                <div class="stat-card c-green">
+                    <div class="stat-icon"><i class="fa-regular fa-circle-check"></i></div>
+                    <div class="stat-title">الصفقات الناجحة</div>
+                    <div class="stat-value" id="successTrades">0</div>
+                    <div class="stat-sub" id="successRate">نسبة النجاح 0.0%</div>
+                </div>
+                <div class="stat-card c-gold">
+                    <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                    <div class="stat-title">إجمالي الأرباح</div>
+                    <div class="stat-value"><span id="totalProfitsIQD" style="font-size:inherit; font-weight:inherit; color:inherit;">+0.00</span> <span>IQD</span></div>
+                    <div class="stat-sub" id="totalProfitsUSD">≈ 0.00 USD</div>
+                </div>
+                <div class="stat-card c-red">
+                    <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                    <div class="stat-title">إجمالي الخسائر</div>
+                    <div class="stat-value"><span id="totalLossesIQD" style="font-size:inherit; font-weight:inherit; color:inherit;">-0.00</span> <span>IQD</span></div>
+                    <div class="stat-sub" id="totalLossesUSD">≈ 0.00 USD</div>
+                </div>
+            </div>
+
+            <div class="performance-section">
+                <div class="chart-box">
+                    <div class="box-header">
+                        <h3 class="box-title"><i class="fa-solid fa-circle-info"></i> أداء الصفقات</h3>
+                        <div class="time-filter">
+                            آخر 30 يوم <i class="fa-solid fa-angle-down"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-area">
+                        <div class="y-axis">
+                            <span>4,000</span>
+                            <span>2,000</span>
+                            <span>0</span>
+                            <span>-2,000</span>
+                        </div>
+                        <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none" style="position:absolute; bottom:20px; left:0; width:100%; height:180px;">
+                            <defs>
+                                <linearGradient id="chartGlow" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="rgba(124, 58, 237, 0.4)"/>
+                                    <stop offset="100%" stop-color="rgba(124, 58, 237, 0)"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M0,120 L30,100 L60,140 L90,110 L120,130 L150,80 L180,90 L210,60 L240,70 L270,50 L300,30 L330,60 L360,50 L390,80 L420,40 L450,50 L480,20 L500,30 L500,200 L0,200 Z" fill="url(#chartGlow)" />
+                            <polyline points="0,120 30,100 60,140 90,110 120,130 150,80 180,90 210,60 240,70 270,50 300,30 330,60 360,50 390,80 420,40 450,50 480,20 500,30" fill="none" stroke="#a78bfa" stroke-width="3" style="filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.8));"/>
+                        </svg>
+                        <div class="x-axis">
+                            <span>يوليو 2</span>
+                            <span>يوليو 8</span>
+                            <span>يونيو 14</span>
+                            <span>يونيو 20</span>
+                            <span>يونيو 26</span>
+                            <span>يوليو 2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="donut-box">
+                    <div class="donut-container">
+                        <div class="donut-chart" id="donutChartUi">
+                            <div class="donut-inner">
+                                <h3 id="donutPercentage">0%</h3>
+                                <p>صفقات ناجحة</p>
+                            </div>
+                        </div>
+                        <div class="donut-legend">
+                            <div class="legend-item">
+                                <div class="legend-label"><div class="dot green"></div> ناجحة</div>
+                                <div class="legend-val green" id="legendSuccessText">0 (0%)</div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-label"><div class="dot red"></div> خاسرة</div>
+                                <div class="legend-val red" id="legendFailedText">0 (0%)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <div class="table-tabs">
+                    <button class="tab-btn active">كل الصفقات</button>
+                    <button class="tab-btn">الصفقات الناجحة</button>
+                    <button class="tab-btn">الصفقات الخاسرة</button>
+                    <button class="tab-btn">قيد التنفيذ</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الصفقة</th>
+                                <th>النوع</th>
+                                <th>المبلغ</th>
+                                <th>الربح / الخسارة</th>
+                                <th>الحالة</th>
+                                <th>التاريخ والوقت</th>
+                                <th style="text-align: center;">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">جاري جلب الصفقات...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-container">
+                    <div class="page-info">
+                        <select class="rows-select">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span id="paginationText">عرض 0 من 0 صفقة</span>
+                    </div>
+                    
+                    <div class="pages">
+                        <button class="page-btn"><i class="fa-solid fa-angle-right"></i></button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn"><i class="fa-solid fa-angle-left"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-footer">
+                <div class="feat-item">
+                    <div class="feat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="feat-text">
+                        <h4>أمان عالي</h4>
+                        <p>جميع الصفقات محمية بتقنيات تشفير متقدمة</p>
+                    </div>
+                </div>
+                <div class="feat-item">
+                    <div class="feat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div class="feat-text">
+                        <h4>تحديث فوري</h4>
+                        <p>تحديث الصفقات في الوقت الحقيقي</p>
+                    </div>
+                </div>
+                <div class="feat-item">
+                    <div class="feat-icon"><i class="fa-solid fa-headset"></i></div>
+                    <div class="feat-text">
+                        <h4>دعم 24/7</h4>
+                        <p>فريق الدعم متاح دائماً لمساعدتك</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // =====================================
+        // 1. إعدادات Firebase الخاصة بك
+        // =====================================
+       // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+  authDomain: "reivana-8e377.firebaseapp.com",
+  projectId: "reivana-8e377",
+  storageBucket: "reivana-8e377.firebasestorage.app",
+  messagingSenderId: "1066129522960",
+  appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+  measurementId: "G-TD9YWWDEDT"
+};
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // =====================================
+        // 2. التحكم بالقوائم الجانبية (Mobile)
+        // =====================================
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        menuToggleBtn.addEventListener('click', () => {
+            sidebarMenu.classList.add('active');
+            sidebarOverlay.classList.add('active');
+        });
+        sidebarOverlay.addEventListener('click', () => {
+            sidebarMenu.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // تسجيل الخروج
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => window.location.href = "login.html");
+        });
+
+        // =====================================
+        // 3. خرائط التصميم للبيانات (أنواع الصفقات والحالات)
+        // =====================================
+        const typeMap = {
+            'user': { class: 'type-user', icon: 'fa-regular fa-user', text: 'تحويل مستخدم' },
+            'bank': { class: 'type-bank', icon: 'fa-solid fa-building-columns', text: 'سحب' },
+            'invest': { class: 'type-invest', icon: 'fa-solid fa-hand-holding-dollar', text: 'استثمار' },
+            'intl': { class: 'type-intl', icon: 'fa-solid fa-globe', text: 'دولي' },
+            'card': { class: 'type-card', icon: 'fa-regular fa-credit-card', text: 'بطاقة' }
+        };
+
+        const statusMap = {
+            'success': { class: 's-success', icon: 'fa-regular fa-circle-check', text: 'مكتملة' },
+            'pending': { class: 's-pending', icon: 'fa-regular fa-clock', text: 'قيد المعالجة' },
+            'failed': { class: 's-failed', icon: 'fa-regular fa-circle-xmark', text: 'فشلت' }
+        };
+
+        // تنسيق الأرقام
+        const formatMoney = (num) => {
+            return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        // =====================================
+        // 4. جلب البيانات عند تسجيل الدخول
+        // =====================================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                loadUserProfile(user.uid);
+                loadTransactions(user.uid);
+            } else {
+                // window.location.href = "login.html"; // فعلها للتحويل
+            }
+        });
+
+        async function loadUserProfile(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('userName').innerText = data.name || "مستخدم";
+                    document.getElementById('userEmail').innerText = data.email || "";
+                    document.getElementById('userAvatar').src = data.photoURL || "https://i.pravatar.cc/150?img=11";
+                    document.getElementById('userVip').innerText = `VIP ${data.vipLevel || 0}`;
+                    document.getElementById('userBalanceIQD').innerHTML = `${formatMoney(data.balanceIQD || 0)} <span style="font-size:12px; display:inline; color:var(--text-main)">IQD</span>`;
+                    document.getElementById('userBalanceUSD').innerText = `≈ ${formatMoney(data.balanceUSD || 0)} USD`;
+                }
+            } catch (err) {
+                console.error("خطأ في جلب بيانات المستخدم:", err);
+            }
+        }
+
+        async function loadTransactions(uid) {
+            try {
+                // جلب الصفقات الخاصة بالمستخدم، مرتبة من الأحدث للأقدم
+                const snapshot = await db.collection('transactions')
+                                         .where('userId', '==', uid)
+                                         .orderBy('timestamp', 'desc')
+                                         .get();
+
+                const tbody = document.getElementById('transactionsTableBody');
+                tbody.innerHTML = '';
+
+                let totalCount = 0;
+                let successCount = 0;
+                let failedCount = 0;
+                let totalProfitsIQD = 0;
+                let totalProfitsUSD = 0;
+                let totalLossesIQD = 0;
+                let totalLossesUSD = 0;
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">لا توجد صفقات لعرضها</td></tr>';
+                }
+
+                snapshot.forEach(doc => {
+                    totalCount++;
+                    const tx = doc.data();
+                    
+                    // حساب الإحصائيات
+                    if (tx.status === 'success') {
+                        successCount++;
+                        if (tx.profitIQD > 0) {
+                            totalProfitsIQD += tx.profitIQD;
+                            totalProfitsUSD += tx.profitUSD || 0;
+                        } else if (tx.profitIQD < 0) {
+                            totalLossesIQD += Math.abs(tx.profitIQD);
+                            totalLossesUSD += Math.abs(tx.profitUSD || 0);
+                        }
+                    } else if (tx.status === 'failed') {
+                        failedCount++;
+                        if (tx.profitIQD < 0) {
+                            totalLossesIQD += Math.abs(tx.profitIQD);
+                            totalLossesUSD += Math.abs(tx.profitUSD || 0);
+                        }
+                    }
+
+                    // تجهيز متغيرات الصف (UI)
+                    const typeStyle = typeMap[tx.type] || typeMap['intl'];
+                    const statusStyle = statusMap[tx.status] || statusMap['pending'];
+                    
+                    // الوقت والتاريخ
+                    let dateStr = "—", timeStr = "—";
+                    if (tx.timestamp) {
+                        const dateObj = tx.timestamp.toDate();
+                        dateStr = new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }).format(dateObj);
+                        timeStr = new Intl.DateTimeFormat('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true }).format(dateObj);
+                    }
+
+                    // تحديد الربح والخسارة وتلوينه
+                    let profitHtml = '<span class="tx-sub">—</span>';
+                    if (tx.profitIQD > 0) {
+                        profitHtml = `
+                            <span class="amt-profit green">+${formatMoney(tx.profitIQD)} IQD</span>
+                            <span class="tx-sub">≈ ${formatMoney(tx.profitUSD)} USD</span>
+                        `;
+                    } else if (tx.profitIQD < 0) {
+                        profitHtml = `
+                            <span class="amt-profit red">${formatMoney(tx.profitIQD)} IQD</span>
+                            <span class="tx-sub">≈ ${formatMoney(tx.profitUSD)} USD</span>
+                        `;
+                    }
+
+                    // رسم الصف
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <span class="tx-id">#${tx.txId}</span>
+                            <span class="tx-sub">${tx.subType || "عملية مالية"}</span>
+                        </td>
+                        <td><div class="type-badge ${typeStyle.class}"><i class="${typeStyle.icon}"></i> ${typeStyle.text}</div></td>
+                        <td>
+                            <span class="amt-main">${formatMoney(tx.amountIQD)} IQD</span>
+                            <span class="tx-sub">≈ ${formatMoney(tx.amountUSD)} USD</span>
+                        </td>
+                        <td>${profitHtml}</td>
+                        <td><span class="status ${statusStyle.class}"><i class="${statusStyle.icon}"></i> ${statusStyle.text}</span></td>
+                        <td>
+                            <span class="date-text">${dateStr}</span>
+                            <span class="tx-sub">${timeStr}</span>
+                        </td>
+                        <td style="text-align: center;"><button class="action-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // =====================================
+                // تحديث واجهة الإحصائيات والدونات تشارت
+                // =====================================
+                document.getElementById('totalTrades').innerText = totalCount;
+                document.getElementById('successTrades').innerText = successCount;
+                
+                const successPerc = totalCount > 0 ? ((successCount / totalCount) * 100).toFixed(1) : 0;
+                const failedPerc = totalCount > 0 ? ((failedCount / totalCount) * 100).toFixed(1) : 0;
+                
+                document.getElementById('successRate').innerText = `نسبة النجاح ${successPerc}%`;
+                
+                document.getElementById('totalProfitsIQD').innerText = `+${formatMoney(totalProfitsIQD)}`;
+                document.getElementById('totalProfitsUSD').innerText = `≈ ${formatMoney(totalProfitsUSD)} USD`;
+                
+                document.getElementById('totalLossesIQD').innerText = `-${formatMoney(totalLossesIQD)}`;
+                document.getElementById('totalLossesUSD').innerText = `≈ ${formatMoney(totalLossesUSD)} USD`;
+
+                // تحديث الدونات
+                document.getElementById('donutPercentage').innerText = `${Math.round(successPerc)}%`;
+                document.getElementById('legendSuccessText').innerText = `${successCount} (${successPerc}%)`;
+                document.getElementById('legendFailedText').innerText = `${failedCount} (${failedPerc}%)`;
+                
+                // تحديث لون الدونات عبر CSS Custom Property (النسبة)
+                const donutChart = document.getElementById('donutChartUi');
+                donutChart.style.background = `conic-gradient(var(--success-green) ${successPerc}%, var(--danger-red) 0)`;
+
+                // تحديث نص صفحات الجدول السفلي
+                document.getElementById('paginationText').innerText = `عرض ${Math.min(10, totalCount)} من ${totalCount} صفقة`;
+
+            } catch (err) {
+                console.error("خطأ في جلب الصفقات:", err);
+                document.getElementById('transactionsTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger-red);">حدث خطأ أثناء تحميل البيانات</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>

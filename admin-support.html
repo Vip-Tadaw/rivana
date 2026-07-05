@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الأدمن - إدارة الدعم الفني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #06080e;
+            --bg-card: #111424;
+            --bg-hover: #181d33;
+            --primary-purple: #7c3aed;
+            --light-purple: #a78bfa;
+            --text-main: #ffffff;
+            --text-muted: #8b94a5;
+            --success-green: #10b981;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ================= الهيكل الرئيسي وقائمة المحادثات ================= */
+        .admin-chat-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* قائمة المستخدمين الجانبية */
+        .chats-sidebar {
+            width: 350px;
+            background-color: #0a0c14;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar-header h2 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .sidebar-header h2 i { color: var(--primary-purple); }
+
+        .users-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .users-list::-webkit-scrollbar { width: 4px; }
+        .users-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+
+        /* كارت العميل في القائمة */
+        .user-chat-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        .user-chat-card:hover { background-color: var(--bg-hover); }
+        .user-chat-card.active { background-color: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.2); }
+
+        .user-avatar {
+            width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+            border: 2px solid var(--border-color);
+        }
+        .user-chat-card.active .user-avatar { border-color: var(--primary-purple); }
+
+        .user-info { flex: 1; overflow: hidden; }
+        .user-info .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .user-info h4 { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-info .time { font-size: 10px; color: var(--text-muted); }
+        .user-info .last-msg { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .unread-badge {
+            background: var(--primary-purple); color: white; font-size: 10px; font-weight: 700;
+            min-width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center;
+            align-items: center; padding: 0 4px; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+        }
+
+        /* ================= شاشة الشات النشط (اليسار) ================= */
+        .chat-main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-body);
+            height: 100%;
+        }
+
+        /* مكان الترحيب عند عدم تحديد شات */
+        .no-chat-selected {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--text-muted); gap: 15px; text-align: center;
+        }
+        .no-chat-selected i { font-size: 50px; color: var(--bg-hover); }
+
+        /* رأس الشات النشط */
+        .active-chat-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 25px; background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .active-user-details { display: flex; align-items: center; gap: 12px; }
+        .active-user-details h3 { font-size: 16px; font-weight: 700; }
+        .active-user-details p { font-size: 11px; color: var(--text-muted); }
+
+        /* منطقة الرسائل */
+        .messages-box {
+            flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+        }
+        .messages-box::-webkit-scrollbar { width: 6px; }
+        .messages-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 70%; }
+        
+        /* رسائل المستخدم المرفوعة (تظهر باليمين داكنة) */
+        .msg-user { align-self: flex-start; }
+        .msg-user .msg-bubble { background: var(--bg-hover); color: var(--text-main); border-radius: 20px 20px 0 20px; border: 1px solid var(--border-color); }
+
+        /* رسائل الأدمن (تظهر باليسار بنفسجي) */
+        .msg-admin { align-self: flex-end; }
+        .msg-admin .msg-bubble { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; border-radius: 20px 20px 20px 0; }
+
+        .msg-bubble { padding: 12px 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 5px; }
+        .msg-user .msg-time { text-align: right; }
+        .msg-admin .msg-time { text-align: left; }
+
+        /* شريط الكتابة للأدمن */
+        .admin-input-area {
+            padding: 15px 25px; background: var(--bg-card); border-top: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .admin-input {
+            flex: 1; background: var(--bg-body); border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 14px 20px; color: var(--text-main); font-size: 14px; outline: none;
+        }
+        .admin-input:focus { border-color: var(--primary-purple); }
+        
+        .send-btn {
+            width: 50px; height: 50px; background: var(--primary-purple); color: white; border: none;
+            border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; justify-content: center;
+            align-items: center; transition: var(--transition);
+        }
+        .send-btn:hover { background: #8b5cf6; transform: scale(1.05); }
+        .send-btn:disabled { background: var(--text-muted); cursor: not-allowed; transform: scale(1); }
+    </style>
+</head>
+<body>
+
+    <div class="admin-chat-container">
+        
+        <div class="chats-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-comments"></i> رسائل دعم العملاء</h2>
+            </div>
+            <div class="users-list" id="usersListArea">
+                <div style="text-align: center; color: var(--text-muted); margin-top: 20px; font-size: 13px;">جاري تحميل المحادثات...</div>
+            </div>
+        </div>
+
+        <div class="chat-main-area" id="chatMainArea">
+            <div class="no-chat-selected">
+                <i class="fa-regular fa-comments"></i>
+                <p>يرجى اختيار مستخدم من القائمة الجانبية لبدء المراسلة الفورية</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, query, orderBy, onSnapshot, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // إعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+            authDomain: "reivana-8e377.firebaseapp.com",
+            projectId: "reivana-8e377",
+            storageBucket: "reivana-8e377.firebasestorage.app",
+            messagingSenderId: "1066129522960",
+            appId: "1:1066129522960:web:8179e50a906fd08ee96595"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let activeUserId = null; // المعرف الخاص بالمستخدم المفتوح الشات معه حالياً
+        let unsubscribeMessages = null; // لإلغاء المراقبة عند الانتقال لشات آخر
+
+        // 1. استماع حي (Real-time) لجميع غرف الدعم الفني المفتوحة وترتيبها حسب الأحدث
+        function loadChatRooms() {
+            const chatRoomsRef = collection(db, "support_chats");
+            const q = query(chatRoomsRef, orderBy("lastMessageTime", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                const usersListArea = document.getElementById('usersListArea');
+                usersListArea.innerHTML = ""; // تنظيف القائمة
+
+                if (snapshot.empty) {
+                    usersListArea.innerHTML = `<div style="text-align: center; color: var(--text-muted); margin-top: 20px; font-size: 13px;">لا توجد طلبات دعم حالية.</div>`;
+                    return;
+                }
+
+                snapshot.forEach((roomDoc) => {
+                    const room = roomDoc.data();
+                    // تخطي المستندات غير المكتملة
+                    if (!room.userId) return; 
+
+                    let timeString = "";
+                    if (room.lastMessageTime) {
+                        timeString = room.lastMessageTime.toDate().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    const defaultAvatar = "https://www.w3schools.com/howto/img_avatar.png";
+                    const isSelected = room.userId === activeUserId ? 'active' : '';
+                    const unreadBadge = room.unreadByAdmin > 0 ? `<span class="unread-badge">${room.unreadByAdmin}</span>` : '';
+
+                    const cardHTML = `
+                        <div class="user-chat-card ${isSelected}" id="card-${room.userId}">
+                            <img src="${room.userPhoto || defaultAvatar}" class="user-avatar" alt="avatar">
+                            <div class="user-info">
+                                <div class="top-row">
+                                    <h4>${room.userName || 'مستخدم ريفانا'}</h4>
+                                    <span class="time">${timeString}</span>
+                                </div>
+                                <div class="top-row">
+                                    <p class="last-msg" style="${room.unreadByAdmin > 0 ? 'color: var(--text-main); font-weight:700;' : ''}">${room.lastMessage || ''}</p>
+                                    ${unreadBadge}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // تحويل الـ HTML إلى عنصر وإضافة حدث النقر عليه لفتح المحادثة
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = cardHTML.trim();
+                    const cardElement = tempDiv.firstChild;
+                    
+                    cardElement.addEventListener('click', () => {
+                        openUserChat(room.userId, room.userName, room.userPhoto);
+                    });
+
+                    usersListArea.appendChild(cardElement);
+                });
+            });
+        }
+
+        // 2. دالة فتح شات مستخدم محدد وعرض رسائله وتصفير العداد المقروء للأدمن
+        function openUserChat(userId, userName, userPhoto) {
+            activeUserId = userId;
+
+            // تحديث كلاس النشاط البصري في القائمة الجانبية
+            document.querySelectorAll('.user-chat-card').forEach(c => c.classList.remove('active'));
+            const currentCard = document.getElementById(`card-${userId}`);
+            if(currentCard) currentCard.classList.add('active');
+
+            // تصفير عداد الرسائل غير المقروءة للأدمن فوراً بسيرفر الفايربيس
+            try {
+                setDoc(doc(db, "support_chats", userId), { unreadByAdmin: 0 }, { merge: true });
+            } catch (e) { console.error(e); }
+
+            // بناء هيكل الشات الرئيسي داخل الصفحة
+            const chatMainArea = document.getElementById('chatMainArea');
+            chatMainArea.innerHTML = `
+                <header class="active-chat-header">
+                    <div class="active-user-details">
+                        <img src="${userPhoto || 'https://www.w3schools.com/howto/img_avatar.png'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                        <div>
+                            <h3>${userName}</h3>
+                            <p>المعرف: ${userId}</p>
+                        </div>
+                    </div>
+                </header>
+                <div class="messages-box" id="messagesBox"></div>
+                <div class="admin-input-area">
+                    <input type="text" id="adminMsgInput" class="admin-input" placeholder="اكتب رد الإدارة هنا...">
+                    <button id="adminSendBtn" class="send-btn" disabled><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            `;
+
+            const adminMsgInput = document.getElementById('adminMsgInput');
+            const adminSendBtn = document.getElementById('adminSendBtn');
+
+            // تفعيل مستمعات الحقول والأزرار للرد
+            adminMsgInput.addEventListener('input', () => {
+                adminSendBtn.disabled = adminMsgInput.value.trim() === '';
+            });
+            adminMsgInput.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter' && adminMsgInput.value.trim() !== '') sendAdminReply();
+            });
+            adminSendBtn.addEventListener('click', sendAdminReply);
+
+            // إلغاء مراقبة الشات السابق إن وُجد والبدء بمراقبة الشات الحالي للعميل
+            if (unsubscribeMessages) unsubscribeMessages();
+
+            const messagesRef = collection(db, "support_chats", userId, "messages");
+            const q = query(messagesRef, orderBy("timestamp", "asc"));
+
+            unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                const messagesBox = document.getElementById('messagesBox');
+                if(!messagesBox) return;
+                messagesBox.innerHTML = ""; // تنظيف الصندوق
+
+                snapshot.forEach((msgDoc) => {
+                    const data = msgDoc.data();
+                    const isAdmin = data.sender === 'admin';
+                    
+                    let timeString = 'الآن';
+                    if (data.timestamp) {
+                        timeString = data.timestamp.toDate().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    messagesBox.innerHTML += `
+                        <div class="message-wrapper ${isAdmin ? 'msg-admin' : 'msg-user'}">
+                            <div class="msg-bubble">${data.text}</div>
+                            <div class="msg-time">${timeString}</div>
+                        </div>
+                    `;
+                });
+                
+                // تصفير تلقائي للعداد أثناء بقاء الأدمن داخل المحادثة ووصول رسائل جديدة
+                setDoc(doc(db, "support_chats", userId), { unreadByAdmin: 0 }, { merge: true });
+                
+                messagesBox.scrollTop = messagesBox.scrollHeight;
+            });
+        }
+
+        // 3. دالة إرسال رد الأدمن وتحديث إشعار غير المقروء للعميل
+        async function sendAdminReply() {
+            if (!activeUserId) return;
+            const adminMsgInput = document.getElementById('adminMsgInput');
+            const text = adminMsgInput.value.trim();
+            if (!text) return;
+
+            adminMsgInput.value = "";
+            document.getElementById('adminSendBtn').disabled = true;
+
+            try {
+                // أ. إضافة الرسالة لقسم رسائل المستخدم النشط
+                await addDoc(collection(db, "support_chats", activeUserId, "messages"), {
+                    text: text,
+                    sender: 'admin',
+                    timestamp: serverTimestamp()
+                });
+
+                // ب. تحديث مستند الغرفة الرئيسي وجلب العداد الحالي للمستخدم لزيادته (+1)
+                const roomRef = doc(db, "support_chats", activeUserId);
+                
+                // جلب يدوي سريع للعداد الحالي للمستخدم لرفع قيمته
+                let currentUnreadByUser = 0;
+                const messagesBox = document.getElementById('messagesBox');
+                
+                await setDoc(roomRef, {
+                    lastMessage: text,
+                    lastMessageTime: serverTimestamp(),
+                    lastSender: 'admin',
+                    unreadByAdmin: 0
+                    // ملاحظة: يمكنك زيادة عداد العميل unreadByUser هنا إذا كنت تدعم إشعارات داخل صفحة العميل
+                }, { merge: true });
+
+                if(messagesBox) messagesBox.scrollTop = messagesBox.scrollHeight;
+            } catch (error) {
+                console.error("خطأ في رد الأدمن:", error);
+                alert("فشل إرسال رد الإدارة.");
+            }
+        }
+
+        // تشغيل البداية عند فتح الصفحة
+        window.onload = () => {
+            loadChatRooms();
+        };
+    </script>
+</body>
+</html>
