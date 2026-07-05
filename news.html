@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نبض السوق | R Rivan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #020408;
+            --neon-blue: #00d2ff;
+            --neon-pink: #ff007f;
+            --neon-green: #39ff14;
+            --neon-red: #ff3131;
+            --neon-gold: #ffcf10;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --border-glow: rgba(0, 210, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 210, 255, 0.1) 0%, transparent 50%);
+        }
+
+        /* شريط الأخبار المتحرك (Ticker) */
+        .ticker-wrapper {
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid var(--neon-blue);
+            padding: 10px 0;
+            position: sticky; top: 0; z-index: 1000;
+            overflow: hidden;
+            box-shadow: 0 0 15px var(--border-glow);
+        }
+
+        .ticker-scroll {
+            display: flex;
+            white-space: nowrap;
+            animation: tickerMove 25s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 50px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .up { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); }
+        .down { color: var(--neon-red); text-shadow: 0 0 5px var(--neon-red); }
+
+        @keyframes tickerMove {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            width: 45px; height: 45px; border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; box-shadow: 0 0 10px var(--border-glow);
+            transition: 0.3s;
+        }
+
+        .back-btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
+
+        .market-title { font-size: 22px; font-weight: 800; text-shadow: 0 0 10px var(--neon-blue); }
+
+        /* حاوية الأخبار بنمط السوشيال ميديا */
+        .feed-container { padding: 0 15px 50px; max-width: 600px; margin: 0 auto; }
+
+        .news-card {
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: 0.4s;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .news-card:hover { border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(0, 210, 255, 0.1); }
+
+        .card-header { padding: 15px; display: flex; align-items: center; gap: 10px; }
+        .user-thumb { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--neon-pink); padding: 2px; }
+
+        .news-img { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        .card-body { padding: 15px; }
+        .tag { color: var(--neon-blue); font-size: 11px; font-weight: 800; margin-bottom: 5px; display: block; }
+        .news-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+        .news-text { color: #8b94a5; font-size: 13px; line-height: 1.6; }
+
+        .card-footer {
+            padding: 12px 15px; border-top: 1px solid rgba(255,255,255,0.03);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .trend-badge {
+            padding: 5px 12px; border-radius: 10px; font-size: 12px; font-weight: bold;
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        .trend-up { background: rgba(57, 255, 20, 0.1); color: var(--neon-green); }
+        .trend-down { background: rgba(255, 49, 49, 0.1); color: var(--neon-red); }
+
+        /* أنيميشن نبض للذهب */
+        .gold-pulse { animation: goldGlow 2s infinite alternate; }
+        @keyframes goldGlow { from { filter: drop-shadow(0 0 2px var(--neon-gold)); } to { filter: drop-shadow(0 0 10px var(--neon-gold)); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="ticker-wrapper">
+        <div class="ticker-scroll">
+            <div class="ticker-item">BTC/USD <span class="up">▲ 64,230.12 (2.4%)</span></div>
+            <div class="ticker-item">Gold <span class="up">▲ 2,345.10 (0.8%)</span></div>
+            <div class="ticker-item">EUR/USD <span class="down">▼ 1.0842 (0.1%)</span></div>
+            <div class="ticker-item">IQD/USD <span class="up">▲ 1,450.00 (Stable)</span></div>
+            <div class="ticker-item">ETH/USD <span class="down">▼ 3,452.15 (1.2%)</span></div>
+            <div class="ticker-item">Brent Oil <span class="up">▲ 85.12 (1.5%)</span></div>
+        </div>
+    </div>
+
+    <header>
+        <div class="market-title">عالم السوق LIVE</div>
+        <a href="home.html" class="back-btn"><i class="fa-solid fa-house"></i></a>
+    </header>
+
+    <div class="feed-container">
+
+        <div class="news-card">
+            <div class="card-header">
+                <img src="https://placehold.co/40x40/00d2ff/000?text=TR" class="user-thumb" alt="User">
+                <div>
+                    <h4 style="font-size: 13px;">محلل R Rivan</h4>
+                    <small style="color:#555; font-size: 10px;">منذ 5 دقائق</small>
+                </div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&auto=format&fit=crop&w=1280&q=80" class="news-img" alt="Gold analysis">
+            <div class="card-body">
+                <span class="tag">#توقعات_الذهب</span>
+                <h3 class="news-title">الذهب يسجل قمة تاريخية جديدة!</h3>
+                <p class="news-text">بناءً على تقارير السوق الحالية، نتوقع استمرار صعود الذهب (XAU/USD). ننصح المستثمرين في باقات الـ VIP بمراقبة نقاط الدخول الموصى بها في القناة.</p>
+            </div>
+            <div class="card-footer">
+                <div class="trend-badge trend-up">صعود ليزري <i class="fa-solid fa-arrow-trend-up"></i></div>
+                <div style="font-size: 12px;"><i class="fa-regular fa-eye"></i> 1.2k</div>
+            </div>
+        </div>
+
+        <div class="news-card">
+            <div class="card-header">
+                <img src="https://placehold.co/40x40/ff007f/000?text=TR" class="user-thumb" alt="Alert">
+                <div>
+                    <h4 style="font-size: 13px;">تنبيهات النظام</h4>
+                    <small style="color:#555; font-size: 10px;">منذ ساعة</small>
+                </div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1611974717483-58572a0c2834?ixlib=rb-1.2.1&auto=format&fit=crop&w=1280&q=80" class="news-img" alt="Market trends">
+            <div class="card-body">
+                <span class="tag" style="color: var(--neon-pink);">#تحليل_العملات</span>
+                <h3 class="news-title">تقلبات حادة في زوج EUR/USD</h3>
+                <p class="news-text">شهد السوق حركة هبوطية حادة لليورو مقابل الدولار. تم إرسال إشارات البيع لمشتركي صفقات اليوم. يرجى مراجعة صفحة التداول.</p>
+            </div>
+            <div class="card-footer">
+                <div class="trend-badge trend-down">هبوط مؤقت <i class="fa-solid fa-arrow-trend-down"></i></div>
+                <div style="font-size: 12px;"><i class="fa-regular fa-eye"></i> 850</div>
+            </div>
+        </div>
+
+        <div class="news-card">
+            <div class="card-header">
+                <img src="https://placehold.co/40x40/39ff14/000?text=TR" class="user-thumb" alt="News">
+                <div>
+                    <h4 style="font-size: 13px;">أخبار المنصة</h4>
+                    <small style="color:#555; font-size: 10px;">منذ ساعتين</small>
+                </div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1526303323884-4752491e0840?ixlib=rb-1.2.1&auto=format&fit=crop&w=1280&q=80" class="news-img" alt="Iraqi Dinar">
+            <div class="card-body">
+                <span class="tag" style="color: var(--neon-green);">#ريفان_العراق</span>
+                <h3 class="news-title">استقرار عمليات الإيداع بالدينار</h3>
+                <p class="news-text">نحيطكم علماً بأن نظام الإيداع بالدينار العراقي مستقر جداً اليوم بأسعار تفضيلية. استثمر الآن وحول أرباحك لـ $ فوري.</p>
+            </div>
+            <div class="card-footer">
+                <div class="trend-badge trend-up">آمن ومستقر <i class="fa-solid fa-check-double"></i></div>
+                <div style="font-size: 12px;"><i class="fa-regular fa-eye"></i> 2.4k</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // سكريبت بسيط لإضافة حركة عشوائية للأسعار حتى يحس المستخدم إنها مباشرة
+        setInterval(() => {
+            const upItems = document.querySelectorAll('.up');
+            upItems.forEach(item => {
+                const randomChange = (Math.random() * 0.01).toFixed(4);
+                const currentVal = parseFloat(item.innerText.match(/[\d,.]+/)[0].replace(/,/g, ''));
+                item.innerHTML = `▲ ${(currentVal + parseFloat(randomChange)).toLocaleString()} (Live)`;
+            });
+        }, 3000);
+    </script>
+
+</body>
+</html>
