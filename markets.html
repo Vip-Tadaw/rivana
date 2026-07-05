@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rivana Premium Dynamic - نسخة ريفانا الحية المتكاملة</title>
+    <title>Rivana Premium Dynamic -ريفانا</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     
@@ -21,6 +21,68 @@
             --cylinder-shadow: inset 0 2px 4px rgba(255,255,255,0.05), 0 8px 16px rgba(0,0,0,0.4);
             --inner-glow: inset 0 1px 3px rgba(255,255,255,0.1);
         }
+/* --- زر الرجوع الليزري --- */
+.laser-back-btn {
+    position: fixed;
+    top: 60px; /* للنزول تحت شريط الأخبار */
+    right: 25px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 22px;
+    background: rgba(6, 9, 14, 0.8);
+    border: 1px solid #00f3ff;
+    border-radius: 30px;
+    color: #00f3ff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 14px;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2), inset 0 0 15px rgba(0, 243, 255, 0.1);
+    backdrop-filter: blur(8px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+
+/* تأثير مرور شعاع الليزر */
+.laser-back-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; 
+    left: -100%; 
+    width: 100%; 
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.6), transparent);
+    transition: 0.5s;
+}
+
+/* التوهج عند وضع الماوس */
+.laser-back-btn:hover {
+    background: #00f3ff;
+    color: #000;
+    box-shadow: 0 0 25px #00f3ff, 0 0 50px rgba(0, 243, 255, 0.5);
+    transform: translateY(-2px) scale(1.05);
+}
+
+.laser-back-btn:hover::before {
+    left: 100%;
+}
+
+/* نبض أيقونة السهم وحركتها */
+.laser-back-btn i {
+    animation: laserPulse 2s infinite alternate;
+    transition: transform 0.3s;
+}
+
+.laser-back-btn:hover i {
+    animation: none;
+    transform: translateX(4px); /* حركة السهم لليمين */
+}
+
+@keyframes laserPulse {
+    0% { text-shadow: 0 0 5px #00f3ff; opacity: 0.8; }
+    100% { text-shadow: 0 0 20px #00f3ff, 0 0 30px #00f3ff; opacity: 1; }
+}
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
         body { background-color: var(--bg-main); color: var(--text-main); padding: 0; direction: rtl; overflow-x: hidden; }
@@ -123,6 +185,11 @@
     </style>
 </head>
 <body>
+    <a href="home.html" class="laser-back-btn">
+    <i class="fa-solid fa-arrow-right"></i>
+    <span>العودة للرئيسية</span>
+</a>
+
 
 <div class="ticker-tape-container">
     <div class="ticker-tape-track" id="ticker-tape"></div>
@@ -132,7 +199,7 @@
     
     <div class="top-status-bar">
         <div class="news-ticker">
-            <span class="news-label">شبكة ريفانا التفاعلية</span>
+            <span class="news-label">شبكة ريفانا </span>
             <span class="news-text" id="live-news-text">جاري ربط محركات المقاصة الفورية ومزامنة كتل الأوامر المعلقة...</span>
         </div>
         <div class="ping-status">
