@@ -152,6 +152,29 @@
   .toggle-visibility:hover { color: var(--text); }
   .error-msg { font-size: 12px; color: var(--danger); padding-inline: 2px; display: none; font-weight: 500; }
   .error-msg.show { display: block; }
+.support-btn {
+  background: var(--field, rgba(255, 255, 255, 0.05)); 
+  border: 1.5px solid var(--field-border, rgba(255, 255, 255, 0.1)); 
+  color: var(--text, #fff);
+  padding: 8px 14px; 
+  border-radius: 12px; 
+  font-size: 13.5px; 
+  font-weight: 600; 
+  text-decoration: none; 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  transition: all 0.2s ease;
+}
+.support-btn:hover { 
+  border-color: var(--field-border-focus, #7c3aed); 
+  background: rgba(26, 25, 48, 0.95); 
+}
+.support-btn svg { 
+  width: 16px; 
+  height: 16px; 
+  color: var(--text-faint, #aaa); 
+}
 
   /* intlTelInput */
   .iti { width: 100%; display: block; }
@@ -214,7 +237,12 @@
 
 <div class="screen">
   
-  <div class="top-bar">
+ <div class="top-bar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <a href="support.html" class="support-btn" id="supportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span id="supportText">الدعم الفني</span>
+    </a>
+
     <div class="lang-switch">
       <button type="button" class="lang-btn" id="langBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -233,7 +261,8 @@
         <button type="button" class="lang-option" data-lang="ku">Kurdî (KU)</button>
       </div>
     </div>
-  </div>
+</div>
+
 
   <div class="brand">
     <div class="brand-row">
@@ -731,9 +760,10 @@ const firebaseConfig = {
     showToast(isAr ? 'تسجيل الدخول عبر Apple سيتوفر قريباً!' : 'Apple Sign-in is coming soon!', 'warn');
   });
 
-  // نظام الترجمة
+   // نظام الترجمة المحدث (يشمل الدعم الفني لجميع اللغات)
   const dictionary = {
     ar: {
+      support: "الدعم الفني",
       langName: "العربية", brandTag: "تداول بذكاء، اربح بثقة", pageTitle: "إنشاء حساب جديد", pageSub: "ابدأ رحلتك نحو تحقيق أرباحك الآن",
       s1: "البيانات", s2: "التحقق", s3: "التفاصيل", s4: "اكتمال",
       nL: "الاسم الكامل", nP: "أدخل اسمك الكامل", eL: "البريد الإلكتروني", pL: "رقم الهاتف",
@@ -744,6 +774,7 @@ const firebaseConfig = {
       btn: "التالي", div: "أو إنشاء حساب باستخدام", login: 'لديك حساب؟ <a href="login.html">تسجيل الدخول</a>'
     },
     en: {
+      support: "Support",
       langName: "English", brandTag: "Trade smart, earn with confidence", pageTitle: "Create Account", pageSub: "Start your journey to profits now",
       s1: "Basics", s2: "Verify", s3: "Details", s4: "Complete",
       nL: "Full Name", nP: "Enter full name", eL: "Email", pL: "Phone Number",
@@ -752,8 +783,97 @@ const firebaseConfig = {
       invL: "Invitation Code (Optional)", invP: "Enter invitation code if you have one", invE: "This invitation code is invalid or does not exist",
       terms: 'I agree to <a href="#">Terms</a> & <a href="#">Privacy</a>',
       btn: "Next", div: "Or sign up with", login: 'Have an account? <a href="login.html">Login</a>'
+    },
+    es: {
+      support: "Soporte",
+      langName: "Español", brandTag: "Opere con inteligencia, gane con confianza", pageTitle: "Crear cuenta", pageSub: "Comience su viaje hacia las ganancias ahora",
+      s1: "Básicos", s2: "Verificar", s3: "Detalles", s4: "Completo",
+      nL: "Nombre completo", nP: "Ingrese nombre completo", eL: "Correo electrónico", pL: "Número de teléfono",
+      pe: "Número no válido", pwL: "Contraseña", pwP: "Ingrese contraseña", cpL: "Confirmar contraseña",
+      cpP: "Vuelva a ingresar", ps: "Fuerza:", rL: "Mínimo 8 caracteres", rC: "Mayúsculas y minúsculas", rS: "Carácter especial",
+      invL: "Código de invitación (Opcional)", invP: "Ingrese el código si tiene uno", invE: "Este código de invitación no es válido",
+      terms: 'Acepto los <a href="#">Términos</a> y la <a href="#">Privacidad</a>',
+      btn: "Siguiente", div: "O registrarse con", login: '¿Tiene una cuenta? <a href="login.html">Iniciar sesión</a>'
+    },
+    fr: {
+      support: "Support",
+      langName: "Français", brandTag: "Tradez intelligemment, gagnez en confiance", pageTitle: "Créer un compte", pageSub: "Commencez votre voyage vers les profits dès maintenant",
+      s1: "Bases", s2: "Vérifier", s3: "Détails", s4: "Terminé",
+      nL: "Nom complet", nP: "Entrez le nom complet", eL: "E-mail", pL: "Numéro de téléphone",
+      pe: "Numéro invalide", pwL: "Mot de passe", pwP: "Entrez le mot de passe", cpL: "Confirmer le mot de passe",
+      cpP: "Ré-entrer", ps: "Force:", rL: "Min 8 caractères", rC: "Majuscule & minuscule", rS: "Caractère spécial",
+      invL: "Code d'invitation (Optionnel)", invP: "Entrez le code si vous en avez un", invE: "Ce code d'invitation est invalide",
+      terms: 'J\'accepte les <a href="#">Conditions</a> & la <a href="#">Confidentialité</a>',
+      btn: "Suivant", div: "Ou s'inscrire avec", login: 'Vous avez un compte ? <a href="login.html">Connexion</a>'
+    },
+    de: {
+      support: "Support",
+      langName: "Deutsch", brandTag: "Intelligent handeln, selbstbewusst verdienen", pageTitle: "Konto erstellen", pageSub: "Beginnen Sie jetzt Ihre Reise zu Gewinnen",
+      s1: "Grundlagen", s2: "Verifizieren", s3: "Details", s4: "Abgeschlossen",
+      nL: "Vollständiger Name", nP: "Vollständigen Namen eingeben", eL: "E-Mail", pL: "Telefonnummer",
+      pe: "Ungültige Nummer", pwL: "Passwort", pwP: "Passwort eingeben", cpL: "Passwort bestätigen",
+      cpP: "Erneut eingeben", ps: "Stärke:", rL: "Mindestens 8 Zeichen", rC: "Groß- & Kleinschreibung", rS: "Sonderzeichen",
+      invL: "Einladungscode (Optional)", invP: "Code eingeben, falls vorhanden", invE: "Dieser Einladungscode ist ungültig",
+      terms: 'Ich stimme den <a href="#">Bedingungen</a> & <a href="#">Datenschutz</a> zu',
+      btn: "Weiter", div: "Oder registrieren mit", login: 'Haben Sie ein Konto? <a href="login.html">Login</a>'
+    },
+    ru: {
+      support: "Поддержка",
+      langName: "Русский", brandTag: "Торгуйте умно, зарабатывайте уверенно", pageTitle: "Создать аккаунт", pageSub: "Начните свой путь к прибыли прямо сейчас",
+      s1: "Основы", s2: "Проверка", s3: "Детали", s4: "Готово",
+      nL: "Полное имя", nP: "Введите полное имя", eL: "Email", pL: "Номер телефона",
+      pe: "Неверный номер", pwL: "Пароль", pwP: "Введите пароль", cpL: "Подтвердите пароль",
+      cpP: "Повторите ввод", ps: "Сложность:", rL: "Мин. 8 символов", rC: "Регистр букв", rS: "Спец. символ",
+      invL: "Код приглашения (Опционально)", invP: "Введите код, если он есть", invE: "Этот код приглашения недействителен",
+      terms: 'Я согласен с <a href="#">Условиями</a> и <a href="#">Конфиденциальностью</a>',
+      btn: "Далее", div: "Или зарегистрироваться через", login: 'Уже есть аккаунт? <a href="login.html">Войти</a>'
+    },
+    zh: {
+      support: "技术支持",
+      langName: "中文", brandTag: "明智交易，自信获利", pageTitle: "创建账户", pageSub: "立即开启您的获利之旅",
+      s1: "基础信息", s2: "验证", s3: "详细信息", s4: "完成",
+      nL: "全名", nP: "请输入全名", eL: "电子邮件", pL: "手机号码",
+      pe: "号码无效", pwL: "密码", pwP: "请输入密码", cpL: "确认密码",
+      cpP: " 再次输入", ps: "密码强度:", rL: "最少 8 个字符", rC: "大小写字母", rS: "特殊字符",
+      invL: "邀请码 (选填)", invP: "如果有的话，请输入邀请码", invE: "此邀请码 invalid 或不存在",
+      terms: '我同意 <a href="#">条款</a> 和 <a href="#">隐私 policy</a>',
+      btn: "下一步", div: "或使用以下方式注册", login: '已有账户？ <a href="login.html">登录</a>'
+    },
+    hi: {
+      support: "तकनीकी सहायता",
+      langName: "हिन्दी", brandTag: "समीक्षा से व्यापार करें, आत्मविश्वास से कमाएं", pageTitle: "खाता बनाएं", pageSub: "अब मुनाफे की अपनी यात्रा शुरू करें",
+      s1: "बुनियादी", s2: "सत्यापित", s3: "विवरण", s4: "पूर्ण",
+      nL: "पूरा नाम", nP: "पूरा नाम दर्ज करें", eL: "ईमेल", pL: "फ़ोन नंबर",
+      pe: "अमान्य संख्या", pwL: "पासवर्ड", pwP: "पासवर्ड दर्ज करें", cpL: "पासवर्ड की पुष्टि करें",
+      cpP: "पुनः दर्ज करें", ps: "मजबूती:", rL: "कम से कम 8 वर्ण", rC: "बड़ा और छोटा अक्षर", rS: "विशेष वर्ण",
+      invL: "आमंत्रण कोड (वैकल्पिक)", invP: "यदि आपके पास आमंत्रण कोड है तो दर्ज करें", invE: "यह आमंत्रण कोड अमान्य है",
+      terms: 'मैं <a href="#">शर्तों</a> और <a href="#">गोपनीयता</a> से सहमत हूँ',
+      btn: "आगे बढ़ें", div: "या इसके साथ साइन अप करें", login: 'खाता है? <a href="login.html">लॉगिन करें</a>'
+    },
+    tr: {
+      support: "Destek",
+      langName: "Türkçe", brandTag: "Akıllıca işlem yapın, güvenle kazanın", pageTitle: "Hesap Oluştur", pageSub: "Kazanma yolculuğunuza şimdi başlayın",
+      s1: "Temeller", s2: "Doğrula", s3: "Detaylar", s4: "Tamamlandı",
+      nL: "Ad Soyad", nP: "Tam adınızı girin", eL: "E-posta", pL: "Telefon Numarası",
+      pe: "Geçersiz numara", pwL: "Şifre", pwP: "Şifre girin", cpL: "Şifreyi Onayla",
+      cpP: "Tekrar girin", ps: "Güç:", rL: "En az 8 karakter", rC: "Büyük & küçük harf", rS: "Özel karakter",
+      invL: "Davet Kodu (İsteğe Bağlı)", invP: "Varsa davet kodunu girin", invE: "Bu davet kodu geçersiz",
+      terms: '<a href="#">Şartları</a> & <a href="#">Gizliliği</a> kabul ediyorum',
+      btn: "İleri", div: "Veya şununla kaydolun", login: 'Hesabınız var mı? <a href="login.html">Giriş yapın</a>'
+    },
+    ku: {
+      support: "پشتیوانی",
+      langName: "Kurdî", brandTag: "بۆشۆنە بازرگانی بکە، بە دڵنیاییەوە قازانج بکە", pageTitle: "دروستکردنی هەژمار", pageSub: "ئێستا گەشتەکەت بەرەو قازانج دەستپێبکە",
+      s1: "سەرەتاکان", s2: "پشکنین", s3: "زانیارییەکان", s4: "تەواوبوو",
+      nL: "ناوی تەواو", nP: "ناوی تەواو بنووسە", eL: "ئیمەیڵ", pL: "ژمارەی تەلەفۆن",
+      pe: "ژمارەی نادروست", pwL: "شێفەر", pwP: "شێفەر بنووسە", cpL: "دووپاتکردنەوەی شێفەر",
+      cpP: "دووبارە بنووسەوە", ps: "هێز:", rL: "لەکەمتر 8 پیت", rC: "پیتی گەورە و بچووک", rS: "هێمای تایبەت",
+      invL: "کۆدی بانگهێشت (ئارەزوومەندانە)", invP: "کۆدی بانگهێشت بنووسە ئەگەر هەتە", invE: "ئەم کۆدی بانگهێشتە نادروستە",
+      terms: 'ڕازیم بە <a href="#">مەرجەکان</a> و <a href="#">پاراستنی زانیارییەکان</a>',
+      btn: "دواتر", div: "یان تۆمارکردن بە بەکارهێنانی", login: 'هەژمارت هەیە؟ <a href="login.html">چوونەژوورەوە</a>'
     }
   };
+
 
   const langBtn = $('langBtn');
   const langMenu = $('langMenu');
@@ -770,29 +890,47 @@ const firebaseConfig = {
     });
   });
 
-  function applyLanguage(lang) {
+   function applyLanguage(lang) {
     const t = dictionary[lang];
     if(!t) return;
     
+    // 🟢 1. ترجمة زر الدعم الفني تلقائياً
+    const supportTextEl = document.getElementById('supportText');
+    if (supportTextEl) {
+        supportTextEl.innerText = t.support;
+    }
+    
+    // 2. ضبط اتجاه الصفحة (RTL / LTR) بناءً على اللغة
     const isRtl = ['ar', 'ku', 'fa'].includes(lang);
     document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
     
+    // 3. ترجمة بقية عناصر الواجهة والنصوص (تم دمجها داخل الدالة بشكل صحيح)
     $('currentLang').textContent = t.langName;
     document.querySelector('.brand-tag').textContent = t.brandTag;
     document.querySelector('.page-title').textContent = t.pageTitle;
     document.querySelector('.page-sub').textContent = t.pageSub;
     
     const steps = document.querySelectorAll('.step-label');
-    steps[0].textContent = t.s1; steps[1].textContent = t.s2; steps[2].textContent = t.s3; steps[3].textContent = t.s4;
+    if (steps.length >= 4) {
+        steps[0].textContent = t.s1; 
+        steps[1].textContent = t.s2; 
+        steps[2].textContent = t.s3; 
+        steps[3].textContent = t.s4;
+    }
 
-    document.querySelector('label[for="fullName"]').textContent = t.nL; $('fullName').placeholder = t.nP;
+    document.querySelector('label[for="fullName"]').textContent = t.nL; 
+    $('fullName').placeholder = t.nP;
     document.querySelector('label[for="email"]').textContent = t.eL;
-    document.querySelector('label[for="phone"]').textContent = t.pL; $('phoneError').textContent = t.pe;
-    document.querySelector('label[for="password"]').textContent = t.pwL; $('password').placeholder = t.pwP;
-    document.querySelector('label[for="confirmPassword"]').textContent = t.cpL; $('confirmPassword').placeholder = t.cpP;
+    document.querySelector('label[for="phone"]').textContent = t.pL; 
+    $('phoneError').textContent = t.pe;
+    document.querySelector('label[for="password"]').textContent = t.pwL; 
+    $('password').placeholder = t.pwP;
+    document.querySelector('label[for="confirmPassword"]').textContent = t.cpL; 
+    $('confirmPassword').placeholder = t.cpP;
     
-    document.querySelector('label[for="inviteCode"]').textContent = t.invL; $('inviteCode').placeholder = t.invP;
+    document.querySelector('label[for="inviteCode"]').textContent = t.invL; 
+    $('inviteCode').placeholder = t.invP;
     
     document.querySelector('.strength-label').textContent = t.ps;
     document.querySelector('#reqLength .req-text').textContent = t.rL;
@@ -804,10 +942,14 @@ const firebaseConfig = {
     document.querySelector('.divider').textContent = t.div;
     document.querySelector('.login-row').innerHTML = t.login;
     
-    validatePassword(); 
-  }
+    // 4. تحديث فحص كلمة المرور بعد تغيير اللغة
+    if (typeof validatePassword === "function") {
+        validatePassword(); 
+    }
+  } // 👈 قفل دالة applyLanguage الصحيح
 
-})();
+})(); // 👈 قفل الدالة الكبيرة IIFE
 </script>
+
 </body>
 </html>
