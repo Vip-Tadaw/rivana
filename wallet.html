@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rivana Dashboard | المحفظة</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -36,13 +36,11 @@
             overflow-x: hidden;
         }
 
-        /* ================= التمرير المخصص ================= */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
-        /* ================= زر الرجوع ================= */
         .btn-back {
             display: inline-flex;
             align-items: center;
@@ -63,25 +61,21 @@
             background: rgba(108, 92, 231, 0.1);
             color: var(--primary);
             border-color: rgba(108, 92, 231, 0.3);
-            transform: translateX(3px); /* تأثير حركة بسيط لليمين عند التمرير */
+            transform: translateX(3px);
         }
 
-       /* ================= المحتوى الرئيسي ================= */
-.main-content { 
-    flex-grow: 1; 
-    padding: 16px 20px; /* قللنا الحواف الداخلية (فوق/جوه 16 - يمين/يسار 20) */
-    width: 100%; 
-    max-width: 100%; /* لغينا الحد الأقصى للعرض حتى تتمدد براحتها على كل الشاشات */
-    margin: 0 auto; 
-}
+        .main-content { 
+            flex-grow: 1; 
+            padding: 16px 20px; 
+            width: 100%; 
+            max-width: 100%; 
+            margin: 0 auto; 
+        }
 
-
-        /* ستايل البطاقات */
         .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
 
-        /* الهيدر */
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .page-title { display: flex; align-items: center; gap: 12px; }
         .page-title h1 { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px;}
         .page-title h1 svg { color: var(--primary); }
@@ -98,9 +92,9 @@
         
         .hero-content { position: relative; z-index: 1; }
         .hero-label { font-size: 13px; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-        .hero-balance { font-size: 42px; font-weight: 800; display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; letter-spacing: -1px; }
+        .hero-balance { font-size: 42px; font-weight: 800; display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; letter-spacing: -1px; flex-wrap: wrap;}
         .hero-currency { font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.6); }
-        .hero-sub { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+        .hero-sub { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 12px; margin-bottom: 30px; flex-wrap: wrap;}
         .trend-up { color: var(--success); font-weight: 700; display: flex; align-items: center; gap: 4px; }
 
         .hero-stats-row { display: flex; gap: 16px; }
@@ -108,21 +102,6 @@
         .stat-box p { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
         .stat-box h4 { font-size: 15px; font-weight: 700; }
         .stat-icon { color: rgba(255,255,255,0.4); }
-
-        /* ================= أزرار الإجراءات الخمسة ================= */
-        .actions-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
-        .action-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: pointer; transition: 0.3s; text-align: center; }
-        .action-card:hover { background: var(--bg-card-hover); transform: translateY(-5px); border-color: rgba(255,255,255,0.1); }
-        .action-icon-wrap { width: 50px; height: 50px; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 24px; position: relative; }
-        
-        .ic-purple { background: rgba(108, 92, 231, 0.1); color: var(--primary); }
-        .ic-green { background: rgba(0, 184, 148, 0.1); color: var(--success); }
-        .ic-blue { background: rgba(9, 132, 227, 0.1); color: var(--info); }
-        .ic-orange { background: rgba(225, 112, 85, 0.1); color: #e17055; }
-        .ic-yellow { background: rgba(253, 203, 110, 0.1); color: var(--warning); border: 1px solid rgba(253, 203, 110, 0.2); }
-        
-        .action-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-        .action-card p { font-size: 11px; color: var(--text-muted); }
 
         /* ================= القوائم ================= */
         .split-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; margin-bottom: 24px; }
@@ -148,7 +127,7 @@
         .btn-outline-full:hover { background: rgba(255,255,255,0.05); }
 
         .tx-left { display: flex; align-items: center; gap: 16px; width: 40%; }
-        .tx-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
+        .tx-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; justify-content: center; align-items: center; min-width: 40px;}
         .tx-mid { width: 30%; text-align: left; font-size: 14px; font-weight: 700; direction: ltr; }
         .tx-right { width: 30%; display: flex; justify-content: space-between; align-items: center; }
         .tx-status { font-size: 11px; display: flex; align-items: center; gap: 4px; }
@@ -158,7 +137,7 @@
         .tri-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
         
         .chart-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
-        .donut-chart { width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--primary) 0% 75%, var(--teal) 75% 90%, var(--warning) 90% 97%, var(--info) 97% 100%); position: relative; display: flex; justify-content: center; align-items: center; }
+        .donut-chart { width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--primary) 0% 75%, var(--teal) 75% 90%, var(--warning) 90% 97%, var(--info) 97% 100%); position: relative; display: flex; justify-content: center; align-items: center; min-width: 120px;}
         .donut-inner { width: 85px; height: 85px; background: var(--bg-card); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .donut-inner span { font-size: 10px; color: var(--text-muted); }
         .donut-inner strong { font-size: 12px; font-weight: 700; }
@@ -183,7 +162,7 @@
 
         .footer-banner { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; display: flex; justify-content: space-between; align-items: center; }
         .fb-left { display: flex; align-items: center; gap: 16px; }
-        .fb-icon { width: 50px; height: 50px; background: rgba(108, 92, 231, 0.1); border-radius: 16px; display: flex; justify-content: center; align-items: center; color: var(--primary); }
+        .fb-icon { width: 50px; height: 50px; background: rgba(108, 92, 231, 0.1); border-radius: 16px; display: flex; justify-content: center; align-items: center; color: var(--primary); min-width: 50px;}
         .fb-left h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
         .fb-left p { font-size: 12px; color: var(--text-muted); }
         .fb-features { display: flex; gap: 32px; border-right: 1px solid var(--border-color); padding-right: 32px; }
@@ -204,24 +183,46 @@
             font-size: 20px; color: white; transition: opacity 0.5s ease;
         }
 
-        /* Responsive */
+        /* ================= أكواد تجاوب الموبايل ================= */
         @media (max-width: 1024px) {
-            .split-grid, .tri-grid, .actions-grid { grid-template-columns: 1fr; }
+            .split-grid, .tri-grid { grid-template-columns: 1fr; }
             .footer-banner { flex-direction: column; gap: 20px; align-items: flex-start; }
-            .fb-features { border-right: none; padding-right: 0; border-top: 1px solid var(--border-color); padding-top: 20px; width: 100%; justify-content: space-between;}
+            .fb-features { border-right: none; padding-right: 0; border-top: 1px solid var(--border-color); padding-top: 20px; width: 100%; justify-content: space-between; flex-wrap: wrap;}
+        }
+
+        @media (max-width: 768px) {
+            .main-content { padding: 12px; }
+            .card { padding: 16px; }
+            .page-title h1 { font-size: 20px; }
+            
+            /* تصغير الرصيد الكبير في الكارت الأزرق */
+            .hero-balance { font-size: 28px; }
+            .hero-stats-row { flex-direction: column; gap: 12px; } /* ترتيب عمودي للإحصائيات */
+            
+            /* تعديل قائمة العمليات للموبايل */
+            .tx-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .tx-left, .tx-mid, .tx-right { width: 100%; text-align: right; }
+            .tx-mid { font-size: 16px; }
+            .tx-right { flex-direction: row; justify-content: space-between; }
+            
+            /* تعديل المخطط الدائري */
+            .chart-wrap { flex-direction: column; gap: 24px; }
+            .legend-list { width: 100%; }
+            
+            .fb-features { gap: 16px; }
+            .fb-feat { flex: 1; min-width: 30%; }
         }
     </style>
 </head>
 <body>
 
-    <div id="loading-overlay">جاري تحميل بيانات المحفظة...</div>
+    <div id="loading-overlay">جاري تحميل ...</div>
 
     <main class="main-content">
         <a href="#" class="btn-back" onclick="handleSmartBack(event)">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-    رجوع
-</a>
-
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            رجوع
+        </a>
 
         <header class="header-top">
             <div class="page-title">
@@ -279,54 +280,6 @@
                         </div>
                         <svg class="stat-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="actions-grid">
-            <div class="action-card" style="border-color: rgba(108, 92, 231, 0.4); background: rgba(108, 92, 231, 0.05);">
-                <div class="action-icon-wrap ic-purple">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </div>
-                <div>
-                    <h4>إيداع</h4>
-                    <p>إضافة أموال</p>
-                </div>
-            </div>
-            <div class="action-card">
-                <div class="action-icon-wrap ic-green">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                </div>
-                <div>
-                    <h4>سحب</h4>
-                    <p>طلب سحب الأموال</p>
-                </div>
-            </div>
-            <div class="action-card">
-                <div class="action-icon-wrap ic-blue">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-                </div>
-                <div>
-                    <h4>تحويل</h4>
-                    <p>تحويل إلى مستخدم</p>
-                </div>
-            </div>
-            <div class="action-card">
-                <div class="action-icon-wrap ic-orange">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-                </div>
-                <div>
-                    <h4>تحويل داخلي</h4>
-                    <p>بين المحافظ</p>
-                </div>
-            </div>
-            <div class="action-card">
-                <div class="action-icon-wrap ic-yellow">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="12" y1="2" x2="12" y2="6"/></svg>
-                </div>
-                <div>
-                    <h4>عملات رقمية</h4>
-                    <p>إدارة العملات</p>
                 </div>
             </div>
         </div>
@@ -478,7 +431,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -653,17 +606,14 @@
 
     <script>
     function handleSmartBack(event) {
-        event.preventDefault(); // نمنع الرابط من إعادة تحميل الصفحة
+        event.preventDefault(); 
         
-        // نتأكد إذا المتصفح بيه سجل سابق (يعني المستخدم إجى من صفحة ثانية)
         if (window.history.length > 1 && document.referrer !== "") {
-            window.history.back(); // يرجع للصفحة اللي إجى منها بالضبط (هوم أو بروفايل)
+            window.history.back(); 
         } else {
-            // كود احتياطي: إذا فتح الصفحة برابط مباشر، نرجعه للهوم كإجراء افتراضي
             window.location.href = "home.html"; 
         }
     }
-</script>
-
+    </script>
 </body>
 </html>
