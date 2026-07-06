@@ -229,13 +229,14 @@
 <script type="module">
     // تمت إضافة دوال تثبيت الجلسة (setPersistence و browserLocalPersistence) للمكتبة
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { 
-      getAuth, 
-      signInWithEmailAndPassword, 
-      sendPasswordResetEmail,
-      setPersistence, 
-      browserLocalPersistence 
-  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+ import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    sendPasswordResetEmail,
+    setPersistence, 
+    browserLocalPersistence,
+    onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
@@ -358,6 +359,12 @@
           errorBox.style.display = 'block';
       });
   });
+// 🔄 فحص تلقائي: إذا كان المستخدم مسجلاً دخوله مسبقاً، يتم تحويله فوراً إلى الصفحة الرئيسية
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        window.location.replace("home.html");
+    }
+});
 
 </script>
 </body>
