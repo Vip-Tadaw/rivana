@@ -92,7 +92,99 @@
         .tape-item { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; font-family: monospace; }
         @keyframes scrollTape { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
 
-        .dashboard-container { max-width: 1440px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+/* --- التعديل على الحاوية الرئيسية لتمتد على كامل الشاشة --- */
+.dashboard-container { 
+    width: 100%; 
+    max-width: 100%; /* إزالة الحد الأقصى السابق 1440px */
+    margin: 0 auto; 
+    padding: 10px 15px; /* تقليل الحواف الجانبية والعلوية */
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 15px; /* تقليل المسافات بين الأقسام قليلاً لتوفير المساحة */
+    box-sizing: border-box;
+}
+
+/* --- دعم الشاشات العملاقة (Ultrawide) للتمدد بشكل متناسق --- */
+@media (min-width: 1600px) {
+    .dashboard-container {
+        padding: 15px 3vw; /* استخدام نسب مئوية للحواف في الشاشات الضخمة */
+        gap: 20px;
+    }
+    .top-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* تكبير البطاقات قليلاً */
+    }
+}
+
+/* --- دعم شاشات الجوال والأجهزة الصغيرة (Mobile & Tablets) --- */
+@media (max-width: 950px) {
+    .main-trading-layout { 
+        grid-template-columns: 1fr; /* جعل الأقسام تحت بعضها */
+    }
+    .bottom-three-grid { 
+        grid-template-columns: 1fr; 
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container { 
+        padding: 8px; /* حواف شبه معدومة للموبايل */
+        gap: 10px; 
+    }
+    
+    /* ترتيب الشريط العلوي ليناسب الموبايل */
+    .top-status-bar { 
+        flex-direction: column; 
+        padding: 12px; 
+        gap: 12px; 
+        border-radius: 20px; 
+        text-align: center; 
+    }
+    .news-ticker { 
+        width: 100%; 
+        justify-content: center; 
+        flex-wrap: wrap; /* السماح للنص بالنزول لسطر جديد إذا لزم الأمر */
+    }
+    .ping-status { 
+        width: 100%; 
+        justify-content: space-between; 
+    }
+
+    /* تعديل زر الرجوع الليزري ليكون أصغر ولا يغطي الشاشة */
+    .laser-back-btn {
+        top: auto;
+        bottom: 20px;
+        right: 20px;
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    /* تعديل حجم الخطوط في الجداول للموبايل */
+    td, th { 
+        padding: 10px 8px; 
+        font-size: 12px; 
+    }
+    .card-info .price {
+        font-size: 18px;
+    }
+}
+
+/* --- تعديل نافذة الطلبات الجانبية للموبايل لتملأ الشاشة --- */
+@media (max-width: 600px) {
+    .order-modal {
+        width: 100%; /* تملأ الشاشة بالكامل */
+        left: -100%; 
+        grid-template-columns: 1fr; /* إخفاء الشارت أو وضعه تحت النموذج */
+        overflow-y: auto; /* السماح بالتمرير داخل النافذة */
+        padding: 15px;
+    }
+    .modal-chart-side {
+        border-right: none;
+        border-top: 1px solid var(--border-color);
+        padding-right: 0;
+        padding-top: 15px;
+        margin-top: 15px;
+    }
+}
 
         .top-status-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px 25px; border-radius: 40px; font-size: 13px; box-shadow: var(--cylinder-shadow); }
         .news-ticker { display: flex; align-items: center; gap: 12px; overflow: hidden; width: 60%; }
