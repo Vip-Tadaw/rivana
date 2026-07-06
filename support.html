@@ -30,6 +30,48 @@
             flex-direction: column;
             overflow: hidden; /* لمنع تمرير الصفحة بالكامل وجعل التمرير داخل صندوق الدردشة فقط */
         }
+/* ================= نظام الإشعارات المنبثقة (Toast) ================= */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--primary-purple);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.toast.error { border-color: var(--danger-red); }
+.toast.error i { color: var(--danger-red); }
+.toast.success { border-color: var(--success-green); }
+.toast.success i { color: var(--success-green); }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
 
         /* ================= Header (شريط الدعم العلوي) ================= */
         .chat-header {
@@ -135,6 +177,7 @@
     </style>
 </head>
 <body>
+<div id="toast-container" class="toast-container"></div>
 
     <header class="chat-header">
         <div class="header-right">
@@ -165,170 +208,219 @@
         <button id="sendBtn" class="send-btn" disabled><i class="fa-solid fa-paper-plane"></i></button>
     </div>
 
-        <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+       <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, setDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // إعدادات Firebase الخاصة بك
-        const firebaseConfig = {
-            apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
-            authDomain: "reivana-8e377.firebaseapp.com",
-            projectId: "reivana-8e377",
-            storageBucket: "reivana-8e377.firebasestorage.app",
-            messagingSenderId: "1066129522960",
-            appId: "1:1066129522960:web:8179e50a906fd08ee96595"
-        };
+    // إعدادات Firebase الخاصة بك
+    const firebaseConfig = {
+        apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+        authDomain: "reivana-8e377.firebaseapp.com",
+        projectId: "reivana-8e377",
+        storageBucket: "reivana-8e377.firebasestorage.app",
+        messagingSenderId: "1066129522960",
+        appId: "1:1066129522960:web:8179e50a906fd08ee96595"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-        let currentUserId = null;
-        let userData = { name: "مستخدم ريفانا", photoURL: "" }; // لحفظ بيانات المستخدم وجلبها للوحة الأدمن
+    let currentUserId = null;
+    let userData = { name: "مستخدم ريفانا", photoURL: "" }; // لحفظ بيانات المستخدم وجلبها للوحة الأدمن
+    
+    const chatBox = document.getElementById('chatBox');
+    const msgInput = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // ================= نظام الإشعارات المنبثقة الخاص بالمنصة =================
+    function showNotification(message, type = 'error') {
+        const container = document.getElementById('toast-container');
+        if (!container) return; // التأكد من وجود الحاوية في الـ HTML
         
-        const chatBox = document.getElementById('chatBox');
-        const msgInput = document.getElementById('msgInput');
-        const sendBtn = document.getElementById('sendBtn');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check';
+        toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+        
+        container.appendChild(toast);
 
-        // مراقبة حالة المستخدم وجلب بياناته الشخصية
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                
-                // جلب اسم وصورة المستخدم الحقيقية من مستنده في Firestore لإرسالها للوحة الأدمن
-                try {
-                    const userDoc = await getDoc(doc(db, "users", currentUserId));
-                    if (userDoc.exists()) {
-                        const data = userDoc.data();
-                        userData.name = data.name || "مستخدم ريفانا";
-                        userData.photoURL = data.photoURL || "";
-                    }
-                } catch (e) {
-                    console.error("خطأ في جلب بيانات المستخدم المحدثة:", e);
-                }
+        // إخفاء الإشعار بعد 3 ثواني بسلاسة
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 
-                // تصفير العداد غير المقروء للمستخدم عند دخوله الشات
-                clearUnreadCounter();
-                
-                // تحميل الرسائل
-                loadMessages();
-            } else {
-                chatBox.innerHTML += `<div class="welcome-msg" style="color:var(--danger-red); border-color:var(--danger-red);">يرجى تسجيل الدخول لتتمكن من مراسلة الدعم الفني.</div>`;
-            }
-        });
-
-        // تفعيل زر الإرسال عند كتابة نص
-        msgInput.addEventListener('input', () => {
-            sendBtn.disabled = msgInput.value.trim() === '';
-        });
-
-        // الإرسال عند الضغط على Enter
-        msgInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && msgInput.value.trim() !== '') {
-                sendMessage();
-            }
-        });
-
-        sendBtn.addEventListener('click', sendMessage);
-
-        // دالة إرسال الرسالة الحقيقية المرتبطة بالأدمن
-        async function sendMessage() {
-            if (!currentUserId) return;
-            const text = msgInput.value.trim();
-            if (!text) return;
-
-            msgInput.value = '';
-            sendBtn.disabled = true;
-
+    // مراقبة حالة المستخدم وجلب بياناته الشخصية
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            
+            // جلب اسم وصورة المستخدم الحقيقية من مستنده في Firestore لإرسالها للوحة الأدمن
             try {
-                // 1. حفظ الرسالة داخل سيل الرسائل الفرعي للشات
-                const messagesRef = collection(db, "support_chats", currentUserId, "messages");
-                await addDoc(messagesRef, {
-                    text: text,
-                    sender: 'user',
-                    timestamp: serverTimestamp()
-                });
-
-                // 2. تحديث المستند الرئيسي (الغرفة) لكي تظهر وتتحدث تلقائياً في لوحة الأدمن
-                const chatRoomRef = doc(db, "support_chats", currentUserId);
-                
-                // جلب الداتا الحالية للغرفة للتحقق من عداد الرسائل غير المقروءة للأدمن
-                const roomSnap = await getDoc(chatRoomRef);
-                let currentUnreadByAdmin = 0;
-                if (roomSnap.exists()) {
-                    currentUnreadByAdmin = roomSnap.data().unreadByAdmin || 0;
+                const userDoc = await getDoc(doc(db, "users", currentUserId));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    userData.name = data.name || data.fullName || "مستخدم ريفانا";
+                    userData.photoURL = data.photoURL || "";
                 }
-
-                await setDoc(chatRoomRef, {
-                    userId: currentUserId,
-                    userName: userData.name,
-                    userPhoto: userData.photoURL,
-                    lastMessage: text,
-                    lastMessageTime: serverTimestamp(),
-                    lastSender: 'user',
-                    unreadByAdmin: currentUnreadByAdmin + 1, // زيادة العداد لكي يرى الأدمن إشعار بالرسالة الجديدة
-                    unreadByUser: 0 
-                }, { merge: true });
-
-                scrollToBottom();
-            } catch (error) {
-                console.error("خطأ في إرسال الرسالة: ", error);
-                alert("حدث خطأ أثناء إرسال الرسالة.");
-            }
-        }
-
-        // دالة جلب الرسائل وعرضها في الوقت الفعلي
-        function loadMessages() {
-            const messagesRef = collection(db, "support_chats", currentUserId, "messages");
-            const q = query(messagesRef, orderBy("timestamp", "asc"));
-
-            onSnapshot(q, (snapshot) => {
-                const welcomeHTML = `<div class="welcome-msg">أهلاً بك في الدعم الفني! 👋<br>كيف يمكننا مساعدتك اليوم؟ يرجى كتابة استفسارك وسنرد عليك في أقرب وقت.</div>`;
-                chatBox.innerHTML = welcomeHTML;
-
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const isUser = data.sender === 'user';
-                    
-                    let timeString = 'الآن';
-                    if (data.timestamp) {
-                        const date = data.timestamp.toDate();
-                        timeString = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                    }
-
-                    const messageHTML = `
-                        <div class="message-wrapper ${isUser ? 'msg-user' : 'msg-admin'}">
-                            <div class="msg-bubble">${data.text}</div>
-                            <div class="msg-time">${timeString}</div>
-                        </div>
-                    `;
-                    chatBox.innerHTML += messageHTML;
-                });
-
-                // تصفير عداد الرسائل غير المقروءة للمستخدم تلقائياً عند وصول رسائل جديدة من الإدارة وهو يقرأ الشات
-                clearUnreadCounter();
-                scrollToBottom();
-            });
-        }
-
-        // دالة لتصفير عداد الرسائل غير المقروءة الخاصة بالعميل
-        async function clearUnreadCounter() {
-            if (!currentUserId) return;
-            try {
-                const chatRoomRef = doc(db, "support_chats", currentUserId);
-                await setDoc(chatRoomRef, { unreadByUser: 0 }, { merge: true });
             } catch (e) {
-                console.error(e);
+                console.error("خطأ في جلب بيانات المستخدم المحدثة:", e);
             }
-        }
 
-        function scrollToBottom() {
-            setTimeout(() => {
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 100);
+            // تصفير العداد غير المقروء للمستخدم عند دخوله الشات
+            clearUnreadCounter();
+            
+            // تحميل الرسائل
+            loadMessages();
+        } else {
+            chatBox.innerHTML += `<div class="welcome-msg" style="color:#ef4444; border-color:#ef4444;">يرجى تسجيل الدخول لتتمكن من مراسلة الدعم الفني.</div>`;
         }
-    </script>
+    });
+
+    // تفعيل زر الإرسال عند كتابة نص
+    msgInput.addEventListener('input', () => {
+        sendBtn.disabled = msgInput.value.trim() === '';
+    });
+
+    // الإرسال عند الضغط على Enter
+    msgInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && msgInput.value.trim() !== '') {
+            sendMessage();
+        }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    // دالة إرسال الرسالة المحدثة
+    async function sendMessage() {
+        if (!currentUserId) {
+            showNotification("يرجى تسجيل الدخول أولاً.", "error");
+            return;
+        }
+        
+        const text = msgInput.value.trim();
+        if (!text) return;
+
+        // تفريغ الحقل وتعطيل الزر فوراً لمنع التكرار
+        msgInput.value = '';
+        sendBtn.disabled = true;
+
+        // تحسين UX: إظهار الرسالة مؤقتاً للمستخدم جاري إرسالها لسرعة الاستجابة اللحظية
+        const tempId = "temp_" + Date.now();
+        const tempMessageHTML = `
+            <div id="${tempId}" class="message-wrapper msg-user" style="opacity: 0.7;">
+                <div class="msg-bubble">${text}</div>
+                <div class="msg-time">جاري الإرسال...</div>
+            </div>
+        `;
+        chatBox.insertAdjacentHTML('beforeend', tempMessageHTML);
+        scrollToBottom();
+
+        try {
+            // 1. حفظ الرسالة داخل سيل الرسائل الفرعي للشات
+            const messagesRef = collection(db, "support_chats", currentUserId, "messages");
+            await addDoc(messagesRef, {
+                text: text,
+                sender: 'user',
+                timestamp: serverTimestamp()
+            });
+
+            // 2. تحديث المستند الرئيسي (الغرفة) لكي تظهر وتتحدث تلقائياً في لوحة الأدمن
+            const chatRoomRef = doc(db, "support_chats", currentUserId);
+            
+            // جلب الداتا الحالية للغرفة للتحقق من عداد الرسائل غير المقروءة للأدمن
+            const roomSnap = await getDoc(chatRoomRef);
+            let currentUnreadByAdmin = 0;
+            if (roomSnap.exists()) {
+                currentUnreadByAdmin = roomSnap.data().unreadByAdmin || 0;
+            }
+
+            await setDoc(chatRoomRef, {
+                userId: currentUserId,
+                userName: userData.name,
+                userPhoto: userData.photoURL,
+                lastMessage: text,
+                lastMessageTime: serverTimestamp(),
+                lastSender: 'user',
+                unreadByAdmin: currentUnreadByAdmin + 1, // زيادة العداد لكي يرى الأدمن إشعار بالرسالة الجديدة
+                unreadByUser: 0 
+            }, { merge: true });
+
+            // تم الإرسال بنجاح، سيقوم الـ onSnapshot بتحديث الرسالة الحقيقية تلقائياً
+        } catch (error) {
+            console.error("خطأ في إرسال الرسالة: ", error);
+            
+            // حذف الرسالة المؤقتة إذا فشل الإرسال
+            const tempMsgElem = document.getElementById(tempId);
+            if(tempMsgElem) tempMsgElem.remove();
+            
+            // إظهار إشعار المنصة الداخلي الذكي بدلاً من Alert جوجل
+            showNotification("تعذر إرسال الرسالة، يرجى التحقق من القواعد أو الاتصال.", "error");
+            
+            // إرجاع النص المدخل حتى لا يضيع على المستخدم
+            msgInput.value = text;
+            sendBtn.disabled = false;
+        }
+    }
+
+    // دالة جلب الرسائل وعرضها في الوقت الفعلي
+    function loadMessages() {
+        const messagesRef = collection(db, "support_chats", currentUserId, "messages");
+        const q = query(messagesRef, orderBy("timestamp", "asc"));
+
+        onSnapshot(q, (snapshot) => {
+            const welcomeHTML = `<div class="welcome-msg">أهلاً بك في الدعم الفني! 👋<br>كيف يمكننا مساعدتك اليوم؟ يرجى كتابة استفسارك وسنرد عليك في أقرب وقت.</div>`;
+            chatBox.innerHTML = welcomeHTML;
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const isUser = data.sender === 'user';
+                
+                let timeString = 'الآن';
+                if (data.timestamp) {
+                    const date = data.timestamp.toDate();
+                    timeString = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                }
+
+                const messageHTML = `
+                    <div class="message-wrapper ${isUser ? 'msg-user' : 'msg-admin'}">
+                        <div class="msg-bubble">${data.text}</div>
+                        <div class="msg-time">${timeString}</div>
+                    </div>
+                `;
+                chatBox.innerHTML += messageHTML;
+            });
+
+            // تصفير عداد الرسائل غير المقروءة للمخدم تلقائياً عند وصول رسائل جديدة من الإدارة وهو يقرأ الشات
+            clearUnreadCounter();
+            scrollToBottom();
+        }, (error) => {
+            console.error("خطأ في قراءة الرسائل: ", error);
+            showNotification("حدث خطأ أثناء تحميل المحادثة.", "error");
+        });
+    }
+
+    // دالة لتصفير عداد الرسائل غير المقروءة الخاصة بالعميل
+    async function clearUnreadCounter() {
+        if (!currentUserId) return;
+        try {
+            const chatRoomRef = doc(db, "support_chats", currentUserId);
+            await setDoc(chatRoomRef, { unreadByUser: 0 }, { merge: true });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function scrollToBottom() {
+        setTimeout(() => {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 100);
+    }
+</script>
 
 </body>
 </html>
