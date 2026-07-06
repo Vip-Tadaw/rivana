@@ -475,7 +475,7 @@
         if (user) {
             // تشغيل مراقب الإشعارات العام اللحظي
             listenToUnreadNotifications(user.uid);
-
+            
             try {
                 // جلب مستند المستخدم الحقيقي
                 const userRef = doc(db, "users", user.uid);
@@ -528,8 +528,13 @@
             } catch (error) {
                 console.error("حدث خطأ أثناء جلب البيانات:", error);
             }
+            
+        } else {
+            // 🔴 التعديل هنا: طرد المستخدم غير المسجل وتوجيهه لصفحة تسجيل الدخول
+            window.location.replace("login.html");
         }
     });
+
 </script>
 
 </body>
