@@ -191,6 +191,43 @@
         .bottom-nav .nav-item svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.5; fill: none; transition: all 0.3s ease; }
         .bottom-nav .nav-item.active { color: #7c3aed; }
         .bottom-nav .nav-item.active svg { stroke-width: 2.2; transform: translateY(-3px); filter: drop-shadow(0 4px 6px rgba(124, 58, 237, 0.4)); }
+        /* ========================================= */
+/* 🔥 توافقية التصميم مع شاشات الموبايل 🔥 */
+/* ========================================= */
+@media (max-width: 768px) {
+    /* تقليل حواف الحاوية الرئيسية */
+    .console-container { padding: 12px 8px; gap: 15px; }
+
+    /* تصغير مسافات بطاقات المحفظة والأيقونات */
+    .wallet-card { padding: 15px; }
+    .laser-icon { width: 40px; height: 40px; font-size: 18px; }
+    .laser-title { font-size: 11px; margin-bottom: 4px; }
+    
+    /* 🔥 الحل الجذري لمشكلة الأرقام الطويلة 🔥 */
+    .wallet-balance { 
+        font-size: 20px; /* تصغير الخط */
+        word-break: break-all; /* كسر الرقم الطويل لينزل سطر جديد بدل تدمير التصميم */
+        line-height: 1.2; 
+    }
+    .wallet-sub-balance { font-size: 12px; }
+
+    /* ضغط مسافات وخطوط بطاقات الباقات (الذهبية، الممتازة، الخ) */
+    .tier-grid { gap: 8px; }
+    .tier-card { padding: 10px 5px; }
+    .tier-card i { font-size: 18px; margin-bottom: 4px; }
+    .tier-rate { font-size: 12px; margin: 3px 0; }
+    .tier-range { font-size: 9px; }
+
+    /* تصغير حقول الإدخال والأزرار السريعة */
+    .molded-input-wrapper { padding: 12px 15px; }
+    .molded-input-wrapper input { font-size: 18px; }
+    .amount-btn { padding: 8px; font-size: 11px; }
+    
+    /* تصغير زر الإطلاق */
+    .launch-btn { padding: 14px; font-size: 16px; }
+    .open-calc-btn { padding: 12px; font-size: 13px; }
+}
+
     </style>
 </head>
 <body>
