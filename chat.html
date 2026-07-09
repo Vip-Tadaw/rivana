@@ -504,10 +504,30 @@
         const msgQuery = query(collection(db, "public_messages"), orderBy("timestamp", "asc"), limit(60));
         const container = document.getElementById('chat-messages-container');
 
+        // 🔥 إضافة مستمع حدث الضغط على زر الحذف لمرة واحدة داخل صندوق المحادثة 🔥
+        if (!container.dataset.listenerAdded) {
+            container.addEventListener('click', async (e) => {
+                if (e.target.classList.contains('delete-msg-icon')) {
+                    const msgId = e.target.getAttribute('data-id');
+                    if (confirm("هل أنت متأكد من حذف هذه الرسالة نهائياً؟")) {
+                        try {
+                            await deleteDoc(doc(db, "public_messages", msgId));
+                            triggerChatToast("🗑️ تم حذف الرسالة بنجاح.");
+                        } catch (error) {
+                            triggerChatToast("❌ فشل حذف الرسالة، حاول مرة أخرى.");
+                            console.error("Delete Error: ", error);
+                        }
+                    }
+                }
+            });
+            container.dataset.listenerAdded = true;
+        }
+
         onSnapshot(msgQuery, (snapshot) => {
             container.innerHTML = '';
-            snapshot.forEach((doc) => {
-                const msg = doc.data();
+            snapshot.forEach((msgDoc) => {
+                const msgId = msgDoc.id; // الحصول على معرف الرسالة الفريد من الـ Firestore
+                const msg = msgDoc.data();
                 const isMe = msg.senderId === currentUserId;
                 const filteredText = applyTextSafetyFilter(msg.text || "");
                 
@@ -522,7 +542,10 @@
                         <img src="${msg.senderAvatar}" class="msg-sender-img" alt="avatar">
                         <div class="msg-content-block">
                             <span class="msg-username">${isMe ? 'أنت' : msg.senderName}</span>
-                            <div class="msg-bubble">${filteredText}</div>
+                            <div style="display: flex; align-items: center; gap: 8px; ${isMe ? 'flex-direction: row-reverse;' : ''}">
+                                <div class="msg-bubble">${filteredText}</div>
+                                ${isMe ? `<i class="fa-solid fa-trash delete-msg-icon" data-id="${msgId}" style="color: var(--neon-pink); cursor: pointer; font-size: 11px; padding: 5px; opacity: 0.6; transition: 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6"></i>` : ''}
+                            </div>
                             <span class="msg-time">${timeString}</span>
                         </div>
                     </div>
