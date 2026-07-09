@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rivana | تسجيل الدخول</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-0: #070913;
+    --card: rgba(21, 20, 40, 0.45); 
+    --field: rgba(14, 13, 30, 0.6);
+    --field-border: rgba(80, 75, 120, 0.4);
+    --field-border-focus: #7c3aed;
+    --purple: #7c3aed;
+    --purple-light: #9d4edd;
+    --text: #ffffff;
+    --text-dim: #a5a1c9;
+    --text-faint: #716c96;
+    --link: #a78bfa;
+    --danger: #ef4444;
+    --success: #10b981;
+  }
+
+  * { box-sizing: border-box; }
+  
+  html, body { margin: 0; padding: 0; width: 100%; }
+
+  body {
+    background-color: var(--bg-0);
+    background-image: 
+      linear-gradient(to bottom, rgba(7, 9, 19, 0.75), rgba(7, 9, 19, 0.95)),
+      url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=2560&auto=format&fit=crop');
+    background-size: cover; 
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; 
+    padding: 40px 16px;
+  }
+
+  .screen { 
+    width: 100%; max-width: 450px; margin: auto; 
+    background: var(--card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08); border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 40px 30px; border-radius: 28px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+  .lang-btn {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--field-border); color: var(--text);
+    padding: 6px 12px; border-radius: 20px; font-family: inherit; font-size: 13px;
+    font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.3s ease;
+  }
+  .lang-btn:hover { border-color: var(--text-dim); background: rgba(255,255,255,0.1); }
+
+  @keyframes floatUpDown { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+  @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  .brand { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 30px; }
+  .logo-mark { width: 75px; height: 75px; filter: drop-shadow(0 4px 20px rgba(224, 64, 251, 0.6)); animation: floatUpDown 4s ease-in-out infinite; }
+  .logo-mark svg { width: 100%; height: 100%; }
+  
+  .brand-name { 
+    font-size: 36px; font-weight: 800; letter-spacing: 4px; margin: 5px 0 0 0;
+    background: linear-gradient(270deg, #9d4edd, #2563eb, #00d2ff, #e040fb, #9d4edd);
+    background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: gradientShift 4s ease infinite, floatUpDown 4s ease-in-out infinite 0.2s;
+  }
+  .brand-tag { color: var(--text-dim); font-size: 14.5px; font-weight: 500; animation: floatUpDown 4s ease-in-out infinite 0.4s; }
+
+  .headings { text-align: center; margin-bottom: 25px; }
+  .headings h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; color: #fff; }
+  .headings p { font-size: 14px; color: var(--text-dim); margin: 0; font-weight: 500; }
+
+  form { display: flex; flex-direction: column; gap: 18px; }
+  .input-wrap {
+    position: relative; display: flex; align-items: center; background: var(--field);
+    border: 1.5px solid var(--field-border); border-radius: 14px; transition: all 0.3s ease;
+  }
+  .input-wrap:focus-within { border-color: var(--field-border-focus); background: rgba(26, 25, 48, 0.85); box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15); }
+  .input-icon { width: 46px; flex: 0 0 46px; display: flex; align-items: center; justify-content: center; color: var(--text-faint); transition: color 0.3s ease; }
+  .input-wrap:focus-within .input-icon { color: var(--purple-light); }
+  
+  .input-wrap input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: inherit; font-size: 14.5px; padding: 15px 15px 15px 10px; min-width: 0; }
+  .input-wrap input::placeholder { color: var(--text-faint); }
+  
+  .toggle-visibility { flex: 0 0 44px; background: none; border: none; color: var(--text-faint); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .toggle-visibility:hover { color: var(--text); }
+
+  .form-options { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; padding: 0 4px; margin-top: -6px; }
+  .remember-me { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-dim); font-weight: 500;}
+  .checkbox { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--field-border); display: flex; align-items: center; justify-content: center; transition: all 0.2s; background: rgba(0,0,0,0.3); }
+  .remember-me input { display: none; }
+  .remember-me input:checked + .checkbox { background: var(--purple); border-color: var(--purple); }
+  .checkbox svg { width: 12px; height: 12px; color: #fff; opacity: 0; transform: scale(0.5); transition: all 0.2s; }
+  .remember-me input:checked + .checkbox svg { opacity: 1; transform: scale(1); }
+  
+  /* تعديل زر نسيان كلمة المرور */
+  .forgot-pass { color: var(--link); text-decoration: none; font-weight: 600; transition: color 0.2s; cursor: pointer; border: none; background: transparent; font-family: inherit; font-size: 13.5px; }
+  .forgot-pass:hover { color: #fff; text-decoration: underline; }
+
+  /* رسائل الخطأ والنجاح */
+  .alert-message { font-size: 13px; font-weight: 500; text-align: center; display: none; padding: 10px; border-radius: 8px; }
+  .error-message { color: var(--danger); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
+  .success-message { color: var(--success); background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
+
+  .submit-btn {
+    margin-top: 5px; width: 100%; padding: 16px; border: none; border-radius: 14px;
+    background: linear-gradient(90deg, #5b21b6, #7c3aed); color: #fff; font-family: inherit; font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4); position: relative;
+  }
+  .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(124, 58, 237, 0.6); background: linear-gradient(90deg, #6d28d9, #8b5cf6); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .submit-btn svg.arrow { width: 20px; height: 20px; transition: transform 0.3s; transform: scaleX(-1); }
+  .submit-btn:hover:not(:disabled) svg.arrow { transform: scaleX(-1) translateX(4px); }
+  .btn-spinner { width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+
+  .divider { display: flex; align-items: center; gap: 14px; margin: 25px 0; color: var(--text-faint); font-size: 13px; font-weight: 500; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--field-border); }
+
+  .social-row { display: flex; gap: 10px; }
+  .social-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 0; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 16px;
+    color: var(--text-dim); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+  }
+  .social-btn:hover { border-color: var(--field-border-focus); color: #fff; background: rgba(124, 58, 237, 0.15); transform: translateY(-2px); }
+  .social-btn .icon-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
+  .social-btn svg { width: 18px; height: 18px; }
+
+  .footer-link { text-align: center; margin-top: 30px; font-size: 14px; color: var(--text-dim); }
+  .footer-link a { color: var(--link); font-weight: 700; text-decoration: none; transition: color 0.3s; }
+  .footer-link a:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="screen">
+  <div class="top-bar">
+    <button type="button" class="lang-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      العربية
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+  </div>
+
+  <div class="brand">
+    <div class="logo-mark">
+      <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#9d4edd"><animate attributeName="stop-color" values="#9d4edd; #2563eb; #e040fb; #9d4edd" dur="4s" repeatCount="indefinite" /></stop>
+            <stop offset="50%" stop-color="#2563eb"><animate attributeName="stop-color" values="#2563eb; #e040fb; #9d4edd; #2563eb" dur="4s" repeatCount="indefinite" /></stop>
+            <stop offset="100%" stop-color="#e040fb"><animate attributeName="stop-color" values="#e040fb; #9d4edd; #2563eb; #e040fb" dur="4s" repeatCount="indefinite" /></stop>
+          </linearGradient>
+        </defs>
+        <path d="M12 8H28C36 8 40 12 40 19C40 24.5 37 28 31 29.5L42 44H32L22.5 30H19V44H12V8ZM19 14V24H27C31 24 33 22.5 33 19C33 15.5 31 14 27 14H19Z" fill="url(#brandGrad)"/>
+      </svg>
+    </div>
+    <div class="brand-name">RIVANA</div>
+    <div class="brand-tag">تداول بذكاء، اربح بثقة</div>
+  </div>
+
+  <div class="headings">
+    <h1>مرحباً بك مجدداً</h1>
+    <p>سجل دخولك للوصول إلى حسابك</p>
+  </div>
+
+  <form id="loginForm">
+    <div class="input-wrap">
+      <span class="input-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
+      <input type="email" name="email" id="email" placeholder="البريد الإلكتروني" required>
+    </div>
+
+    <div class="input-wrap">
+      <span class="input-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+      <input type="password" name="password" id="password" placeholder="كلمة المرور" required>
+      <button type="button" class="toggle-visibility" id="togglePassword">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+      </button>
+    </div>
+
+    <div class="form-options">
+      <label class="remember-me">
+        <input type="checkbox" name="remember" checked>
+        <span class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+        تذكرني
+      </label>
+      <button type="button" id="forgotPasswordBtn" class="forgot-pass">نسيت كلمة المرور؟</button>
+    </div>
+
+    <div id="errorBox" class="alert-message error-message"></div>
+    <div id="successBox" class="alert-message success-message"></div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">
+      <span id="btnText">تسجيل الدخول</span>
+      <div class="btn-spinner" id="btnSpinner"></div>
+      <svg class="arrow" id="btnArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </form>
+
+  <div class="divider">أو سجل الدخول باستخدام</div>
+
+  <div class="social-row">
+    <button type="button" class="social-btn">
+      <div class="icon-circle"><svg viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.2s2.7-6.2 6-6.2c1.9 0 3.15.8 3.88 1.5l2.65-2.55C16.85 3.02 14.6 2 12 2 6.98 2 2.9 6.02 2.9 11s4.08 9 9.1 9c5.25 0 8.75-3.7 8.75-8.9 0-.6-.07-1.05-.15-1.5H12z"/></svg></div>
+      Google
+    </button>
+    <button type="button" class="social-btn">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="#fff"><path d="M16.36 1.43c.1 1.02-.28 2-.85 2.72-.6.75-1.6 1.33-2.58 1.25-.12-1 .33-2.03.9-2.7.62-.73 1.65-1.28 2.53-1.27zM20.4 17.2c-.35.8-.52 1.16-1 1.87-.63.98-1.5 2.2-2.6 2.2-.98 0-1.23-.63-2.55-.62-1.33 0-1.6.63-2.58.63-1.1 0-1.93-1.1-2.56-2.08-1.76-2.7-1.94-5.86-.86-7.5.77-1.17 1.98-1.85 3.1-1.85 1.15 0 1.87.63 2.82.63.92 0 1.5-.63 2.82-.63.98 0 2.02.53 2.75 1.45-2.42 1.33-2.03 4.78.66 5.9z"/></svg></div>
+      Apple
+    </button>
+  </div>
+
+  <div class="footer-link">
+    ليس لديك حساب؟ <a href="index.html">إنشاء حساب جديد</a>
+  </div>
+</div>
+
+<script type="module">
+    // تمت إضافة دوال تثبيت الجلسة (setPersistence و browserLocalPersistence) للمكتبة
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+ import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    sendPasswordResetEmail,
+    setPersistence, 
+    browserLocalPersistence,
+    onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+    authDomain: "reivana-8e377.firebaseapp.com",
+    projectId: "reivana-8e377",
+    storageBucket: "reivana-8e377.firebasestorage.app",
+    messagingSenderId: "1066129522960",
+    appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+    measurementId: "G-TD9YWWDEDT"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  // دالة تسجيل نشاطات المستخدم للرادار الحي
+async function logUserActivity(type, details) {
+    // التأكد من وجود مستخدم مسجل الدخول
+    if (!currentUserId) return; 
+
+    // جلب اسم المستخدم من الواجهة أو تعيين اسم افتراضي
+    const userNameEl = document.getElementById('user-profile-name');
+    const userName = userNameEl ? userNameEl.innerText : "مستخدم ريفانا";
+
+    try {
+        await db.collection("user_activities").add({
+            userId: currentUserId,
+            userName: userName,
+            type: type,      // أمثلة: 'دخول', 'إيداع', 'سحب', 'تداول', 'باقات'
+            details: details,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error("فشل إرسال النشاط للرادار: ", error);
+    }
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        window.location.replace("home.html");
+    }
+});
+  // --- التحكم بواجهة المستخدم ---
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('password');
+  const emailInput = document.getElementById('email');
+
+  togglePassword.addEventListener('click', function () {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    if(type === 'text') {
+      this.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"></path></svg>`;
+    } else {
+      this.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    }
+  });
+
+  const loginForm = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('btnText');
+  const btnSpinner = document.getElementById('btnSpinner');
+  const btnArrow = document.getElementById('btnArrow');
+  const errorBox = document.getElementById('errorBox');
+  const successBox = document.getElementById('successBox');
+  const inputs = document.querySelectorAll('#loginForm input');
+  const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+
+  // --- دالة إخفاء الرسائل ---
+  function clearMessages() {
+    errorBox.style.display = 'none';
+    successBox.style.display = 'none';
+  }
+
+  // --- برمجة استعادة كلمة المرور ---
+  forgotPasswordBtn.addEventListener('click', () => {
+      clearMessages();
+      const email = emailInput.value.trim();
+
+      if (!email) {
+          errorBox.innerText = "الرجاء كتابة بريدك الإلكتروني في الحقل المخصص أولاً لاستعادة كلمة المرور.";
+          errorBox.style.display = 'block';
+          emailInput.focus();
+          return;
+      }
+
+      forgotPasswordBtn.innerText = "جاري الإرسال...";
+      forgotPasswordBtn.style.pointerEvents = "none";
+
+      sendPasswordResetEmail(auth, email)
+          .then(() => {
+              successBox.innerText = "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح. يرجى التحقق من صندوق الوارد (أو البريد المهمل).";
+              successBox.style.display = 'block';
+          })
+          .catch((error) => {
+              if (error.code === 'auth/user-not-found') {
+                  errorBox.innerText = "البريد الإلكتروني غير مسجل لدينا.";
+              } else if (error.code === 'auth/invalid-email') {
+                  errorBox.innerText = "صيغة البريد الإلكتروني غير صحيحة.";
+              } else {
+                  errorBox.innerText = "حدث خطأ: " + error.message;
+              }
+              errorBox.style.display = 'block';
+          })
+          .finally(() => {
+              forgotPasswordBtn.innerText = "نسيت كلمة المرور؟";
+              forgotPasswordBtn.style.pointerEvents = "auto";
+          });
+  });
+
+    loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    clearMessages();
+    
+    // 🟢 فحص توفر الإنترنت
+    if (!navigator.onLine) {
+        errorBox.innerText = "لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مجدداً.";
+        errorBox.style.display = 'block';
+        return; // إيقاف العملية
+    }
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    
+    submitBtn.disabled = true;
+    btnText.style.display = 'none';
+    btnArrow.style.display = 'none';
+    btnSpinner.style.display = 'block';
+    inputs.forEach(input => input.disabled = true);
+    forgotPasswordBtn.style.pointerEvents = "none";
+
+    // 1. إجبار Firebase على حفظ الجلسة محلياً بشكل دائم
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+          // 2. البدء بعملية تسجيل الدخول بعد ضمان إعداد الجلسة
+          return signInWithEmailAndPassword(auth, email, password);
+      })
+      .then((userCredential) => {
+          // نجاح تسجيل الدخول والجلسة أصبحت محفوظة
+          window.location.href = "home.html";
+      })
+      .catch((error) => {
+          submitBtn.disabled = false;
+          btnText.style.display = 'block';
+          btnArrow.style.display = 'block';
+          btnSpinner.style.display = 'none';
+          inputs.forEach(input => input.disabled = false);
+          forgotPasswordBtn.style.pointerEvents = "auto";
+          
+          if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+              errorBox.innerText = "البريد الإلكتروني أو كلمة المرور غير صحيحة!";
+          } else {
+              errorBox.innerText = "حدث خطأ: " + error.message;
+          }
+          errorBox.style.display = 'block';
+      });
+  });
+
+</script>
+</body>
+</html>

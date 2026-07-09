@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rivana - تحميل التطبيق</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #06080e;
+            --bg-card: #111424;
+            --primary-purple: #7c3aed;
+            --light-purple: #a78bfa;
+            --text-main: #ffffff;
+            --text-muted: #8b94a5;
+            --success-green: #10b981;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* تأثيرات الإضاءة في الخلفية */
+        .bg-glow-1 {
+            position: absolute; top: -50px; right: -50px; width: 250px; height: 250px;
+            background: var(--primary-purple); border-radius: 50%; filter: blur(120px); opacity: 0.2; z-index: 0;
+        }
+        .bg-glow-2 {
+            position: absolute; bottom: -50px; left: -50px; width: 250px; height: 250px;
+            background: var(--success-green); border-radius: 50%; filter: blur(120px); opacity: 0.15; z-index: 0;
+        }
+
+        /* الشريط العلوي (زر الرجوع) */
+        .top-bar {
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+            position: relative;
+        }
+        .back-btn {
+            display: flex; font-size: 18px; background: var(--bg-card); border: 1px solid var(--border-color);
+            color: var(--text-main); width: 45px; height: 45px; border-radius: 12px;
+            justify-content: center; align-items: center; cursor: pointer; text-decoration: none;
+            transition: var(--transition);
+        }
+        .back-btn:hover { background: rgba(124, 58, 237, 0.1); color: var(--light-purple); border-color: var(--primary-purple); }
+        .page-title { margin-right: 20px; font-size: 20px; font-weight: 800; }
+
+        /* حاوية المحتوى الرئيسي */
+        .download-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 10;
+            text-align: center;
+        }
+
+        /* أيقونة التطبيق */
+        .app-icon-wrapper {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #171033 100%);
+            border: 2px solid rgba(124, 58, 237, 0.5);
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            font-weight: 900;
+            color: #fbbf24;
+            box-shadow: 0 20px 50px rgba(124, 58, 237, 0.3);
+        }
+        
+        .app-name { font-size: 32px; font-weight: 800; margin-bottom: 10px; letter-spacing: 1px; }
+        .app-desc { font-size: 15px; color: var(--text-muted); max-width: 400px; margin-bottom: 30px; line-height: 1.6; }
+
+        /* معلومات الإصدار */
+        .app-info-grid {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .info-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        .info-badge i { color: var(--light-purple); }
+
+        /* زر التحميل الفعلي */
+        .download-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            text-decoration: none;
+            padding: 18px 40px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: pulse-green 2s infinite;
+        }
+        .download-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.6);
+        }
+
+        /* أنميشن نبض للزر */
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        @media (max-width: 480px) {
+            .app-info-grid { flex-wrap: wrap; justify-content: center; }
+            .app-name { font-size: 26px; }
+            .download-btn { width: 100%; justify-content: center; }
+            .top-bar { padding: 15px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="top-bar">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <h2 class="page-title">تحميل التطبيق</h2>
+    </div>
+
+    <div class="download-container">
+        
+        <div class="app-icon-wrapper">
+            <div class="app-icon">R</div>
+        </div>
+
+        <h1 class="app-name">Rivana Pro</h1>
+        <p class="app-desc">حمل النسخة الرسمية والأكثر أماناً الآن. تمتع بتجربة استثمار أسرع، إشعارات فورية، وإدارة كاملة لمحفظتك من هاتفك مباشرة.</p>
+
+        <div class="app-info-grid">
+            <div class="info-badge">
+                <i class="fa-brands fa-android"></i> أندرويد (APK)
+            </div>
+            <div class="info-badge">
+                <i class="fa-solid fa-code-merge"></i> الإصدار 2.5.0
+            </div>
+            <div class="info-badge">
+                <i class="fa-solid fa-shield-halved" style="color: var(--success-green);"></i> آمن وموثق
+            </div>
+        </div>
+
+        <a href="app-release.apk" download class="download-btn">
+            <i class="fa-solid fa-cloud-arrow-down" style="font-size: 22px;"></i>
+            تنزيل التطبيق الآن
+        </a>
+
+        <p style="margin-top: 25px; font-size: 12px; color: var(--text-muted);">
+            * قد يطلب منك الهاتف الموافقة على التثبيت من مصادر غير معروفة، يرجى الموافقة لإكمال التثبيت.
+        </p>
+
+    </div>
+
+</body>
+</html>

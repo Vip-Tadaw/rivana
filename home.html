@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rivana | لوحة التحكم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================= المتغيرات والألوان ================= */
+        :root {
+            --bg-main: #0B0E17;
+            --bg-card: #151828;
+            --bg-card-hover: #1e2235;
+            --primary: #7c3aed;
+            --primary-gradient: linear-gradient(135deg, #3b82f6, #7c3aed); 
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ================= الإعدادات العامة ================= */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #05060A; color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .app-container { width: 100%; max-width: 480px; height: 100vh; background-color: var(--bg-main); position: relative; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .app-container::-webkit-scrollbar { width: 0; display: none; }
+        a { text-decoration: none; color: inherit; }
+
+        /* حركات السلايدر (التمرير والتلاشي) */
+        .fade-in { animation: fadeIn 0.8s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        
+        .slide-up { animation: slideUp 0.5s ease-out forwards; opacity: 0; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ================= الهيدر ================= */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px; position: sticky; top: 0; background: rgba(11, 14, 23, 0.85); backdrop-filter: blur(12px); z-index: 100; }
+        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+        .logo-area { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; letter-spacing: 1px;}
+        .logo-text { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-area svg { width: 24px; height: 24px; }
+        .notification-btn { position: relative; background: none; border: none; color: white; cursor: pointer; }
+        .badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: white; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-main); }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); cursor: pointer;}
+        .menu-btn { background: none; border: none; color: white; cursor: pointer; display: flex;}
+
+        /* ================= الأقسام الداخلية ================= */
+        .section-container { padding: 0 20px; margin-bottom: 24px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-title { font-size: 16px; font-weight: 700; }
+        .view-all { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; transition: color 0.3s;}
+        .view-all:hover { color: var(--primary); }
+
+        /* ================= بطاقة الرصيد ================= */
+        .balance-card { background: var(--primary-gradient); border-radius: 24px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 15px 30px rgba(124, 58, 237, 0.2); }
+        .balance-card::before { content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0,50 Q25,20 50,50 T100,50 L100,100 L0,100 Z" fill="rgba(255,255,255,0.05)"/></svg>') no-repeat bottom; background-size: cover; pointer-events: none; }
+        .balance-header { display: flex; align-items: center; gap: 8px; font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 8px; z-index: 1; position: relative;}
+        .eye-btn { background: none; border: none; color: inherit; cursor: pointer; display: flex; }
+        .balance-amount { font-size: 30px; font-weight: 700; display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; z-index: 1; position: relative;}
+        .currency { font-size: 16px; font-weight: 500; opacity: 0.8;}
+        .balance-change { font-size: 13px; color: #a7f3d0; margin-bottom: 24px; z-index: 1; position: relative;}
+        .action-buttons { display: flex; gap: 12px; z-index: 1; position: relative;}
+        .action-btn { flex: 1; background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 12px 5px; color: white; font-family: inherit; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); }
+        .action-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-3px); }
+        .action-btn .icon-box { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
+
+        /* ================= اختصارات سريعة ================= */
+        .quick-shortcuts-title { font-size: 14px; margin-bottom: 12px; padding: 0 20px; color: var(--text-muted);}
+        .quick-shortcuts { display: flex; gap: 16px; overflow-x: auto; padding: 0 20px 10px; scrollbar-width: none; }
+        .quick-shortcuts::-webkit-scrollbar { display: none; }
+        .shortcut-item { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 60px; cursor: pointer; }
+        .shortcut-icon { width: 50px; height: 50px; border-radius: 18px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: #3b82f6; transition: all 0.3s; }
+        .shortcut-item:hover .shortcut-icon { background: var(--bg-card-hover); border-color: var(--primary); transform: scale(1.05); }
+        .shortcut-text { font-size: 12px; font-weight: 500; color: var(--text-muted); text-align: center; white-space: nowrap; }
+/* ================= شريط التنقل السفلي الموحد ================= */
+body {
+    padding-bottom: 75px !important;
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 480px; 
+    margin: 0 auto;
+    background: rgba(11, 14, 23, 0.95);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0 15px; /* مسافات داخلية متناسقة */
+    z-index: 9999;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    gap: 5px;
+    transition: all 0.3s ease;
+    flex: 1; /* يضمن توزيع الأزرار الخمسة بالتساوي بدون ضغط */
+}
+
+.bottom-nav .nav-item svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    fill: none;
+    transition: all 0.3s ease;
+}
+
+.bottom-nav .nav-item.active {
+    color: var(--primary);
+}
+
+.bottom-nav .nav-item.active svg {
+    stroke-width: 2.2;
+    transform: translateY(-3px);
+    filter: drop-shadow(0 4px 6px rgba(124, 58, 237, 0.4));
+}
+
+
+        /* ================= VIP ================= */
+        .vip-card { background: var(--bg-card); border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-color); position: relative; overflow: hidden; transition: all 0.3s; }
+        .vip-card:hover { border-color: rgba(124, 58, 237, 0.4); }
+        .vip-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--primary-gradient); }
+        .vip-info { display: flex; align-items: center; gap: 12px; }
+        .vip-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; color: #3b82f6; }
+        .vip-level { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .vip-xp { font-size: 12px; color: var(--text-muted); }
+        .progress-bar-bg { width: 120px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 6px; overflow: hidden;}
+        .progress-bar-fill { width: 44%; height: 100%; background: var(--primary-gradient); border-radius: 2px; }
+
+        /* ================= ملخص السوق ================= */
+        .coin-list { display: flex; flex-direction: column; gap: 12px; }
+        .coin-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 12px 16px; border-radius: 16px; border: 1px solid transparent; transition: all 0.3s; cursor: pointer; }
+        .coin-item:hover { background: var(--bg-card-hover); border-color: var(--border-color); transform: translateX(-4px); }
+        .coin-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .coin-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;}
+        .btc-icon { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .eth-icon { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .coin-name-block { display: flex; flex-direction: column; }
+        .coin-symbol { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .coin-chart { flex: 1; display: flex; justify-content: center; padding: 0 10px; }
+        .coin-chart svg { width: 60px; height: 25px; }
+        .coin-right { text-align: left; display: flex; flex-direction: column; align-items: flex-end; flex: 1;}
+        .coin-price { font-size: 15px; font-weight: 700; }
+        .coin-change { font-size: 13px; font-weight: 500; }
+        .up { color: var(--success); }
+        .down { color: var(--danger); }
+
+        /* ================= البانر الإعلاني (السلايدر) ================= */
+        .promo-banner { background: linear-gradient(90deg, #1e3a8a, #4c1d95); border-radius: 20px; padding: 20px; margin: 0 20px 24px; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.3); min-height: 120px; }
+        .promo-content { z-index: 1; flex: 1; }
+        .promo-title { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+        .promo-desc { font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 14px; max-width: 90%; line-height: 1.5; }
+        .promo-btn { background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 8px 18px; border-radius: 8px; font-weight: 600; font-size: 12px; transition: all 0.3s; display: inline-block; backdrop-filter: blur(5px); }
+        .promo-image { width: 70px; z-index: 1; animation: float 3s ease-in-out infinite; text-align: left; }
+        
+        @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0); } }
+
+        /* ================= شبكة الأخبار والرابحين ================= */
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 400px) { .bottom-grid { grid-template-columns: 1fr; } }
+
+        .news-item { display: flex; gap: 12px; margin-bottom: 15px; cursor: pointer; transition: opacity 0.3s;}
+        .news-img { width: 70px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+        .news-img img { width: 100%; height: 100%; object-fit: cover; }
+        .news-content { display: flex; flex-direction: column; justify-content: center;}
+        .news-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; line-height: 1.3;}
+        .news-time { font-size: 10px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <header>
+        <div class="header-right">
+            <a href="profile.html">
+                <img src="https://ui-avatars.com/api/?name=U&background=7c3aed&color=fff" alt="User" class="user-avatar" id="userAvatar">
+            </a>
+           <a href="history.html" class="notification-btn">
+    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+    <span class="badge" id="unread-count" style="display: none;">0</span>
+</a>
+
+            <a href="profile.html" class="menu-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke-width="2" stroke-linecap="round"/></svg>
+            </a>
+        </div>
+
+        <div class="header-left">
+            <div class="logo-area">
+                <span class="logo-text">RIVANA</span>
+                <svg viewBox="0 0 52 52" fill="none">
+                    <path d="M12 8H28C36 8 40 12 40 19C40 24.5 37 28 31 29.5L42 44H32L22.5 30H19V44H12V8ZM19 14V24H27C31 24 33 22.5 33 19C33 15.5 31 14 27 14H19Z" fill="url(#mainGradient)"/>
+                    <defs>
+                        <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#3b82f6"/>
+                            <stop offset="100%" stop-color="#7c3aed"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <div class="section-container">
+        <div class="balance-card">
+            <div class="balance-header">
+                <button class="eye-btn" id="toggleBalance" title="إخفاء/إظهار الرصيد">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+                <span>إجمالي الرصيد</span>
+            </div>
+            
+            <div class="balance-amount">
+                <span id="amountValue">0.00</span> 
+                <span class="currency">IQD</span>
+            </div>
+            
+            <div class="balance-change">
+                منذ الشهر الماضي +8.67%
+            </div>
+
+            <div class="action-buttons">
+                <a href="deposit.html" class="action-btn">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                    </div>
+                    تعبئة رصيد من وكلاء معتمدون
+                </a>
+                <a href="withdraw.html" class="action-btn">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                    </div>
+                    سحب رصيد
+                </a>
+                <a href="transfer.html" class="action-btn">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M17 3l4 4-4 4M3 17l4 4 4-4M21 7H3M11 17H3"/></svg>
+                    </div>
+                    تحويل
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-shortcuts-title">اختصارات سريعة</div>
+    <div class="quick-shortcuts">
+        <a href="team.html" class="shortcut-item">
+            <div class="shortcut-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2" ry="2"/><path d="M12 8v12M19 12H5M12 8V4M8 4h8"/></svg>
+            </div>
+            <span class="shortcut-text">مكافآت</span>
+        </a>
+        <a href="invite.html" class="shortcut-item">
+            <div class="shortcut-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            </div>
+            <span class="shortcut-text">دعوة صديق</span>
+        </a>
+        <a href="tips.html" class="shortcut-item">
+            <div class="shortcut-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2"><path d="M9 18h6M10 22h4M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.5.54 2.8 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg>
+            </div>
+            <span class="shortcut-text">نصائح</span>
+        </a>
+        <a href="education.html" class="shortcut-item">
+            <div class="shortcut-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <span class="shortcut-text">تعليم</span>
+        </a>
+        <a href="chat.html" class="shortcut-item">
+            <div class="shortcut-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+</svg>
+            </div>
+            <span class="shortcut-text">الدردشه</span>
+        </a>
+    </div>
+
+    <div class="section-container">
+        <a href="packages.html" class="vip-card">
+    <div class="vip-info">
+        <div class="vip-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2" stroke-linejoin="round"><path d="M2 20h20M5 20l-2-8 5 2 4-8 4 8 5-2-2 8"/></svg>
+        </div>
+        <div>
+            <div class="vip-level" id="userVipLevel">VIP 0</div>
+            <div class="vip-xp">المستوى الحالي</div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="userVipProgress" style="width: 0%;"></div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--text-muted)" fill="none" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+</a>
+
+    </div>
+
+    <div class="promo-banner" id="promoSlider">
+        </div>
+
+    <div class="section-container bottom-grid">
+        <div>
+            <div class="section-header">
+                <div class="section-title">أعلى الرابحين</div>
+            </div>
+            <div class="coin-list" style="gap: 8px;" id="gainersList">
+                </div>
+            <div style="text-align: center; margin-top: 10px;">
+                <a href="markets.html" class="view-all" style="justify-content: center; color: #3b82f6;">عرض الكل</a>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-header">
+                <div class="section-title">أخبار السوق</div>
+                <a href="news.html" class="view-all">المزيد</a>
+            </div>
+            <div class="news-list" id="newsSlider">
+                </div>
+        </div>
+    </div>
+
+       <nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>الرئيسية</span>
+    </a>
+    <a href="invest.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        <span>تداول</span>
+    </a>
+    <a href="packages.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+        <span>الباقات</span>
+    </a>
+    <a href="wallet.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+        <span>المحفظة</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>حسابي</span>
+    </a>
+</nav>
+
+</div>
+
+<script>
+
+    // 1. إخفاء وإظهار الرصيد
+    const toggleBtn = document.getElementById('toggleBalance');
+    const amountSpan = document.getElementById('amountValue');
+    let isHidden = false;
+    window.currentBalance = '0.00'; 
+
+    toggleBtn.addEventListener('click', () => {
+        isHidden = !isHidden;
+        if(isHidden) {
+            amountSpan.innerText = '***,***.**';
+            toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"></path></svg>`;
+        } else {
+            amountSpan.innerText = window.currentBalance;
+            toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        }
+    });
+
+    // 2. سلايدر البانر الإعلاني (يتبدل كل 5 ثواني) مع الصور الشفافة ثلاثية الأبعاد
+    const promos = [
+        { title: "دع أموالك تنمو مع Rivana", desc: "استثمر أموالك واحصل على عائد يومي مضمون عبر التخزين.", img: "https://cdn-icons-png.flaticon.com/512/7653/7653244.png", link: "invest.html" },
+        { title: "باقات VIP الحصرية", desc: "ارتقِ بعضويتك واحصل على أرباح مضاعفة ومدير حساب.", img: "https://cdn-icons-png.flaticon.com/512/6941/6941697.png", link: "packages.html" },
+        { title: "مكافأة دعوة الأصدقاء", desc: "احصل على عمولة 10% من تداولات أصدقائك مدى الحياة.", img: "https://cdn-icons-png.flaticon.com/512/4213/4213958.png", link: "invite.html" },
+        { title: "مركز الدعم السريع", desc: "فريقنا متواجد 24/7 للرد على استفساراتك وحل مشاكلك.", img: "https://cdn-icons-png.flaticon.com/512/4233/4233830.png", link: "support.html" }
+    ];
+    
+    let currentPromo = 0;
+    function rotatePromos() {
+        const promoDiv = document.getElementById('promoSlider');
+        const p = promos[currentPromo];
+        promoDiv.innerHTML = `
+            <div class="promo-content fade-in">
+                <div class="promo-title">${p.title}</div>
+                <div class="promo-desc">${p.desc}</div>
+                <a href="${p.link}" class="promo-btn">اكتشف المزيد</a>
+            </div>
+            <div class="promo-image fade-in">
+                <img src="${p.img}" style="width: 100%; height: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));" alt="promo icon">
+            </div>
+        `;
+        currentPromo = (currentPromo + 1) % promos.length;
+    }
+    rotatePromos();
+    setInterval(rotatePromos, 5000); // 5 ثواني
+
+    // 3. سلايدر أعلى الرابحين (عملات وهمية تتبدل كل 4 ثواني)
+    const fakeGainers = [
+        { sym: "PEPE", price: "$0.0014", change: "+18.5%", icon: "P", color: "#10b981", bg: "rgba(16, 185, 129, 0.15)" },
+        { sym: "WIF", price: "$2.45", change: "+12.4%", icon: "W", color: "#ec4899", bg: "rgba(236, 72, 153, 0.15)" },
+        { sym: "ONDO", price: "$1.05", change: "+9.8%", icon: "O", color: "#8b5cf6", bg: "rgba(139, 92, 246, 0.15)" },
+        { sym: "FLOKI", price: "$0.0002", change: "+25.1%", icon: "F", color: "#f59e0b", bg: "rgba(245, 158, 11, 0.15)" },
+        { sym: "BONK", price: "$0.00003", change: "+14.2%", icon: "B", color: "#f97316", bg: "rgba(249, 115, 22, 0.15)" },
+        { sym: "SHIB", price: "$0.000028", change: "+11.7%", icon: "S", color: "#ef4444", bg: "rgba(239, 68, 68, 0.15)" },
+        { sym: "DOGE", price: "$0.18", change: "+8.5%", icon: "D", color: "#eab308", bg: "rgba(234, 179, 8, 0.15)" }
+    ];
+    let gainerIndex = 0;
+    function rotateGainers() {
+        const list = document.getElementById('gainersList');
+        list.innerHTML = "";
+        for(let i=0; i<3; i++) { 
+            let coin = fakeGainers[(gainerIndex + i) % fakeGainers.length];
+            list.innerHTML += `
+                <a href="#" class="coin-item slide-up" style="padding: 10px; animation-delay: ${i*0.1}s">
+                    <div class="coin-left" style="gap: 8px;">
+                        <div class="coin-icon" style="width: 28px; height: 28px; font-size: 11px; background:${coin.bg}; color:${coin.color}">${coin.icon}</div>
+                        <div class="coin-symbol" style="font-size: 12px;">${coin.sym}</div>
+                    </div>
+                    <div class="coin-right">
+                        <div class="coin-price" style="font-size: 12px;">${coin.price}</div>
+                        <div class="coin-change up" style="font-size: 11px;">${coin.change}</div>
+                    </div>
+                </a>
+            `;
+        }
+        gainerIndex = (gainerIndex + 3) % fakeGainers.length;
+    }
+    rotateGainers();
+    setInterval(rotateGainers, 4000); // 4 ثواني
+
+    // 4. سلايدر أخبار السوق (أخبار وهمية تتبدل كل 6 ثواني)
+    const fakeNews = [
+        { title: "بيتكوين تتجاوز 65,000 دولار مع زيادة الطلب المؤسسي", time: "منذ 1 ساعة", img: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&w=150&q=80" },
+        { title: "تحديثات إيثريوم قادمة لتقليل رسوم التحويل بشكل كبير", time: "منذ 3 ساعات", img: "https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=150&q=80" },
+        { title: "إطلاق مشاريع الذكاء الاصطناعي على شبكات البلوكتشين", time: "منذ 5 ساعات", img: "https://images.unsplash.com/photo-1605792657660-596af9009e82?auto=format&fit=crop&w=150&q=80" },
+        { title: "محللون يتوقعون موجة صعود جديدة في العملات البديلة", time: "منذ 8 ساعات", img: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=150&q=80" }
+    ];
+    let newsIndex = 0;
+    function rotateNews() {
+        const list = document.getElementById('newsSlider');
+        list.innerHTML = "";
+        for(let i=0; i<2; i++) { 
+            let news = fakeNews[(newsIndex + i) % fakeNews.length];
+            list.innerHTML += `
+                <a href="#" class="news-item slide-up" style="margin-top: ${i===1? '10px' : '0'}; animation-delay: ${i*0.1}s">
+                    <div class="news-img">
+                        <img src="${news.img}" alt="News">
+                    </div>
+                    <div class="news-content">
+                        <div class="news-title">${news.title}</div>
+                        <div class="news-time">${news.time}</div>
+                    </div>
+                </a>
+            `;
+        }
+        newsIndex = (newsIndex + 2) % fakeNews.length;
+    }
+    rotateNews();
+    setInterval(rotateNews, 6000); // 6 ثواني
+</script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // إعدادات فايربيس الخاصة بك
+    const firebaseConfig = {
+      apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+      authDomain: "reivana-8e377.firebaseapp.com",
+      projectId: "reivana-8e377",
+      storageBucket: "reivana-8e377.firebasestorage.app",
+      messagingSenderId: "1066129522960",
+      appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+      measurementId: "G-TD9YWWDEDT"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // 🔔 دالة محسّنة لمراقبة الإشعارات غير المقروءة من المجموعة العامة
+    function listenToUnreadNotifications(userId) {
+        const badge = document.getElementById('unread-count');
+        
+        // جلب الإشعارات غير المقروءة الخاصة بالمستخدم من مجموعة notifications العامة
+        const notificationsRef = collection(db, "notifications");
+        const q = query(
+            notificationsRef,
+            where("userId", "==", userId),
+            where("isRead", "==", false)
+        );
+
+        onSnapshot(q, (snapshot) => {
+            const unreadCount = snapshot.size; 
+            
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount;
+                badge.style.display = 'flex'; 
+            } else {
+                badge.style.display = 'none'; 
+            }
+        });
+    }
+
+    // 👤 مراقبة حالة تسجيل دخول المستخدم وجلب بياناته
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // تشغيل مراقب الإشعارات العام اللحظي
+            listenToUnreadNotifications(user.uid);
+            
+            try {
+                // جلب مستند المستخدم الحقيقي
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    
+                    // 1. تحديث الرصيد الحقيقي
+                    if(userData.balance !== undefined) {
+                        const formattedBalance = Number(userData.balance).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                        window.currentBalance = formattedBalance;
+                        
+                        const amountSpan = document.getElementById('amountValue');
+                        if(amountSpan.innerText !== '***,***.**') {
+                            amountSpan.innerText = formattedBalance;
+                        }
+                    }
+
+                    // 2. تحديث بيانات الـ VIP ديناميكياً
+                    const vipLevelEl = document.getElementById('userVipLevel');
+                    const vipProgressEl = document.getElementById('userVipProgress');
+
+                    // تحديث رقم المستوى (يفترض وجود حقل vipLevel في المستند، مثل: 1 أو 2)
+                    if(userData.vipLevel !== undefined) {
+                        vipLevelEl.innerText = `VIP ${userData.vipLevel}`;
+                    } else {
+                        vipLevelEl.innerText = `VIP 0`; // القيمة الافتراضية
+                    }
+
+                    // تحديث شريط التقدم (يفترض وجود حقل vipProgress بقيمة من 0 إلى 100)
+                    if(userData.vipProgress !== undefined) {
+                        vipProgressEl.style.width = `${userData.vipProgress}%`;
+                    } else {
+                        vipProgressEl.style.width = `0%`; // القيمة الافتراضية
+                    }
+
+                    // 3. تحديث الصورة الشخصية الحقيقية أو توليد صورة باسمه
+                    const avatarImg = document.getElementById('userAvatar');
+                    if(userData.photoURL) {
+                        avatarImg.src = userData.photoURL; 
+                    } else {
+                        const userName = userData.name || 'مستخدم';
+                        avatarImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=7c3aed&color=fff&bold=true`;
+                    }
+                }
+            } catch (error) {
+                console.error("حدث خطأ أثناء جلب البيانات:", error);
+            }
+            
+        } else {
+            // 🔴 التعديل هنا: طرد المستخدم غير المسجل وتوجيهه لصفحة تسجيل الدخول
+            window.location.replace("login.html");
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        // استخراج اسم الصفحة الحالية من الرابط
+        let currentPath = window.location.pathname.split('/').pop();
+        
+        // إذا كان الرابط فارغاً، اعتبره الصفحة الرئيسية
+        if (currentPath === '' || currentPath === '/') {
+            currentPath = 'home.html';
+        }
+
+        const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+        
+        navItems.forEach(item => {
+            // أخذ الرابط الموجود في زر التنقل
+            const itemHref = item.getAttribute('href');
+            
+            // مطابقة الرابط مع الصفحة وتفعيل الكلاس المناسب
+            if (currentPath === itemHref) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    });
+</script>
+<nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>الرئيسية</span>
+    </a>
+    <a href="invest.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        <span>تداول</span>
+    </a>
+    <a href="packages.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+        <span>الباقات</span>
+    </a>
+    <a href="wallet.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+        <span>المحفظة</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>حسابي</span>
+    </a>
+</nav>
+
+</body>
+</html>

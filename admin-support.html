@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الأدمن - إدارة الدعم الفني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #06080e;
+            --bg-card: #111424;
+            --bg-hover: #181d33;
+            --primary-purple: #7c3aed;
+            --light-purple: #a78bfa;
+            --text-main: #ffffff;
+            --text-muted: #8b94a5;
+            --success-green: #10b981;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ================= الهيكل الرئيسي وقائمة المحادثات ================= */
+        .admin-chat-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* قائمة المستخدمين الجانبية */
+        .chats-sidebar {
+            width: 350px;
+            background-color: #0a0c14;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            flex-shrink: 0;
+        }
+
+        /* ================= بار معلومات المستخدم (اليسار) ================= */
+        .user-details-sidebar {
+            width: 280px;
+            background-color: #0a0c14;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .details-header {
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .details-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-purple);
+            margin-bottom: 10px;
+        }
+
+        .details-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .info-group { display: flex; flex-direction: column; gap: 5px; }
+        .info-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .info-value {
+            font-size: 14px; background: var(--bg-hover); padding: 8px 12px;
+            border-radius: 8px; border: 1px solid var(--border-color); word-break: break-all;
+        }
+
+        .badge-status {
+            display: inline-block; padding: 4px 8px; border-radius: 6px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+        }
+        .badge-active { background: rgba(16, 185, 129, 0.15); color: var(--success-green); }
+        .badge-none { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar-header h2 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .sidebar-header h2 i { color: var(--primary-purple); }
+
+        .users-list {
+            flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px;
+        }
+        .users-list::-webkit-scrollbar { width: 4px; }
+        .users-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+
+        .user-chat-card {
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            border-radius: 12px; cursor: pointer; transition: var(--transition); position: relative;
+            border: 1px solid transparent;
+        }
+        .user-chat-card:hover { background-color: var(--bg-hover); }
+        .user-chat-card.active { background-color: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.2); }
+
+        .user-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
+        .user-chat-card.active .user-avatar { border-color: var(--primary-purple); }
+
+        .user-info { flex: 1; overflow: hidden; }
+        .user-info .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .user-info h4 { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-info .time { font-size: 10px; color: var(--text-muted); }
+        .user-info .last-msg { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .unread-badge {
+            background: var(--primary-purple); color: white; font-size: 10px; font-weight: 700;
+            min-width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center;
+            align-items: center; padding: 0 4px; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+        }
+
+        /* ================= شاشة الشات النشط ================= */
+        .chat-main-area {
+            flex: 1; display: flex; flex-direction: column;
+            background-color: var(--bg-body); height: 100%; min-width: 0;
+        }
+        
+        .chat-inner-wrap {
+            display: flex; width: 100%; height: 100%;
+        }
+
+        .chat-messages-section {
+            flex: 1; display: flex; flex-direction: column; height: 100%;
+            border-left: 1px solid var(--border-color); min-width: 0;
+        }
+
+        .no-chat-selected {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--text-muted); gap: 15px; text-align: center; width: 100%; height: 100%;
+        }
+        .no-chat-selected i { font-size: 50px; color: var(--bg-hover); }
+
+        .active-chat-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 25px; background-color: var(--bg-card); border-bottom: 1px solid var(--border-color);
+        }
+        .active-user-details { display: flex; align-items: center; gap: 12px; }
+        .active-user-details h3 { font-size: 16px; font-weight: 700; }
+        .active-user-details p { font-size: 11px; color: var(--text-muted); }
+
+        /* === تصميم زر تصدير المحادثة === */
+        .export-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .export-btn:hover {
+            background: var(--bg-hover);
+            color: var(--primary-purple);
+            border-color: var(--primary-purple);
+        }
+
+        /* ================= منطقة الإرسال الجماعي ================= */
+        .broadcast-area {
+            padding: 15px; border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-card); display: flex; flex-direction: column; gap: 10px;
+        }
+        .broadcast-area input {
+            background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 10px; color: var(--text-main); font-size: 13px; outline: none;
+        }
+        .broadcast-area input:focus { border-color: #eab308; }
+        .broadcast-btn {
+            background: #eab308; color: #000; border: none; border-radius: 8px;
+            padding: 10px; font-weight: 700; cursor: pointer; transition: var(--transition);
+        }
+        .broadcast-btn:hover { background: #ca8a04; }
+        .broadcast-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* منطقة الرسائل */
+        .messages-box {
+            flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+        }
+        .messages-box::-webkit-scrollbar { width: 6px; }
+        .messages-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+
+        .message-wrapper { display: flex; flex-direction: column; max-width: 85%; }
+        .msg-user { align-self: flex-start; }
+        .msg-user .msg-bubble { background: var(--bg-hover); color: var(--text-main); border-radius: 20px 20px 0 20px; border: 1px solid var(--border-color); }
+        .msg-admin { align-self: flex-end; }
+        .msg-admin .msg-bubble { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; border-radius: 20px 20px 20px 0; }
+        .msg-bubble { padding: 12px 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 5px; }
+        .msg-user .msg-time { text-align: right; }
+        .msg-admin .msg-time { text-align: left; }
+
+        /* === تصميم شريط البحث الجديد === */
+        .search-container {
+            padding: 10px 15px;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        .search-container input {
+            width: 100%;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 35px 10px 10px; /* تم تعديل الـ padding ليناسب RTL */
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition);
+        }
+        .search-container input:focus {
+            border-color: var(--primary-purple);
+        }
+        .search-icon {
+            position: absolute;
+            right: 25px; /* لأن اتجاه الصفحة RTL */
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* شريط الكتابة للأدمن */
+        .admin-input-area {
+            padding: 15px 25px; background: var(--bg-card); border-top: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .admin-input {
+            flex: 1; background: var(--bg-body); border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 14px 20px; color: var(--text-main); font-size: 14px; outline: none;
+        }
+        .admin-input:focus { border-color: var(--primary-purple); }
+        
+        .send-btn {
+            width: 50px; height: 50px; background: var(--primary-purple); color: white; border: none; flex-shrink: 0;
+            border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; justify-content: center;
+            align-items: center; transition: var(--transition);
+        }
+        .send-btn:hover { background: #8b5cf6; transform: scale(1.05); }
+        .send-btn:disabled { background: var(--text-muted); cursor: not-allowed; transform: scale(1); }
+
+        /* أجهزة التابلت والشاشات المتوسطة */
+        @media (max-width: 1024px) {
+            .chats-sidebar { width: 280px; }
+            .user-details-sidebar { width: 220px; }
+        }
+
+        /* أجهزة الموبايل والشاشات الصغيرة */
+        @media (max-width: 768px) {
+            body {
+                height: auto;
+                overflow-y: auto;
+            }
+            .admin-chat-container {
+                flex-direction: column;
+                height: auto;
+            }
+            .chats-sidebar {
+                width: 100%;
+                height: 400px;
+                border-left: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .chat-main-area {
+                width: 100%;
+                height: 600px;
+            }
+            .chat-inner-wrap {
+                flex-direction: column;
+            }
+            .chat-messages-section {
+                border-left: none;
+            }
+            .user-details-sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-top: 1px solid var(--border-color);
+            }
+            .message-wrapper {
+                max-width: 95%;
+            }
+        }
+
+        /* === تصميم أزرار الردود السريعة === */
+        .quick-replies-container {
+            display: flex;
+            gap: 10px;
+            padding: 10px 25px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+        .quick-replies-container::-webkit-scrollbar { height: 0; display: none; }
+        .quick-reply-btn {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--light-purple);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+        .quick-reply-btn:hover {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        /* === تصميم زر الحظر وإلغاء الحظر === */
+        .ban-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .ban-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+        .unban-btn {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .unban-btn:hover {
+            background: #22c55e;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-chat-container">
+        <div class="chats-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-comments"></i> رسائل دعم العملاء</h2>
+            </div>
+
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchUserInput" placeholder="ابحث بالاسم أو المعرف (UID)...">
+            </div>
+
+            <div class="broadcast-area">
+                <input type="text" id="broadcastInput" placeholder="اكتب إعلاناً لجميع المستخدمين...">
+                <button id="broadcastBtn" class="broadcast-btn">
+                    <i class="fa-solid fa-bullhorn"></i> إرسال للكل
+                </button>
+            </div>
+
+            <div class="users-list" id="usersListArea">
+                <div style="text-align: center; color: var(--text-muted); margin-top: 20px; font-size: 13px;">جاري تحميل المحادثات...</div>
+            </div>
+        </div>
+
+        <div class="chat-main-area" id="chatMainArea">
+            <div class="no-chat-selected">
+                <i class="fa-regular fa-comments"></i>
+                <p>يرجى اختيار مستخدم من القائمة الجانبية لبدء المراسلة الفورية وعرض بياناته</p>
+            </div>
+        </div>
+    </div>
+
+   <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, getDoc, collection, addDoc, doc, query, orderBy, onSnapshot, setDoc, updateDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+            authDomain: "reivana-8e377.firebaseapp.com",
+            projectId: "reivana-8e377",
+            storageBucket: "reivana-8e377.firebasestorage.app",
+            messagingSenderId: "1066129522960",
+            appId: "1:1066129522960:web:8179e50a906fd08ee96595"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+
+
+        let activeUserId = null; 
+        let unsubscribeMessages = null; 
+        let unsubscribeRoomGlobal = null; 
+
+        const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); 
+        let isFirstLoadRooms = true; 
+
+        function loadChatRooms() {
+            const chatRoomsRef = collection(db, "support_chats");
+            const q = query(chatRoomsRef, orderBy("lastMessageTime", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                const usersListArea = document.getElementById('usersListArea');
+                if (!usersListArea) return;
+                usersListArea.innerHTML = ""; 
+                
+                if (snapshot.empty) {
+                    usersListArea.innerHTML = `<div style="text-align: center; color: var(--text-muted); margin-top: 20px; font-size: 13px;">لا توجد طلبات دعم حالية.</div>`;
+                    return;
+                }
+
+                // إدارة التنبيهات الصوتية وتحديث حالة القراءة في دورة واحدة
+                snapshot.docChanges().forEach(async (change) => {
+                    const roomData = change.doc.data();
+                    
+                    if (!isFirstLoadRooms && (change.type === "modified" || change.type === "added")) {
+                        if (roomData.lastSender === 'user' && roomData.unreadByAdmin > 0 && roomData.userId !== activeUserId) {
+                            notificationSound.play().catch(e => console.log("المتصفح يمنع الصوت التلقائي"));
+                        }
+                    }
+
+                    // تحديث الرسائل غير المقروءة في الشات النشط حالياً
+                    if (roomData.userId === activeUserId && roomData.unreadByAdmin > 0) {
+                        try {
+                            await setDoc(doc(db, "support_chats", activeUserId), { unreadByAdmin: 0 }, { merge: true });
+                        } catch (e) { console.error(e); }
+                    }
+                });
+
+                isFirstLoadRooms = false;
+
+                snapshot.forEach((roomDoc) => {
+                    const room = roomDoc.data();
+                    if (!room.userId) return; 
+
+                    let timeString = "";
+                    if (room.lastMessageTime) {
+                        timeString = room.lastMessageTime.toDate().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    const defaultAvatar = "https://www.w3schools.com/howto/img_avatar.png";
+                    const isSelected = room.userId === activeUserId ? 'active' : '';
+                    const unreadBadge = room.unreadByAdmin > 0 ? `<span class="unread-badge">${room.unreadByAdmin}</span>` : '';
+
+                    const cardHTML = `
+                        <div class="user-chat-card ${isSelected}" id="card-${room.userId}">
+                            <img src="${room.userPhoto || defaultAvatar}" class="user-avatar" alt="avatar">
+                            <div class="user-info">
+                                <div class="top-row">
+                                    <h4>${room.userName || 'مستخدم ريفانا'}</h4>
+                                    <span class="time">${timeString}</span>
+                                </div>
+                                <div class="top-row">
+                                    <p class="last-msg" style="${room.unreadByAdmin > 0 ? 'color: var(--text-main); font-weight:700;' : ''}">${room.lastMessage || ''}</p>
+                                    ${unreadBadge}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = cardHTML.trim();
+                    const cardElement = tempDiv.firstChild;
+                    
+                    cardElement.addEventListener('click', () => {
+                        openUserChat(room.userId, room.userName, room.userPhoto);
+                    });
+
+                    usersListArea.appendChild(cardElement);
+                });
+            });
+        }
+
+        async function openUserChat(userId, userName, userPhoto) {
+            activeUserId = userId;
+
+            document.querySelectorAll('.user-chat-card').forEach(c => c.classList.remove('active'));
+            const currentCard = document.getElementById(`card-${userId}`);
+            if(currentCard) currentCard.classList.add('active');
+
+            try {
+                await setDoc(doc(db, "support_chats", userId), { unreadByAdmin: 0 }, { merge: true });
+            } catch (e) { console.error(e); }
+
+            const chatMainArea = document.getElementById('chatMainArea');
+            chatMainArea.innerHTML = `
+                <div class="chat-inner-wrap">
+                    <div class="chat-messages-section">
+                        <header class="active-chat-header">
+                            <div class="active-user-details">
+                                <img src="${userPhoto || 'https://www.w3schools.com/howto/img_avatar.png'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                                <div>
+                                    <h3 id="chatHeaderName">${userName}</h3>
+                                    <p>المعرف: ${userId}</p>
+                                    <p id="adminTypingIndicator" class="typing-indicator" style="display: none; font-size: 11px; color: var(--primary-purple); font-style: italic;">العميل يكتب الآن...</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px;" id="headerActionsArea">
+                                <button id="exportChatBtn" class="export-btn" title="تحميل المحادثة">
+                                    <i class="fa-solid fa-download"></i> تحميل السجل
+                                </button>
+                                <button id="headerBanBtn" class="ban-btn">
+                                    <i class="fa-solid fa-user-slash"></i> حظر المستخدم
+                                </button>
+                            </div>
+                        </header>
+
+                        <div class="messages-box" id="messagesBox"></div>
+                        
+                        <div class="quick-replies-container">
+                            <span class="quick-reply-btn" data-text="أهلاً بك في دعم ريفانا، كيف يمكنني مساعدتك اليوم؟">👋 ترحيب</span>
+                            <span class="quick-reply-btn" data-text="يرجى تزويدي برقم محفظتك (USDT) لكي أتمكن من مراجعة طلبك.">💳 طلب المحفظة</span>
+                            <span class="quick-reply-btn" data-text="تم التحقق من حسابك وتم حل المشكلة بنجاح ✅">✅ تم الحل</span>
+                            <span class="quick-reply-btn" data-text="عذراً على التأخير، جاري المتابعة مع القسم المختص وسنرد عليك قريباً.">⏳ تأخير</span>
+                        </div>
+                        <div class="admin-input-area" style="display: flex; align-items: center; gap: 8px;">
+                            <input type="file" id="adminImageInput" accept="image/*" style="display: none;">
+                            <button type="button" class="image-select-btn" id="triggerImageBtn" style="background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; padding: 0 5px;" title="إرسال صورة أو سكرين شوت">
+                                <i class="fa-solid fa-paperclip"></i>
+                            </button>
+                            <input type="text" id="adminMsgInput" class="admin-input" placeholder="اكتب رد الإدارة هنا..." style="flex: 1;">
+                            <button id="adminSendBtn" class="send-btn" disabled><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="user-details-sidebar">
+                        <div class="details-header">
+                            <img src="${userPhoto || 'https://www.w3schools.com/howto/img_avatar.png'}" alt="avatar">
+                            <h3>${userName}</h3>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label"><i class="fa-solid fa-id-card"></i> معرف المستخدم (UID)</span>
+                            <span class="info-value" style="font-size:11px;">${userId}</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label"><i class="fa-solid fa-envelope"></i> البريد الإلكتروني</span>
+                            <span class="info-value" id="sidebarEmail">جاري التحميل...</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label"><i class="fa-solid fa-phone"></i> رقم الهاتف</span>
+                            <span class="info-value" id="sidebarPhone">جاري التحميل...</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label"><i class="fa-solid fa-wallet"></i> الرصيد الحالي</span>
+                            <span class="info-value" id="sidebarBalance" style="color:var(--success-green); font-weight:700;">0 IQD</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label"><i class="fa-solid fa-box"></i> حالة الاشتراك</span>
+                            <div>
+                                <span class="badge-status badge-none" id="sidebarPackage">لا توجد باقة نشطة</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const adminImageInput = document.getElementById('adminImageInput');
+            const triggerImageBtn = document.getElementById('triggerImageBtn');
+            const adminMsgInput = document.getElementById('adminMsgInput');
+            const adminSendBtn = document.getElementById('adminSendBtn');
+            const exportChatBtn = document.getElementById('exportChatBtn');
+
+            triggerImageBtn.addEventListener('click', () => adminImageInput.click());
+            adminImageInput.addEventListener('change', function() { uploadAdminImage(this); });
+
+            // لقطة الشاشة
+            adminMsgInput.addEventListener('paste', (e) => {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let index in items) {
+                    const item = items[index];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        const blob = item.getAsFile();
+                        uploadAdminImage({ files: [blob], value: "" }); 
+                    }
+                }
+            });
+
+            adminMsgInput.addEventListener('input', () => {
+                adminSendBtn.disabled = adminMsgInput.value.trim() === '';
+            });
+            adminMsgInput.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter' && adminMsgInput.value.trim() !== '') sendAdminReply();
+            });
+            adminSendBtn.addEventListener('click', sendAdminReply);
+            exportChatBtn.addEventListener('click', () => { exportChat(userId, userName); });
+
+            // تفعيل أزرار الرد السريع
+            document.querySelectorAll('.quick-reply-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    insertQuickReply(this.getAttribute('data-text'));
+                });
+            });
+
+            // الاستماع لحالة الغرفة والحظر
+            const roomRef = doc(db, "support_chats", userId);
+            if (unsubscribeRoomGlobal) unsubscribeRoomGlobal();
+
+            unsubscribeRoomGlobal = onSnapshot(roomRef, async (roomSnap) => {
+                if (!roomSnap.exists()) return;
+                
+                const roomData = roomSnap.data();
+                const isBanned = roomData.isBanned || false;
+                const isUserTyping = roomData.isUserTyping || false;
+
+                const typingIndicator = document.getElementById('adminTypingIndicator');
+                if (typingIndicator) typingIndicator.style.display = isUserTyping ? 'block' : 'none';
+
+                const chatHeaderName = document.getElementById('chatHeaderName');
+                if (chatHeaderName) chatHeaderName.innerHTML = `${userName} ${isBanned ? '<span style="color:#ef4444; font-size:12px;">(محظور)</span>' : ''}`;
+
+                const headerBanBtn = document.getElementById('headerBanBtn');
+                if (headerBanBtn) {
+                    if (isBanned) {
+                        headerBanBtn.className = "ban-btn unban-btn";
+                        headerBanBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> إلغاء الحظر`;
+                        headerBanBtn.onclick = () => toggleBanUser(userId, true);
+                    } else {
+                        headerBanBtn.className = "ban-btn";
+                        headerBanBtn.innerHTML = `<i class="fa-solid fa-user-slash"></i> حظر المستخدم`;
+                        headerBanBtn.onclick = () => toggleBanUser(userId, false);
+                    }
+                }
+
+                // جلب تفاصيل المستخدم
+                try {
+                    const userDocRef = doc(db, "users", userId);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        const d = userDocSnap.data();
+                        document.getElementById('sidebarEmail').innerText = d.email || d.userEmail || "لا يوجد بريد";
+                        document.getElementById('sidebarPhone').innerText = d.phone || d.phoneNumber || "لا يوجد رقم";
+                        document.getElementById('sidebarBalance').innerText = `${(d.balance || 0).toLocaleString()} IQD`;
+
+                        const sidebarPackage = document.getElementById('sidebarPackage');
+                        if (d.activePackage) {
+                            const pkgType = typeof d.activePackage === 'object' ? d.activePackage.type : d.activePackage;
+                            sidebarPackage.innerText = `باقة ${pkgType.toUpperCase()}`;
+                            sidebarPackage.className = "badge-status badge-active";
+                        } else {
+                            sidebarPackage.innerText = "لا توجد باقة نشطة";
+                            sidebarPackage.className = "badge-status badge-none";
+                        }
+                    }
+                } catch (err) { console.error(err); }
+            });
+
+            // الاستماع للرسائل وعرضها مع تحديث Read Receipt تلقائياً للعميل
+            if (unsubscribeMessages) unsubscribeMessages();
+
+            const messagesRef = collection(db, "support_chats", userId, "messages");
+            const q = query(messagesRef, orderBy("timestamp", "asc"));
+
+            unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                const messagesBox = document.getElementById('messagesBox');
+                if(!messagesBox) return;
+                messagesBox.innerHTML = ""; 
+
+                snapshot.forEach(async (msgDoc) => {
+                    const data = msgDoc.data();
+                    const isAdmin = data.sender === 'admin';
+                    
+                    // تحديث حالة الرسالة لتصبح مقروءة للطرفين إذا فتحها الأدمن
+                    if (data.sender === 'user' && !data.isRead) {
+                        await updateDoc(msgDoc.ref, { isRead: true });
+                    }
+
+                    let timeString = 'الآن';
+                    if (data.timestamp) {
+                        timeString = data.timestamp.toDate().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    let contentHtml = data.type === "image" 
+                        ? `<img src="${data.text}" style="max-width: 230px; max-height: 300px; border-radius: 8px; margin: 4px 0; cursor: pointer; display: block;" onclick="window.open('${data.text}', '_blank')">`
+                        : `<p style="margin:0; word-break: break-word;">${data.text}</p>`;
+
+                    const isReadClass = data.isRead ? "color: #10b981;" : "color: var(--text-muted);"; 
+                    const ticksHtml = isAdmin ? `<span style="font-size:11px; ${isReadClass}"><i class="fa-solid fa-check-double"></i></span>` : "";
+
+                    messagesBox.innerHTML += `
+                        <div class="message-wrapper ${isAdmin ? 'msg-admin' : 'msg-user'}">
+                            <div class="msg-bubble">
+                                ${contentHtml}
+                                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px;">
+                                    <span class="msg-time">${timeString}</span>
+                                    ${ticksHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                setTimeout(() => { messagesBox.scrollTop = messagesBox.scrollHeight; }, 50);
+            });
+        }
+
+        async function sendAdminReply() {
+            if (!activeUserId) return;
+            const adminMsgInput = document.getElementById('adminMsgInput');
+            const text = adminMsgInput.value.trim();
+            if (!text) return;
+
+            adminMsgInput.value = "";
+            document.getElementById('adminSendBtn').disabled = true;
+
+            try {
+                await addDoc(collection(db, "support_chats", activeUserId, "messages"), {
+                    text: text,
+                    sender: 'admin',
+                    isRead: false,
+                    timestamp: serverTimestamp()
+                });
+
+                await setDoc(doc(db, "support_chats", activeUserId), {
+                    lastMessage: text,
+                    lastMessageTime: serverTimestamp(),
+                    lastSender: 'admin',
+                    unreadByAdmin: 0
+                }, { merge: true });
+
+            } catch (error) {
+                console.error(error);
+                alert("فشل إرسال رد الإدارة.");
+            }
+        }
+
+        async function sendBroadcastMessage() {
+            const broadcastInput = document.getElementById('broadcastInput');
+            const broadcastBtn = document.getElementById('broadcastBtn');
+            const text = broadcastInput.value.trim();
+
+            if (!text) { alert("يرجى كتابة رسالة الإعلان أولاً!"); return; }
+            if (!confirm(`هل أنت متأكد من إرسال الإعلان للجميع؟`)) return;
+
+            broadcastBtn.disabled = true;
+            broadcastBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+
+            try {
+                const snapshot = await getDocs(collection(db, "support_chats"));
+                const promises = [];
+
+                snapshot.forEach((roomDoc) => {
+                    const userId = roomDoc.id;
+                    promises.push(addDoc(collection(db, "support_chats", userId, "messages"), {
+                        text: text,
+                        sender: 'admin',
+                        isRead: false,
+                        timestamp: serverTimestamp()
+                    }));
+                    promises.push(setDoc(doc(db, "support_chats", userId), {
+                        lastMessage: text,
+                        lastMessageTime: serverTimestamp(),
+                        lastSender: 'admin'
+                    }, { merge: true }));
+                });
+
+                await Promise.all(promises);
+                alert("تم إرسال الإعلان الجماعي بنجاح!");
+                broadcastInput.value = ""; 
+            } catch (error) { console.error(error); } 
+            finally {
+                broadcastBtn.disabled = false;
+                broadcastBtn.innerHTML = '<i class="fa-solid fa-bullhorn"></i> إرسال للكل';
+            }
+        }
+
+        async function uploadAdminImage(inputElement) {
+            if (!activeUserId || !inputElement.files || !inputElement.files[0]) return;
+            const file = inputElement.files[0];
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("🚫 الحد الأقصى المسموح به هو 5 ميجابايت.");
+                inputElement.value = ""; 
+                return;
+            }
+
+            const adminSendBtn = document.getElementById('adminSendBtn');
+            const triggerImageBtn = document.getElementById('triggerImageBtn');
+            const originalBtnHTML = adminSendBtn.innerHTML;
+
+            adminSendBtn.disabled = true;
+            triggerImageBtn.style.opacity = "0.4";
+            triggerImageBtn.style.pointerEvents = "none";
+            adminSendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            const fileExtension = file.name ? file.name.split('.').pop() : 'png';
+            const filePath = `support_chats/${activeUserId}/admin_${Date.now()}.${fileExtension}`;
+            const storageRef = ref(storage, filePath);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on('state_changed', null, 
+                (error) => {
+                    console.error(error);
+                    alert("❌ فشل رفع الصورة!");
+                    adminSendBtn.disabled = false;
+                    triggerImageBtn.style.opacity = "1";
+                    triggerImageBtn.style.pointerEvents = "auto";
+                    adminSendBtn.innerHTML = originalBtnHTML;
+                }, 
+                async () => {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    await addDoc(collection(db, "support_chats", activeUserId, "messages"), {
+                        text: downloadURL,
+                        type: "image",
+                        sender: 'admin',
+                        isRead: false,
+                        timestamp: serverTimestamp()
+                    });
+
+                    await setDoc(doc(db, "support_chats", activeUserId), {
+                        lastMessage: "📷 أرسل صورة",
+                        lastMessageTime: serverTimestamp(),
+                        lastSender: 'admin',
+                        unreadByAdmin: 0
+                    }, { merge: true });
+
+                    adminSendBtn.disabled = false;
+                    triggerImageBtn.style.opacity = "1";
+                    triggerImageBtn.style.pointerEvents = "auto";
+                    adminSendBtn.innerHTML = originalBtnHTML;
+                    inputElement.value = "";
+                }
+            );
+        }
+
+        function insertQuickReply(text) {
+            const adminMsgInput = document.getElementById('adminMsgInput');
+            const adminSendBtn = document.getElementById('adminSendBtn');
+            if (adminMsgInput && adminSendBtn) {
+                adminMsgInput.value = text;
+                adminSendBtn.disabled = false;
+                adminMsgInput.focus(); 
+            }
+        }
+
+        function exportChat(uid, uName) {
+            const messages = document.querySelectorAll('#messagesBox .message-wrapper');
+            if (messages.length === 0) { alert("لا توجد رسائل لتصديرها."); return; }
+
+            let textContent = `سجل محادثة الدعم الفني لـ Rivana\nالعميل: ${uName}\nالمعرف: ${uid}\nتاريخ التصدير: ${new Date().toLocaleString('ar-EG')}\n\n`;
+            messages.forEach(msg => {
+                const isUser = msg.classList.contains('msg-user') ? 'العميل' : 'الإدارة';
+                textContent += `[${msg.querySelector('.msg-time').innerText}] ${isUser}:\n${msg.querySelector('.msg-bubble').innerText}\n\n`;
+            });
+            
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Chat_Rivana_${uid}.txt`;
+            link.click();
+        }
+
+        async function toggleBanUser(uid, currentStatus) {
+            const newStatus = !currentStatus; 
+            if (confirm(newStatus ? "هل أنت متأكد من حظر هذا المستخدم؟" : "هل تريد إلغاء حظر هذا المستخدم؟")) {
+                try {
+                    await updateDoc(doc(db, "support_chats", uid), { isBanned: newStatus });
+                    alert(newStatus ? "تم حظر المستخدم بنجاح 🚫" : "تم إلغاء الحظر بنجاح ✅");
+                } catch (error) { alert("حدث خطأ، يرجى المحاولة لاحقاً."); }
+            }
+        }
+
+        // ربط أحداث البحث والتحميل عند بدء التشغيل
+        document.getElementById('broadcastBtn').addEventListener('click', sendBroadcastMessage);
+        document.getElementById('searchUserInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.user-chat-card').forEach(card => {
+                const userName = card.querySelector('h4').innerText.toLowerCase();
+                const userId = card.id.toLowerCase(); 
+                card.style.display = (userName.includes(searchTerm) || userId.includes(searchTerm)) ? 'flex' : 'none';
+            });
+        });
+
+        window.onload = () => { loadChatRooms(); };
+window.onload = async () => {
+    try {
+        // ضع هنا إيميل وباسورد حساب الأدمن الخاص بك بدقة
+        const adminEmail = "mmp@gmail.com"; 
+        const adminPassword = "12345678Nm@";
+
+        // يتم تسجيل الدخول برمجياً وتلقائياً فور فتح الرابط
+        await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+        
+        console.log("تم التعرف على الأدمن بنجاح ومزامنة البيانات اللحظية.");
+        loadChatRooms(); // تشغيل اللوحة
+    } catch (error) {
+        console.error("فشل تسجيل الدخول التلقائي للأدمن: ", error);
+        alert("عذراً، لم يتم التعرف على صلاحيات الأدمن الخاصة بك.");
+    }
+};
+
+</script>
+</body>
+</html>

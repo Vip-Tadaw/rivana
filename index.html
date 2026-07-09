@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rivana | إنشاء حساب جديد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+  :root{
+    --bg-0:#070913;
+    --card: rgba(21, 20, 40, 0.75); 
+    --field: rgba(26, 25, 48, 0.8);
+    --field-border: rgba(42, 40, 70, 0.6);
+    --field-border-focus:#7c4dff;
+    --purple:#7c3aed;
+    --purple-2:#5b21b6;
+    --gold:#e8b84b;
+    --gold-2:#c9922a;
+    --text:#f4f3fb;
+    --text-dim:#9490b3;
+    --text-faint:#716c96;
+    --danger:#ef4444;
+    --warn:#f59e0b;
+    --ok:#22c55e;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  
+ body {
+  background-color: var(--bg-0);
+  background-image: 
+    linear-gradient(to bottom, rgba(7, 9, 19, 0.75), rgba(7, 9, 19, 0.95)),
+    url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 0; 
+  position: relative;
+}
+
+.screen { 
+  width: 100%; 
+  max-width: 100%; 
+  min-height: 100vh; 
+  background: var(--card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: none; 
+  padding: 40px 24px 60px; 
+  border-radius: 0; 
+  box-shadow: none; 
+  height: auto;
+}
+
+  /* شاشة الانتظار الفخمة */
+  .loading-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #05060c;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+  .loading-overlay.show { display: flex; }
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(124, 58, 237, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--purple);
+    border-right-color: var(--gold);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .top-bar { display: flex; justify-content: flex-end; margin-bottom: 20px; position: relative; z-index: 50; }
+  .lang-switch { position: relative; display: inline-block; }
+  .lang-btn {
+    background: var(--field); border: 1.5px solid var(--field-border); color: var(--text);
+    padding: 8px 14px; border-radius: 12px; font-family: inherit; font-size: 13.5px;
+    font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+  }
+  .lang-btn:hover { border-color: var(--field-border-focus); }
+  .lang-btn svg { width: 16px; height: 16px; color: var(--text-faint); }
+  .lang-menu {
+    position: absolute; top: 110%; right: 0; background: #151428; border: 1px solid var(--field-border);
+    border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); overflow-y: auto; max-height: 300px; display: none;
+    flex-direction: column; min-width: 140px; z-index: 100;
+  }
+  .lang-menu.show { display: flex; }
+  .lang-option {
+    padding: 10px 14px; color: var(--text-dim); background: none; border: none; text-align: right;
+    font-family: inherit; font-size: 13.5px; cursor: pointer; transition: background 0.2s, color 0.2s;
+  }
+  .lang-option:hover { background: var(--field); color: var(--text); }
+  .lang-menu::-webkit-scrollbar { width: 6px; }
+  .lang-menu::-webkit-scrollbar-thumb { background: var(--field-border); border-radius: 4px; }
+  
+  html[dir="ltr"] .lang-menu { right: auto; left: 0; }
+  html[dir="ltr"] .lang-option { text-align: left; }
+  html[dir="ltr"] .input-wrap input { text-align: left; }
+  html[dir="ltr"] .req-list, html[dir="ltr"] .terms-row { flex-direction: row; }
+
+  .brand { display: flex; flex-direction: column; align-items: center; gap: 14px; margin: 0 0 28px; }
+  
+  .brand-row { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    direction: ltr;
+  }
+  
+  .logo-mark { width: 56px; height: 56px; position: relative; filter: drop-shadow(0 4px 14px rgba(124,58,237,.4)); }
+  .logo-mark svg { width: 100%; height: 100%; display: block; }
+  
+  .brand-name { 
+    font-size: 38px; 
+    font-weight: 800; 
+    letter-spacing: 2px; 
+    background: linear-gradient(90deg, #e8b84b, #7c3aed, #00f0ff, #e8b84b);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientShift 6s linear infinite;
+  }
+  @keyframes gradientShift { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
+  
+  .brand-tag { color: var(--text-dim); font-size: 14px; font-weight: 500; text-align: center; }
+  h1.page-title { text-align: center; font-size: 22px; font-weight: 800; margin: 0 0 6px; }
+  p.page-sub { text-align: center; color: var(--text-dim); font-size: 14px; margin: 0 0 26px; font-weight: 500; }
+
+  /* Stepper */
+  .stepper { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 30px; position: relative; }
+  .step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2; }
+  .step-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; background: var(--bg-0); border: 2px solid var(--field-border); color: var(--text-faint); transition: all .3s ease; }
+  .step.active .step-circle { background: linear-gradient(135deg,var(--purple),#a855f7); border-color: transparent; color: #fff; box-shadow: 0 0 0 5px rgba(124,58,237,.18); }
+  .step.done .step-circle { background: linear-gradient(135deg,var(--gold-2),var(--gold)); border-color: transparent; color: #241a02; }
+  .step-label { margin-top: 8px; font-size: 11.5px; color: var(--text-faint); font-weight: 600; white-space: nowrap; }
+  .step.active .step-label { color: var(--text); }
+  .step-line { position: absolute; top: 17px; right: 0; left: 0; height: 2px; background: var(--field-border); z-index: 1; }
+  .step-line-fill { position: absolute; top: 17px; right: 0; height: 2px; background: linear-gradient(90deg,var(--gold),var(--purple)); z-index: 1; transition: width .4s ease; }
+  html[dir="ltr"] .step-line-fill { right: auto; left: 0; }
+
+  /* Forms */
+  form { display: flex; flex-direction: column; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field-label { font-size: 13.5px; font-weight: 700; color: var(--text); padding-inline: 2px; }
+  .input-wrap { position: relative; display: flex; align-items: center; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 14px; transition: border-color .2s ease; }
+  .input-wrap:focus-within { border-color: var(--field-border-focus); background: rgba(26, 25, 48, 0.95); }
+  .input-wrap.error { border-color: var(--danger); }
+  .input-wrap.valid { border-color: var(--ok); }
+  .input-icon { width: 44px; flex: 0 0 44px; display: flex; align-items: center; justify-content: center; color: var(--text-faint); }
+  .input-wrap:focus-within .input-icon { color: var(--purple); }
+  .input-wrap input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: inherit; font-size: 14.5px; padding: 13px 14px 13px 6px; min-width: 0; text-align: right; }
+  .input-wrap input::placeholder { color: var(--text-faint); }
+  .toggle-visibility { flex: 0 0 40px; background: none; border: none; color: var(--text-faint); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .toggle-visibility:hover { color: var(--text); }
+  .error-msg { font-size: 12px; color: var(--danger); padding-inline: 2px; display: none; font-weight: 500; }
+  .error-msg.show { display: block; }
+.support-btn {
+  background: var(--field, rgba(255, 255, 255, 0.05)); 
+  border: 1.5px solid var(--field-border, rgba(255, 255, 255, 0.1)); 
+  color: var(--text, #fff);
+  padding: 8px 14px; 
+  border-radius: 12px; 
+  font-size: 13.5px; 
+  font-weight: 600; 
+  text-decoration: none; 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  transition: all 0.2s ease;
+}
+.support-btn:hover { 
+  border-color: var(--field-border-focus, #7c3aed); 
+  background: rgba(26, 25, 48, 0.95); 
+}
+.support-btn svg { 
+  width: 16px; 
+  height: 16px; 
+  color: var(--text-faint, #aaa); 
+}
+
+  /* intlTelInput */
+  .iti { width: 100%; display: block; }
+  .iti__flag-container { padding: 0 8px; }
+  .iti__selected-flag { border-radius: 12px 0 0 12px; padding: 0 12px !important; background-color: transparent !important; }
+  .iti__selected-dial-code { color: var(--text); font-size: 14.5px; font-weight: 600; }
+  .iti__arrow { border-top-color: var(--text-dim); }
+  .iti__country-list { background-color: #151428; border: 1px solid var(--field-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: var(--text); margin-top: 8px; font-family: 'Tajawal', sans-serif; text-align: left; }
+  .iti__country-list::-webkit-scrollbar { width: 6px; }
+  .iti__country-list::-webkit-scrollbar-thumb { background: var(--field-border); border-radius: 4px; }
+  .iti__country { padding: 10px 14px; transition: background 0.2s; }
+  .iti__country.iti__highlight { background-color: var(--field); color: var(--purple); }
+  .iti__dial-code { color: var(--text-dim); }
+  #phone { padding-left: 90px !important; width: 100%; text-align: left !important; direction: ltr !important; }
+  .phone-wrap { padding-inline-start: 0; }
+
+  /* Strength & Requirements */
+  .strength-row { display: flex; align-items: center; gap: 8px; padding-inline: 2px; margin-top: 2px; }
+  .strength-label { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+  .strength-track { flex: 1; height: 5px; border-radius: 4px; background: var(--field-border); overflow: hidden; }
+  .strength-fill { height: 100%; width: 0%; border-radius: 4px; background: var(--danger); transition: width .3s ease, background .3s ease; }
+  .strength-word { font-size: 12px; font-weight: 700; min-width: 52px; text-align: left; }
+  .req-list { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 4px; padding-inline: 2px; }
+  .req { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-faint); font-weight: 500; transition: color .2s ease; }
+  .req .req-box { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid var(--field-border); display: flex; align-items: center; justify-content: center; flex: 0 0 16px; transition: all .2s ease; }
+  .req.met { color: var(--text); }
+  .req.met .req-box { background: var(--ok); border-color: var(--ok); }
+  .req .req-box svg { width: 10px; height: 10px; opacity: 0; transition: opacity .15s ease; }
+  .req.met .req-box svg { opacity: 1; }
+  .terms-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 6px; padding-inline: 2px; }
+  .checkbox { width: 20px; height: 20px; flex: 0 0 20px; border-radius: 6px; border: 1.5px solid var(--field-border); background: var(--field); cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all .2s ease; }
+  .checkbox.checked { background: linear-gradient(135deg,var(--purple),#a855f7); border-color: transparent; }
+  .checkbox svg { width: 12px; height: 12px; opacity: 0; color: #fff; transition: opacity .15s ease; }
+  .checkbox.checked svg { opacity: 1; }
+  .terms-text { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; }
+  .terms-text a { color: var(--gold); text-decoration: none; font-weight: 600; }
+  .terms-text a:hover { text-decoration: underline; }
+
+  /* Buttons */
+  .submit-btn { margin-top: 8px; width: 100%; padding: 15px; border: none; border-radius: 14px; background: linear-gradient(90deg,var(--purple-2),var(--purple)); color: #fff; font-family: inherit; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease; box-shadow: 0 8px 24px rgba(124,58,237,.35); }
+  .submit-btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  .submit-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(124,58,237,.45); }
+  html[dir="rtl"] .submit-btn .arrow { transform: scaleX(-1); }
+  .divider { display: flex; align-items: center; gap: 14px; margin: 26px 0 18px; color: var(--text-faint); font-size: 13px; }
+  .divider::before,.divider::after { content: ''; flex: 1; height: 1px; background: var(--field-border); }
+  .social-row { display: flex; gap: 10px; }
+  .social-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 13px; color: var(--text); font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: border-color .2s ease, transform .15s ease; }
+  .social-btn:hover { border-color: var(--field-border-focus); transform: translateY(-1px); }
+  .social-btn svg { width: 18px; height: 18px; }
+  .login-row { text-align: center; margin-top: 26px; font-size: 13.5px; color: var(--text-dim); }
+  .login-row a { color: var(--purple); background: linear-gradient(90deg,var(--gold),#a855f7); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; text-decoration: none; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #151428; border: 1px solid var(--field-border); color: var(--text); padding: 14px 20px; border-radius: 12px; font-size: 13.5px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.6); opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; z-index: 1000; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: rgba(239,68,68,.5); }
+  .toast.warn { border-color: rgba(245,158,11,.5); }
+  .toast.success { border-color: rgba(34,197,94,.5); }
+</style>
+</head>
+<body>
+  <div class="loading-overlay show" id="loadingOverlay">
+
+  <div class="brand" style="margin: 0;">
+    <div class="brand-row">
+      <div class="logo-mark">
+        <svg viewBox="0 0 52 52" fill="none">
+          <path d="M12 8H28C36 8 40 12 40 19C40 24.5 37 28 31 29.5L42 44H32L22.5 30H19V44H12V8ZM19 14V24H27C31 24 33 22.5 33 19C33 15.5 31 14 27 14H19Z" fill="url(#g2)"/>
+          <defs>
+            <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#e8b84b">
+                <animate attributeName="stop-color" values="#e8b84b; #7c3aed; #00f0ff; #e8b84b" dur="6s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="100%" stop-color="#7c3aed">
+                <animate attributeName="stop-color" values="#7c3aed; #00f0ff; #e8b84b; #7c3aed" dur="6s" repeatCount="indefinite" />
+              </stop>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="brand-name">RIVANA</span>
+    </div>
+  </div>
+  <div class="spinner"></div>
+</div>
+
+<div class="screen" id="mainScreen" style="display: none;">
+
+  
+ <div class="top-bar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <a href="support.html" class="support-btn" id="supportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span id="supportText">الدعم الفني</span>
+    </a>
+
+    <div class="lang-switch">
+      <button type="button" class="lang-btn" id="langBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span id="currentLang">العربية</span>
+      </button>
+      <div class="lang-menu" id="langMenu">
+        <button type="button" class="lang-option" data-lang="ar">العربية (AR)</button>
+        <button type="button" class="lang-option" data-lang="en">English (EN)</button>
+        <button type="button" class="lang-option" data-lang="es">Español (ES)</button>
+        <button type="button" class="lang-option" data-lang="fr">Français (FR)</button>
+        <button type="button" class="lang-option" data-lang="de">Deutsch (DE)</button>
+        <button type="button" class="lang-option" data-lang="ru">Русский (RU)</button>
+        <button type="button" class="lang-option" data-lang="zh">中文 (ZH)</button>
+        <button type="button" class="lang-option" data-lang="hi">हिन्दी (HI)</button>
+        <button type="button" class="lang-option" data-lang="tr">Türkçe (TR)</button>
+        <button type="button" class="lang-option" data-lang="ku">Kurdî (KU)</button>
+      </div>
+    </div>
+</div>
+
+
+  <div class="brand">
+    <div class="brand-row">
+      <div class="logo-mark">
+        <svg viewBox="0 0 52 52" fill="none">
+          <path d="M12 8H28C36 8 40 12 40 19C40 24.5 37 28 31 29.5L42 44H32L22.5 30H19V44H12V8ZM19 14V24H27C31 24 33 22.5 33 19C33 15.5 31 14 27 14H19Z" fill="url(#g1)"/>
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#e8b84b">
+                <animate attributeName="stop-color" values="#e8b84b; #7c3aed; #00f0ff; #e8b84b" dur="6s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="100%" stop-color="#7c3aed">
+                <animate attributeName="stop-color" values="#7c3aed; #00f0ff; #e8b84b; #7c3aed" dur="6s" repeatCount="indefinite" />
+              </stop>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="brand-name">RIVANA</span>
+    </div>
+    <div class="brand-tag">تداول بذكاء، اربح بثقة</div>
+  </div>
+
+  <h1 class="page-title">إنشاء حساب جديد</h1>
+  <p class="page-sub">ابدأ رحلتك نحو تحقيق أرباحك الآن</p>
+
+  <div class="stepper">
+    <div class="step-line"></div>
+    <div class="step-line-fill" id="stepLineFill" style="width:0%"></div>
+    <div class="step active" data-step="1">
+      <div class="step-circle">1</div>
+      <div class="step-label">البيانات الأساسية</div>
+    </div>
+    <div class="step" data-step="2">
+      <div class="step-circle">2</div>
+      <div class="step-label">التحقق</div>
+    </div>
+    <div class="step" data-step="3">
+      <div class="step-circle">3</div>
+      <div class="step-label">التفاصيل</div>
+    </div>
+    <div class="step" data-step="4">
+      <div class="step-circle">4</div>
+      <div class="step-label">اكتمال</div>
+    </div>
+  </div>
+
+  <form id="signupForm" novalidate>
+
+    <div class="field">
+      <label class="field-label" for="fullName">الاسم الكامل</label>
+      <div class="input-wrap" id="fullNameWrap">
+        <span class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+        </span>
+        <input type="text" id="fullName" placeholder="أدخل اسمك الكامل" autocomplete="name">
+      </div>
+      <span class="error-msg" id="fullNameError">الرجاء إدخال الاسم الكامل (حرفين على الأقل)</span>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="email">البريد الإلكتروني</label>
+      <div class="input-wrap" id="emailWrap">
+        <span class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        </span>
+        <input type="email" id="email" placeholder="example@email.com" autocomplete="email" style="text-align:left;direction:ltr;">
+      </div>
+      <span class="error-msg" id="emailError">الرجاء إدخال بريد إلكتروني صحيح</span>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="phone">رقم الهاتف</label>
+      <div class="input-wrap phone-wrap" id="phoneWrap" dir="ltr">
+        <input type="tel" id="phone" autocomplete="tel">
+      </div>
+      <span class="error-msg" id="phoneError">الرجاء إدخال رقم هاتف صحيح متوافق مع الدولة المختارة</span>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="password">كلمة المرور</label>
+      <div class="input-wrap" id="passwordWrap">
+        <span class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        </span>
+        <input type="password" id="password" placeholder="أدخل كلمة المرور" autocomplete="new-password">
+        <button type="button" class="toggle-visibility" data-target="password">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="strength-row">
+        <span class="strength-label">قوة كلمة المرور:</span>
+        <div class="strength-track"><div class="strength-fill" id="strengthFill"></div></div>
+        <span class="strength-word" id="strengthWord">ضعيفة</span>
+      </div>
+      <div class="req-list">
+        <div class="req" id="reqLength">
+          <span class="req-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span class="req-text">8 أحرف على الأقل</span>
+        </div>
+        <div class="req" id="reqCase">
+          <span class="req-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span class="req-text">حرف كبير وصغير</span>
+        </div>
+        <div class="req" id="reqSpecial">
+          <span class="req-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span class="req-text">رمز خاص</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="confirmPassword">تأكيد كلمة المرور</label>
+      <div class="input-wrap" id="confirmPasswordWrap">
+        <span class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        </span>
+        <input type="password" id="confirmPassword" placeholder="أعد إدخال كلمة المرور" autocomplete="new-password">
+        <button type="button" class="toggle-visibility" data-target="confirmPassword">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <span class="error-msg" id="confirmPasswordError">كلمتا المرور غير متطابقتين</span>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="inviteCode" id="inviteCodeLabel">كود الدعوة (اختياري)</label>
+      <div class="input-wrap" id="inviteCodeWrap">
+        <span class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12v10H4V12M22 7H2v5h20V7Z"/><path d="M12 22V7M12 7a3.5 3.5 0 1 0-3.5-3.5c0 2.5 3.5 3.5 3.5 3.5Z"/><path d="M12 7a3.5 3.5 0 1 1 3.5-3.5c0 2.5-3.5 3.5-3.5 3.5Z"/></svg>
+        </span>
+        <input type="text" id="inviteCode" placeholder="أدخل كود الدعوة إذا كان لديك" autocomplete="off" style="text-align:center; direction:ltr; letter-spacing:2px; text-transform:uppercase;">
+      </div>
+      <span class="error-msg" id="inviteCodeError">كود الدعوة هذا غير صالح أو غير موجود</span>
+    </div>
+
+    <div class="terms-row">
+      <div class="checkbox" id="termsCheckbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <div class="terms-text" id="termsTextContainer">
+        أوافق على <a href="#">الشروط والأحكام</a> و <a href="#">سياسة الخصوصية</a>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn" disabled>
+      <span>التالي</span>
+      <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </form>
+
+  <div class="divider">أو إنشاء حساب باستخدام</div>
+
+  <div class="social-row">
+    <button type="button" class="social-btn" id="googleBtn">
+      <svg viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.2s2.7-6.2 6-6.2c1.9 0 3.15.8 3.88 1.5l2.65-2.55C16.85 3.02 14.6 2 12 2 6.98 2 2.9 6.02 2.9 11s4.08 9 9.1 9c5.25 0 8.75-3.7 8.75-8.9 0-.6-.07-1.05-.15-1.5H12z"/></svg>
+      Google
+    </button>
+    <button type="button" class="social-btn" id="appleBtn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.36 1.43c.1 1.02-.28 2-.85 2.72-.6.75-1.6 1.33-2.58 1.25-.12-1 .33-2.03.9-2.7.62-.73 1.65-1.28 2.53-1.27zM20.4 17.2c-.35.8-.52 1.16-1 1.87-.63.98-1.5 2.2-2.6 2.2-.98 0-1.23-.63-2.55-.62-1.33 0-1.6.63-2.58.63-1.1 0-1.93-1.1-2.56-2.08-1.76-2.7-1.94-5.86-.86-7.5.77-1.17 1.98-1.85 3.1-1.85 1.15 0 1.87.63 2.82.63.92 0 1.5-.63 2.82-.63.98 0 2.02.53 2.75 1.45-2.42 1.33-2.03 4.78.66 5.9z"/></svg>
+      Apple
+    </button>
+    <button type="button" class="social-btn" id="telegramBtn">
+      <svg viewBox="0 0 24 24" fill="#29A9EA"><path d="M21.5 4.5 2.7 11.9c-1.2.5-1.2 1.2-.2 1.5l4.8 1.5 1.9 5.7c.2.6.5.8 1 .8.4 0 .6-.2.9-.5l2.1-2 4.3 3.2c.8.4 1.3.2 1.5-.7l2.9-13.7c.3-1.1-.4-1.6-1.4-1.2zM8.6 14l8.8-5.5c.4-.3.8-.1.5.2l-7.3 6.6-.3 3.1-1.3-2.6z"/></svg>
+      Telegram
+    </button>
+  </div>
+
+  <div class="login-row">
+    لديك حساب بالفعل؟ <a href="login.html" id="loginLink">تسجيل الدخول</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+const firebaseConfig = {
+  apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+  authDomain: "reivana-8e377.firebaseapp.com",
+  projectId: "reivana-8e377",
+  storageBucket: "reivana-8e377.firebasestorage.app",
+  messagingSenderId: "1066129522960",
+  appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+  measurementId: "G-TD9YWWDEDT"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUserId = null; 
+let isRegistering = false; // تم تعريف المتغير هنا ليصبح متاحاً للجميع
+
+async function logUserActivity(userId, userName, type, details) {
+    if (!userId) return; 
+    try {
+        await db.collection("user_activities").add({
+            userId: userId,
+            userName: userName || "مستخدم جديد",
+            type: type,      
+            details: details,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log("تم تسجيل النشاط في الرادار بنجاح");
+    } catch (error) {
+        console.error("فشل إرسال النشاط للرادار: ", error);
+    }
+}
+
+  const $ = id => document.getElementById(id);
+  const mainScreen = $('mainScreen');
+  const loadingOverlay = $('loadingOverlay');
+
+  const fullName = $('fullName'), fullNameWrap = $('fullNameWrap'), fullNameError = $('fullNameError');
+  const email = $('email'), emailWrap = $('emailWrap'), emailError = $('emailError');
+  const phone = $('phone'), phoneWrap = $('phoneWrap'), phoneError = $('phoneError');
+  const password = $('password'), passwordWrap = $('passwordWrap');
+  const confirmPassword = $('confirmPassword'), confirmPasswordWrap = $('confirmPasswordWrap'), confirmPasswordError = $('confirmPasswordError');
+  
+  const inviteCode = $('inviteCode'), inviteCodeWrap = $('inviteCodeWrap'), inviteCodeError = $('inviteCodeError');
+  let isInviteCodeVerified = true; 
+  let inviteTimeout;
+
+  const submitBtn = $('submitBtn');
+  const termsCheckbox = $('termsCheckbox');
+  const strengthFill = $('strengthFill'), strengthWord = $('strengthWord');
+  const reqLength = $('reqLength'), reqCase = $('reqCase'), reqSpecial = $('reqSpecial');
+  const toast = $('toast');
+
+  let termsAccepted = false;
+  let touched = {fullName:false, email:false, phone:false, password:false, confirmPassword:false};
+
+  function toggleLoading(show) {
+    if(show) {
+      mainScreen.style.display = 'none';
+      loadingOverlay.classList.add('show');
+    } else {
+      mainScreen.style.display = 'block';
+      loadingOverlay.classList.remove('show');
+    }
+  }
+
+  auth.onAuthStateChanged((user) => {
+    // ننتقل للصفحة الرئيسية فقط إذا لم نكن في منتصف عملية تسجيل جديدة
+    if (user && !isRegistering) {
+      window.location.replace("home.html");
+    } else if (!user) {
+      toggleLoading(false);
+    }
+  });
+
+  const iti = window.intlTelInput(phone, {
+    initialCountry: "iq",
+    preferredCountries: ["iq", "sa", "ae", "jo", "eg"],
+    separateDialCode: true,
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js"
+  });
+
+  document.querySelectorAll('.toggle-visibility').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = $(btn.dataset.target);
+      target.type = target.type === 'password' ? 'text' : 'password';
+    });
+  });
+
+  function setState(wrap, state){ 
+    wrap.classList.remove('error','valid');
+    if(state) wrap.classList.add(state);
+  }
+
+  function validateFullName(){
+    const v = fullName.value.trim();
+    const valid = v.length >= 2;
+    if(touched.fullName) setState(fullNameWrap, v.length === 0 ? '' : (valid ? 'valid' : 'error'));
+    fullNameError.classList.toggle('show', touched.fullName && v.length > 0 && !valid);
+    return valid;
+  }
+
+  function validateEmail(){
+    const v = email.value.trim();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    if(touched.email) setState(emailWrap, v.length === 0 ? '' : (valid ? 'valid' : 'error'));
+    emailError.classList.toggle('show', touched.email && v.length > 0 && !valid);
+    return valid;
+  }
+
+  function validatePhone(){
+    const v = phone.value.trim();
+    const valid = iti.isValidNumber(); 
+    if(touched.phone) setState(phoneWrap, v.length === 0 ? '' : (valid ? 'valid' : 'error'));
+    phoneError.classList.toggle('show', touched.phone && v.length > 0 && !valid);
+    return valid;
+  }
+
+  phone.addEventListener("countrychange", function() {
+    if(touched.phone) validatePhone();
+    updateSubmitState();
+  });
+
+  function checkPasswordRules(v){
+    const lengthOK = v.length >= 8;
+    const caseOK = /[a-z]/.test(v) && /[A-Z]/.test(v);
+    const specialOK = /[!@#$%^&*(),.?":{}|<>_\-+=~`\[\]\\/;']/.test(v);
+    return {lengthOK, caseOK, specialOK};
+  }
+
+  function updateReq(el, ok){
+    el.classList.toggle('met', ok);
+  }
+
+  function validatePassword(){
+    const v = password.value;
+    const {lengthOK, caseOK, specialOK} = checkPasswordRules(v);
+    updateReq(reqLength, lengthOK);
+    updateReq(reqCase, caseOK);
+    updateReq(reqSpecial, specialOK);
+
+    let score = 0;
+    if(v.length >= 8) score++;
+    if(v.length >= 12) score++;
+    if(/[a-z]/.test(v) && /[A-Z]/.test(v)) score++;
+    if(/[0-9]/.test(v)) score++;
+    if(/[!@#$%^&*(),.?":{}|<>_\-+=~`\[\]\\/;']/.test(v)) score++;
+
+    let pct = 0, color = 'var(--danger)';
+    const isAr = document.documentElement.lang === 'ar';
+    let word = isAr ? 'ضعيفة' : 'Weak';
+
+    if(v.length === 0){ pct = 0; }
+    else if(score <= 1){ pct = 20; }
+    else if(score === 2){ pct = 40; }
+    else if(score === 3){ pct = 60; word = isAr ? 'متوسطة' : 'Medium'; color = 'var(--warn)'; }
+    else if(score === 4){ pct = 80; word = isAr ? 'قوية' : 'Strong'; color = '#4ade80'; }
+    else { pct = 100; word = isAr ? 'قوية جدًا' : 'Very Strong'; color = 'var(--ok)'; }
+
+    strengthFill.style.width = pct + '%';
+    strengthFill.style.background = color;
+    strengthWord.textContent = word;
+    strengthWord.style.color = color;
+
+    const valid = lengthOK && caseOK && specialOK;
+    if(touched.password) setState(passwordWrap, v.length === 0 ? '' : (valid ? 'valid' : 'error'));
+    validateConfirmPassword();
+    return valid;
+  }
+
+  function validateConfirmPassword(){
+    const v = confirmPassword.value;
+    const match = v.length > 0 && v === password.value;
+    if(touched.confirmPassword) setState(confirmPasswordWrap, v.length === 0 ? '' : (match ? 'valid' : 'error'));
+    confirmPasswordError.classList.toggle('show', touched.confirmPassword && v.length > 0 && !match);
+    return v.length > 0 && match;
+  }
+
+  function validateInviteCode() {
+    const v = inviteCode.value.trim().toUpperCase();
+    const isLangAr = document.documentElement.lang === 'ar';
+
+    if (v === "") {
+      isInviteCodeVerified = true;
+      setState(inviteCodeWrap, '');
+      inviteCodeError.classList.remove('show');
+      updateSubmitState();
+      return;
+    }
+
+    clearTimeout(inviteTimeout);
+    setState(inviteCodeWrap, '');
+    inviteCodeError.textContent = isLangAr ? 'جاري التحقق من كود الدعوة...' : 'Verifying code...';
+    inviteCodeError.style.color = 'var(--warn)';
+    inviteCodeError.classList.add('show');
+    isInviteCodeVerified = false;
+    updateSubmitState();
+
+    inviteTimeout = setTimeout(() => {
+      db.collection('users').where('inviteCode', '==', v).get()
+        .then((querySnapshot) => {
+          if (inviteCode.value.trim() === "") {
+            isInviteCodeVerified = true;
+            setState(inviteCodeWrap, '');
+            inviteCodeError.classList.remove('show');
+            updateSubmitState();
+            return;
+          }
+
+          if (!querySnapshot.empty) {
+            isInviteCodeVerified = true;
+            setState(inviteCodeWrap, 'valid');
+            inviteCodeError.textContent = isLangAr ? 'كود دعوة صحيح ومفعّل!' : 'Valid invitation code!';
+            inviteCodeError.style.color = 'var(--ok)';
+          } else {
+            isInviteCodeVerified = false;
+            setState(inviteCodeWrap, 'error');
+            inviteCodeError.textContent = dictionary[document.documentElement.lang]?.invE || 'كود غير صحيح';
+            inviteCodeError.style.color = 'var(--danger)';
+          }
+          updateSubmitState();
+        })
+        .catch((err) => {
+          isInviteCodeVerified = false;
+          setState(inviteCodeWrap, 'error');
+          updateSubmitState();
+        });
+    }, 800);
+  }
+
+  termsCheckbox.addEventListener('click', () => {
+    termsAccepted = !termsAccepted;
+    termsCheckbox.classList.toggle('checked', termsAccepted);
+    updateSubmitState();
+  });
+
+  function updateSubmitState(){
+    const ok = validateFullName() && validateEmail() && validatePhone() && validatePassword() && validateConfirmPassword() && termsAccepted && isInviteCodeVerified;
+    submitBtn.disabled = !ok;
+  }
+
+  [
+    [fullName,'fullName',validateFullName],
+    [email,'email',validateEmail],
+    [phone,'phone',validatePhone],
+    [password,'password',validatePassword],
+    [confirmPassword,'confirmPassword',validateConfirmPassword]
+  ].forEach(([el,key,fn]) => {
+    el.addEventListener('input', () => { touched[key] = true; fn(); updateSubmitState(); });
+    el.addEventListener('blur', () => { touched[key] = true; fn(); updateSubmitState(); });
+  });
+
+  inviteCode.addEventListener('input', validateInviteCode);
+
+  function showToast(msg, type){
+    toast.textContent = msg;
+    toast.className = 'toast show ' + (type || '');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+   function generateUserInviteCode() {
+    // توليد 6 أرقام عشوائية (من 100000 إلى 999999 لضمان أنها دائماً 6 خانات)
+    const randomDigits = Math.floor(100000 + Math.random() * 900000);
+    // دمج الحرفين RV مع الأرقام
+    return 'RV' + randomDigits;
+  }
+
+
+  document.getElementById('signupForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    isRegistering = true; // إيقاف التوجيه التلقائي
+
+    const isAr = document.documentElement.lang === 'ar';
+
+    if (!navigator.onLine) {
+      showToast(isAr ? 'لا يوجد اتصال بالإنترنت، يرجى التحقق من الشبكة.' : 'No internet connection, please check your network.', 'error');
+      isRegistering = false; // إعادة الضبط في حال الفشل
+      return; 
+    }
+
+    Object.keys(touched).forEach(k => touched[k] = true);
+    updateSubmitState();
+    
+    if(submitBtn.disabled){
+      showToast(isAr ? 'يرجى تعبئة جميع الحقول بشكل صحيح' : 'Please fill all fields correctly', 'error');
+      isRegistering = false; // إعادة الضبط
+      return;
+    }
+    
+    toggleLoading(true);
+    let createdUser = null;
+
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => {
+        return auth.createUserWithEmailAndPassword(email.value, password.value);
+      })
+      .then((userCredential) => {
+        createdUser = userCredential.user;
+        currentUserId = createdUser.uid; 
+
+        return db.collection('users').doc(createdUser.uid).set({
+          fullName: fullName.value.trim(),
+          phone: iti.getNumber(),
+          email: email.value.trim(),
+          usedInviteCode: inviteCode.value.trim().toUpperCase() || null, 
+          inviteCode: generateUserInviteCode(),
+          balance: 0.00,        
+          vipLevel: 0,          
+          vipProgress: 0,       
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      })
+      .then(() => {
+        return logUserActivity(createdUser.uid, fullName.value.trim(), 'إنشاء حساب جديد', 'قام بتسجيل حساب جديد عبر البريد الإلكتروني');
+      })
+      .then(() => {
+        showToast(isAr ? 'تم إنشاء الحساب بنجاح! جاري التوجيه...' : 'Account created successfully! Redirecting...', 'success');
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 1200);
+      })
+      .catch((error) => {
+        isRegistering = false; // إعادة الضبط للسماح بالمحاولة مرة أخرى
+        toggleLoading(false);
+        showToast(error.message, 'error');
+      });
+  });
+
+  document.getElementById('googleBtn').addEventListener('click', () => {
+    isRegistering = true; // تفعيل منع التوجيه هنا أيضاً
+    const isAr = document.documentElement.lang === 'ar';
+    const provider = new firebase.auth.GoogleAuthProvider();
+    
+    toggleLoading(true);
+
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => {
+         return auth.signInWithPopup(provider);
+      })
+      .then(async (result) => {
+        const user = result.user;
+        currentUserId = user.uid; 
+        const userRef = db.collection('users').doc(user.uid);
+        const docSnap = await userRef.get();
+        
+        let name = user.displayName || "مستخدم جوجل";
+
+        if (!docSnap.exists) {
+          await userRef.set({
+            fullName: name,
+            phone: user.phoneNumber || "",
+            email: user.email,
+            usedInviteCode: null, 
+            inviteCode: generateUserInviteCode(), 
+            balance: 0.00,        
+            vipLevel: 0,          
+            vipProgress: 0,       
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          
+          await logUserActivity(user.uid, name, 'إنشاء حساب جديد', 'قام بإنشاء حساب جديد عبر Google');
+        } else {
+          await logUserActivity(user.uid, name, 'تسجيل دخول', 'قام بتسجيل الدخول عبر Google');
+        }
+        
+        showToast(isAr ? 'تم تسجيل الدخول بواسطة جوجل بنجاح!' : 'Google Login Successful!', 'success');
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 1200);
+      })
+      .catch((error) => {
+        isRegistering = false; // إعادة الضبط للسماح بالمحاولة مرة أخرى
+        toggleLoading(false);
+        showToast(error.message, 'error');
+      });
+  });
+
+  document.getElementById('appleBtn').addEventListener('click', () => {
+    const isAr = document.documentElement.lang === 'ar';
+    showToast(isAr ? 'تسجيل الدخول عبر Apple سيتوفر قريباً!' : 'Apple Sign-in is coming soon!', 'warn');
+  });
+
+  // تمت إضافة وظيفة زر تيليجرام
+  document.getElementById('telegramBtn').addEventListener('click', () => {
+    const isAr = document.documentElement.lang === 'ar';
+    showToast(isAr ? 'تسجيل الدخول عبر Telegram سيتوفر قريباً!' : 'Telegram Sign-in is coming soon!', 'warn');
+  });
+
+  const dictionary = {
+    ar: {
+      support: "الدعم الفني", langName: "العربية", brandTag: "تداول بذكاء، اربح بثقة", pageTitle: "إنشاء حساب جديد", pageSub: "ابدأ رحلتك نحو تحقيق أرباحك الآن",
+      s1: "البيانات", s2: "التحقق", s3: "التفاصيل", s4: "اكتمال",
+      nL: "الاسم الكامل", nP: "أدخل اسمك الكامل", eL: "البريد الإلكتروني", pL: "رقم الهاتف",
+      pe: "رقم غير صالح", pwL: "كلمة المرور", pwP: "أدخل كلمة المرور", cpL: "تأكيد المرور",
+      cpP: "أعد الإدخال", ps: "قوة المرور:", rL: "8 أحرف على الأقل", rC: "حرف كبير وصغير", rS: "رمز خاص",
+      invL: "كود الدعوة (اختياري)", invP: "أدخل كود الدعوة إذا كان لديك", invE: "كود الدعوة هذا غير صالح أو غير موجود",
+      terms: 'أوافق على <a href="#">الشروط</a> و <a href="#">الخصوصية</a>',
+      btn: "التالي", div: "أو إنشاء حساب باستخدام", login: 'لديك حساب؟ <a href="login.html">تسجيل الدخول</a>'
+    },
+    en: {
+      support: "Support", langName: "English", brandTag: "Trade smart, earn with confidence", pageTitle: "Create Account", pageSub: "Start your journey to profits now",
+      s1: "Basics", s2: "Verify", s3: "Details", s4: "Complete",
+      nL: "Full Name", nP: "Enter full name", eL: "Email", pL: "Phone Number",
+      pe: "Invalid number", pwL: "Password", pwP: "Enter password", cpL: "Confirm Password",
+      cpP: "Re-enter", ps: "Strength:", rL: "Min 8 chars", rC: "Upper & lower", rS: "Special char",
+      invL: "Invitation Code (Optional)", invP: "Enter invitation code if you have one", invE: "This invitation code is invalid or does not exist",
+      terms: 'I agree to <a href="#">Terms</a> & <a href="#">Privacy</a>',
+      btn: "Next", div: "Or sign up with", login: 'Have an account? <a href="login.html">Login</a>'
+    }
+  };
+
+  const langBtn = $('langBtn');
+  const langMenu = $('langMenu');
+  
+  langBtn.addEventListener('click', () => langMenu.classList.toggle('show'));
+  document.addEventListener('click', (e) => {
+    if(!langBtn.contains(e.target) && !langMenu.contains(e.target)) langMenu.classList.remove('show');
+  });
+
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      applyLanguage(e.target.dataset.lang);
+      langMenu.classList.remove('show');
+    });
+  });
+
+   function applyLanguage(lang) {
+    const t = dictionary[lang];
+    if(!t) return;
+    
+    const supportTextEl = document.getElementById('supportText');
+    if (supportTextEl) {
+        supportTextEl.innerText = t.support;
+    }
+    
+    const isRtl = ['ar', 'ku', 'fa'].includes(lang);
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    
+    $('currentLang').textContent = t.langName;
+    document.querySelector('.brand-tag').textContent = t.brandTag;
+    document.querySelector('.page-title').textContent = t.pageTitle;
+    document.querySelector('.page-sub').textContent = t.pageSub;
+    
+    const steps = document.querySelectorAll('.step-label');
+    if (steps.length >= 4) {
+        steps[0].textContent = t.s1; 
+        steps[1].textContent = t.s2; 
+        steps[2].textContent = t.s3; 
+        steps[3].textContent = t.s4;
+    }
+
+    document.querySelector('label[for="fullName"]').textContent = t.nL; 
+    $('fullName').placeholder = t.nP;
+    document.querySelector('label[for="email"]').textContent = t.eL;
+    document.querySelector('label[for="phone"]').textContent = t.pL; 
+    $('phoneError').textContent = t.pe;
+    document.querySelector('label[for="password"]').textContent = t.pwL; 
+    $('password').placeholder = t.pwP;
+    document.querySelector('label[for="confirmPassword"]').textContent = t.cpL; 
+    $('confirmPassword').placeholder = t.cpP;
+    
+    document.querySelector('label[for="inviteCode"]').textContent = t.invL; 
+    $('inviteCode').placeholder = t.invP;
+    
+    document.querySelector('.strength-label').textContent = t.ps;
+    document.querySelector('#reqLength .req-text').textContent = t.rL;
+    document.querySelector('#reqCase .req-text').textContent = t.rC;
+    document.querySelector('#reqSpecial .req-text').textContent = t.rS;
+    
+    $('termsTextContainer').innerHTML = t.terms;
+    $('submitBtn').querySelector('span').textContent = t.btn;
+    document.querySelector('.divider').textContent = t.div;
+    document.querySelector('.login-row').innerHTML = t.login;
+    
+    if (typeof validatePassword === "function") {
+        validatePassword(); 
+    }
+  }
+
+})();
+</script>
+
+
+</body>
+</html>

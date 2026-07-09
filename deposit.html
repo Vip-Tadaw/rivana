@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rivana | الوكلاء المعتمدين</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #060813;
+            --bg-card: #0F1223;
+            --primary: #7c3aed;
+            --primary-glow: rgba(124, 58, 237, 0.4);
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --success: #00e676;
+            
+            /* Gradients */
+            --title-gradient: linear-gradient(90deg, #b070ff, #7c3aed);
+            --tg-gradient: linear-gradient(90deg, #2749c4, #3d5afe);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-main);
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding-bottom: 30px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 50%);
+        }
+
+        .app-container::-webkit-scrollbar { display: none; }
+
+        /* --- Neon Laser Back Button --- */
+        .neon-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 20px 20px 0 20px;
+            padding: 10px 20px;
+            background: var(--bg-card);
+            color: #00ffff;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 14px;
+            text-decoration: none;
+            border: 1px solid #00ffff;
+            border-radius: 12px;
+            box-shadow: 
+                0 0 8px rgba(0, 255, 255, 0.6),
+                inset 0 0 8px rgba(0, 255, 255, 0.3);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.8);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .neon-back-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 2px #00ffff, inset 0 0 2px #00ffff;
+        }
+
+        .neon-back-btn svg {
+            stroke: #00ffff;
+            filter: drop-shadow(0 0 3px #00ffff);
+        }
+
+        /* Laser sweep animation */
+        .neon-back-btn::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.8), transparent);
+            animation: laserSweep 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes laserSweep {
+            0% { right: -100%; }
+            50% { right: 200%; }
+            100% { right: 200%; }
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 24px 20px 16px;
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 44px; height: 44px;
+            border-radius: 14px;
+            display: flex; justify-content: center; align-items: center;
+            color: white; cursor: pointer; position: relative;
+        }
+
+        .notification-dot {
+            position: absolute; top: 10px; right: 12px;
+            width: 8px; height: 8px;
+            background: var(--primary); border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .header-title-container {
+            text-align: center; flex-grow: 1;
+        }
+
+        .header-title {
+            font-size: 26px; font-weight: 900;
+            background: var(--title-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 6px; text-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .header-subtitle {
+            font-size: 13px; color: var(--text-muted); font-weight: 500;
+        }
+
+        .shield-icon {
+            color: #3b82f6; background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* --- Search & Filter --- */
+        .search-section {
+            display: flex; gap: 12px; padding: 0 20px 20px;
+        }
+
+        .filter-btn {
+            background: var(--primary); color: white; border: none;
+            border-radius: 14px; padding: 0 20px; font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px var(--primary-glow); cursor: pointer;
+        }
+
+        .search-box {
+            flex-grow: 1; position: relative; background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+            display: flex; align-items: center; padding: 0 16px;
+        }
+
+        .search-box input {
+            width: 100%; background: transparent; border: none; color: white;
+            padding: 14px 0; font-size: 14px; outline: none; font-family: inherit;
+        }
+        .search-box input::placeholder { color: rgba(255,255,255,0.4); }
+        .search-box svg { color: rgba(255,255,255,0.4); width: 20px; height: 20px; }
+
+        /* --- Agent Cards List --- */
+        .agents-list {
+            display: flex; flex-direction: column; gap: 20px; padding: 0 20px;
+        }
+
+        .agent-card-wrapper {
+            position: relative;
+            border-radius: 20px;
+            padding: 2px;
+            background: linear-gradient(45deg, #7c3aed, #00bcd4, #ff00ff, #7c3aed);
+            background-size: 300% 300%;
+            animation: laserBorder 4s ease infinite;
+            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.2);
+        }
+
+        @keyframes laserBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .agent-card {
+            background: var(--bg-card);
+            border-radius: 18px;
+            padding: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            margin-bottom: 16px;
+        }
+
+        .agent-info {
+            display: flex;
+            flex-grow: 1;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .agent-avatar {
+            width: 70px; height: 70px; border-radius: 50%;
+            border: 2px solid var(--primary); padding: 2px;
+            object-fit: cover; background: #1a1e36;
+        }
+
+        .info-text {
+            display: flex; flex-direction: column;
+            align-items: flex-start; gap: 6px;
+        }
+
+        .agent-name {
+            font-size: 18px; font-weight: 800;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .verified-icon {
+            color: var(--primary); width: 18px; height: 18px; fill: var(--primary);
+        }
+
+        .agent-detail {
+            font-size: 12px; color: var(--text-muted);
+            display: flex; align-items: center; gap: 6px; direction: ltr;
+        }
+        
+        /* --- Payment Methods Badges --- */
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 2px;
+            direction: rtl;
+        }
+        
+        .pay-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #d1d5db;
+        }
+
+        .pay-badge.zain { color: #f87171; background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.2); }
+        .pay-badge.master { color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2); }
+        .pay-badge.okx { color: #a3e635; background: rgba(163, 230, 53, 0.1); border-color: rgba(163, 230, 53, 0.2); }
+        .pay-badge.binance { color: #fcd535; background: rgba(252, 213, 53, 0.1); border-color: rgba(252, 213, 53, 0.2); }
+
+        .status-dot {
+            width: 8px; height: 8px; background: var(--success);
+            border-radius: 50%; box-shadow: 0 0 8px var(--success);
+        }
+
+        .status-text { color: var(--success); font-size: 12px; font-weight: 700; }
+
+        .agent-stats {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between;
+            width: 100px;
+            border-right: 1px solid rgba(255,255,255,0.08);
+            padding-right: 12px;
+        }
+
+        .badge-verified {
+            background: var(--primary); color: white;
+            font-size: 11px; font-weight: 700; padding: 4px 10px;
+            border-radius: 8px; display: flex; align-items: center; gap: 4px;
+            width: 100%; justify-content: center; box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .rating-box { text-align: center; margin: 10px 0; }
+        
+        .rating-val {
+            display: flex; align-items: center; justify-content: center;
+            gap: 4px; font-size: 20px; font-weight: 800;
+        }
+        
+        .rating-val svg { color: #b070ff; fill: #b070ff; width: 16px; height: 16px; }
+        .rating-count { font-size: 10px; color: var(--text-muted); }
+        .operations-box { text-align: center; }
+        .ops-val { font-size: 16px; font-weight: 800; color: #b070ff; }
+        .ops-label { font-size: 10px; color: var(--text-muted); }
+
+        /* Action Buttons */
+        .card-actions { display: flex; gap: 12px; }
+
+        .action-btn {
+            flex: 1; border: none; padding: 12px 0; border-radius: 12px;
+            color: white; font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; font-family: inherit; transition: transform 0.2s;
+        }
+        .action-btn:active { transform: scale(0.95); }
+
+        .btn-telegram { background: var(--tg-gradient); box-shadow: 0 4px 15px rgba(61, 90, 254, 0.3); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <a href="#" class="neon-back-btn" onclick="window.history.back(); return false;">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+        العودة للرئيسية
+    </a>
+    
+    <header>
+        <button class="icon-btn">
+            <div class="notification-dot"></div>
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </button>
+        <div class="header-title-container">
+            <h1 class="header-title">الوكلاء المعتمدين</h1>
+            <p class="header-subtitle">تواصل مع وكلائنا المعتمدين لشحن رصيد حسابك بأمان</p>
+        </div>
+        <button class="icon-btn shield-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+        </button>
+    </header>
+
+    <div class="search-section">
+        <button class="filter-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            تصفية
+        </button>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="ابحث عن وكيل...">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+    </div>
+
+    <div class="agents-list" id="agentsContainer"></div>
+
+</div>
+
+<script>
+        const agentsData = [
+        {
+            id: 1,
+            name: "نور الهدى",
+            location: "ذي قار ",
+            phone: "07814755167",
+            paymentMethods: [
+                { name: "زين كاش", class: "zain" },
+                { name: "ماستر كارد", class: "master" },
+                { name: "بينانس", class: "binance" },
+                { name: "OKX", class: "okx" }
+            ],
+            rating: 4.9,
+            reviewsCount: 128,
+            opsCount: "230+",
+            isAvailable: true,
+            avatar: "https://i.pinimg.com/736x/59/5f/9a/595f9a3d447a84aa7fdf4a640665ee48.jpg",
+            telegram: "Noor96hu"
+        },
+        {
+            id: 2,
+            name: "الوكيله جمانه",
+            location: "البصرة - المعقل",
+            phone: "07858228522",
+            paymentMethods: [
+                { name: "زين كاش", class: "zain" },
+                { name: "بينانس", class: "binance" },
+                { name: "OKX", class: "okx" }
+            ],
+            rating: 4.8,
+            reviewsCount: 96,
+            opsCount: "120+",
+            isAvailable: true,
+            avatar: "https://i.pinimg.com/736x/a0/27/b8/a027b8af1ae633f8308fd6e0cb998b95.jpg",
+            telegram: "Jumana96mp"
+        },
+        {
+            id: 3,
+            name: "الوكيله فاطمه",
+            location: "بغداد - الرصافة",
+            phone: "07706917907",
+            paymentMethods: [
+                { name: "ماستر كارد", class: "master" },
+                { name: "بينانس", class: "binance" },
+                { name: "OKX", class: "okx" }
+            ],
+            rating: 4.7,
+            reviewsCount: 77,
+            opsCount: "95+",
+            isAvailable: true,
+            avatar: "https://i.pinimg.com/736x/0c/95/12/0c9512bafd2a6a1211c5cc88abed9d12.jpg",
+            telegram: "Za_xcv"
+        },
+        {
+            id: 4,
+            name: "الوكيل مهدي علي",
+            location: "بغداد _الشعب",
+            phone: "0783198881",
+            paymentMethods: [
+                { name: "زين كاش", class: "zain" },
+                { name: "ماستر كارد", class: "master" },
+                { name: "بينانس", class: "binance" }
+            ],
+            rating: 4.9,
+            reviewsCount: 42,
+            opsCount: "60+",
+            isAvailable: true,
+            avatar: "https://i.pinimg.com/736x/0a/3d/11/0a3d11bc1ca961016b339047941b9987.jpg",
+            telegram: "HP9RE"
+        }
+    ];
+
+    const container = document.getElementById('agentsContainer');
+    const searchInput = document.getElementById('searchInput');
+
+    function renderAgents(agents) {
+        container.innerHTML = '';
+        
+        if(agents.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#9ca3af; padding: 20px;">لا يوجد وكلاء يطابقون بحثك</p>';
+            return;
+        }
+
+        agents.forEach(agent => {
+            
+            const paymentBadgesHTML = agent.paymentMethods.map(method => 
+                `<span class="pay-badge ${method.class}">${method.name}</span>`
+            ).join('');
+
+            const cardWrapper = document.createElement('div');
+            cardWrapper.className = 'agent-card-wrapper';
+            
+            cardWrapper.innerHTML = `
+                <div class="agent-card">
+                    <div class="card-top">
+                        
+                        <div class="agent-info">
+                            <img src="${agent.avatar}" alt="${agent.name}" class="agent-avatar">
+                            <div class="info-text">
+                                <div class="agent-name">
+                                    ${agent.name}
+                                    <svg class="verified-icon" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>
+                                </div>
+                                
+                                <div class="agent-detail">
+                                    ${agent.location}
+                                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                </div>
+
+                                <div class="agent-detail" dir="ltr">
+                                    ${agent.phone}
+                                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                </div>
+
+                                <div class="payment-methods">
+                                    ${paymentBadgesHTML}
+                                </div>
+
+                                <div class="agent-detail" style="justify-content: flex-start; margin-top: 6px;">
+                                    <span class="status-text" style="color: ${agent.isAvailable ? 'var(--success)' : '#ff4757'}">
+                                        ${agent.isAvailable ? 'متاح الآن' : 'غير متصل'}
+                                    </span>
+                                    <div class="status-dot" style="background: ${agent.isAvailable ? 'var(--success)' : '#ff4757'}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="agent-stats">
+                            <div class="badge-verified">
+                                <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                وكيل معتمد
+                            </div>
+                            
+                            <div class="rating-box">
+                                <div class="rating-val">
+                                    ${agent.rating}
+                                    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                </div>
+                                <div class="rating-count">(${agent.reviewsCount} تقييم)</div>
+                            </div>
+
+                            <div class="operations-box">
+                                <div class="ops-val">${agent.opsCount}</div>
+                                <div class="ops-label">عملية ناجحة</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="action-btn btn-telegram" onclick="window.open('https://t.me/${agent.telegram}', '_blank')">
+                            تواصل عبر تيليجرام
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(cardWrapper);
+        });
+    }
+
+    renderAgents(agentsData);
+
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = agentsData.filter(agent => 
+            agent.name.toLowerCase().includes(term) || 
+            agent.location.toLowerCase().includes(term)
+        );
+        renderAgents(filtered);
+    });
+</script>
+
+</body>
+</html>

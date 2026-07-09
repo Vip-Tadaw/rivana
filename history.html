@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rivana - المركز المالي والنشاطات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #06080e;
+            --bg-card: #111424;
+            --bg-hover: #181d33;
+            --primary-purple: #7c3aed;
+            --light-purple: #a78bfa;
+            --text-main: #ffffff;
+            --text-muted: #8b94a5;
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+            --warning-gold: #fbbf24;
+            --info-blue: #3b82f6;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column;
+        }
+
+        /* ================= Header ================= */
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .back-btn:hover { background: var(--bg-hover); color: var(--light-purple); }
+        .page-title { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .page-title i { color: var(--primary-purple); }
+
+        .header-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-purple);
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
+        }
+
+        /* ================= Content Wrapper ================= */
+        .content-wrapper { 
+            padding: 30px; 
+            max-width: 1200px;
+            margin: 0 auto; 
+            width: 100%;
+            flex: 1;
+        }
+
+        /* التنبيهات اللحظية المنبثقة (Toasts) */
+        .toast-container {
+            position: fixed;
+            top: 90px;
+            left: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast-notif {
+            background: var(--bg-card);
+            border-right: 4px solid var(--primary-purple);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease forwards;
+        }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .table-section { 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            border-radius: 20px; 
+            padding: 25px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .table-header h3 { font-size: 18px; font-weight: 700; }
+
+        /* ستايل الجدول الاحترافي */
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: right; padding: 0 10px 15px; font-size: 14px; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border-color); }
+        td { padding: 18px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); vertical-align: middle; }
+        tr:hover td { background: rgba(255,255,255,0.01); }
+        
+        .op-type { display: flex; align-items: center; gap: 15px; }
+        .op-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        
+        /* الألوان بحسب نوع العملية */
+        .op-icon.deposit { background: rgba(16, 185, 129, 0.1); color: var(--success-green); }
+        .op-icon.withdraw { background: rgba(239, 68, 68, 0.1); color: var(--danger-red); }
+        .op-icon.trade_win { background: rgba(16, 185, 129, 0.15); color: #00ffcc; box-shadow: 0 0 10px rgba(0, 255, 204, 0.2); }
+        .op-icon.trade_loss { background: rgba(239, 68, 68, 0.1); color: var(--danger-red); }
+        .op-icon.bonus { background: rgba(251, 191, 36, 0.1); color: var(--warning-gold); }
+        .op-icon.system { background: rgba(59, 130, 246, 0.1); color: var(--info-blue); }
+        
+        .op-name { font-size: 14px; font-weight: 700; display: block; }
+        .op-sub { font-size: 12px; color: var(--text-muted); }
+        
+        .amt-main { font-size: 16px; font-weight: 800; display: block; direction: ltr; text-align: right; }
+        .amt-main.plus { color: var(--success-green); }
+        .amt-main.minus { color: var(--danger-red); }
+        .amt-main.neutral { color: var(--info-blue); }
+
+        .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px; }
+        .s-success { color: var(--success-green); background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .s-pending { color: var(--warning-gold); background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.2); }
+        .s-rejected { color: var(--danger-red); background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .s-info { color: var(--info-blue); background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); }
+
+        @media (max-width: 768px) {
+            .content-wrapper { padding: 15px; }
+            .top-header { padding: 15px 20px; }
+            .table-section { padding: 15px; overflow-x: auto;}
+            table { min-width: 650px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <header class="top-header">
+        <a href="#" class="back-btn" onclick="handleSmartBack(event)">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <div class="page-title">
+            <i class="fa-solid fa-clock-rotate-left"></i> مركز النشاطات والعمليات 
+        </div>
+        <div>
+            <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=7c3aed&color=fff" alt="Profile" class="header-avatar">
+        </div>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="table-section">
+            <div class="table-header">
+                <h3>تحديثات الحساب المباشرة</h3>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="text-align: right;">نوع العملية / النشاط</th>
+                        <th style="text-align: right;">التاريخ والوقت </th>
+                        <th style="text-align: right;">التأثير المالي</th>
+                        <th style="text-align: right;">الحالة الحالية</th>
+                    </tr>
+                </thead>
+                <tbody id="operationsTableBody">
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding: 30px; color: var(--text-muted);">
+                            في الانتظار... <i class="fa-solid fa-spinner fa-spin"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+   <script type="module">
+    // 1. استدعاء مكتبات الفايربيس (لاحظ أننا أضفنا initializeApp و addDoc و serverTimestamp)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // 2. إعدادات وتهيئة الفايربيس (إلزامية هنا قبل استدعاء auth و db)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+        authDomain: "reivana-8e377.firebaseapp.com",
+        projectId: "reivana-8e377",
+        storageBucket: "reivana-8e377.firebasestorage.app",
+        messagingSenderId: "1066129522960",
+        appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+        measurementId: "G-TD9YWWDEDT"
+    };
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // 3. دالة تسجيل نشاطات المستخدم للرادار الحي (مكتوبة بصيغة v10 الحديثة)
+    async function logUserActivity(type, details) {
+        // التأكد من وجود مستخدم مسجل الدخول باستخدام auth مباشرة
+        const user = auth.currentUser;
+        if (!user) return; 
+
+        // جلب اسم المستخدم من الواجهة أو تعيين اسم افتراضي
+        const userNameEl = document.getElementById('user-profile-name');
+        const userName = userNameEl ? userNameEl.innerText : "مستخدم ريفانا";
+
+        try {
+            // استخدام addDoc بدلاً من db.collection().add
+            await addDoc(collection(db, "user_activities"), {
+                userId: user.uid,
+                userName: userName,
+                type: type,      // أمثلة: 'دخول', 'إيداع', 'سحب', 'تداول', 'باقات'
+                details: details,
+                // استخدام serverTimestamp() الحديثة بدلاً من firebase.firestore...
+                timestamp: serverTimestamp() 
+            });
+        } catch (error) {
+            console.error("فشل إرسال النشاط للرادار: ", error);
+        }
+    }
+
+    // جعل الدالة متاحة للاستخدام في دوال أخرى داخل نفس الملف أو الصفحة
+    window.logUserActivity = logUserActivity;
+
+
+        const tableBody = document.getElementById('operationsTableBody');
+        const userAvatar = document.getElementById('userAvatar');
+        const toastContainer = document.getElementById('toastContainer');
+
+        let isInitialLoad = true; // لمنع إطلاق إشعارات منبثقة للعمليات القديمة جداً عند أول فتح للصفحة
+
+        // 1. نظام هندسة المظهر للحالات (Status Badges)
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'completed': case 'approved': case 'success': case 'مكتمل': case 'مقبول':
+                    return `<span class="status s-success"><i class="fa-regular fa-circle-check"></i> ناجحة / مكتملة</span>`;
+                case 'pending': case 'قيد المعالجة': case 'انتظار':
+                    return `<span class="status s-pending"><i class="fa-regular fa-clock"></i> قيد المعالجة</span>`;
+                case 'rejected': case 'failed': case 'مرفوض':
+                    return `<span class="status s-rejected"><i class="fa-solid fa-xmark"></i> مرفوضة / ملغاة</span>`;
+                default:
+                    return `<span class="status s-info"><i class="fa-solid fa-info"></i> ${status || 'مفعّل'}</span>`;
+            }
+        }
+
+        // 2. هندسة بناء الأيقونات والأسماء والخصائص حسب نوع العملية (Type Mapper)
+        function getOperationDetails(type, systemTitle) {
+            switch(type) {
+                case 'deposit':
+                    return { icon: 'deposit', symbol: 'fa-arrow-down', name: 'إيداع رصيد محفظة', amtClass: 'plus', prefix: '+' };
+                case 'withdraw':
+                    return { icon: 'withdraw', symbol: 'fa-arrow-up', name: 'سحب أموال خارج التطبيق', amtClass: 'minus', prefix: '-' };
+                case 'trade_win':
+                    return { icon: 'trade_win', symbol: 'fa-chart-line', name: 'صفقة تداول ناجحة 📈', amtClass: 'plus', prefix: '+' };
+                case 'trade_loss':
+                    return { icon: 'trade_loss', symbol: 'fa-chart-line', name: 'صفقة تداول خاسرة 📉', amtClass: 'minus', prefix: '-' };
+                case 'bonus_referral':
+                    return { icon: 'bonus', symbol: 'fa-user-plus', name: 'مكافأة دعوة صديق', amtClass: 'plus', prefix: '+' };
+                case 'bonus_admin':
+                    return { icon: 'bonus', symbol: 'fa-gift', name: 'هدية ومكافأة من الإدارة', amtClass: 'plus', prefix: '+' };
+                case 'account_status':
+                    return { icon: 'system', symbol: 'fa-user-shield', name: systemTitle || 'تحديث أمان الحساب', amtClass: 'neutral', prefix: '' };
+                default:
+                    return { icon: 'system', symbol: 'fa-bell', name: systemTitle || 'إشعار من النظام', amtClass: 'neutral', prefix: '' };
+            }
+        }
+
+        // 3. دالة إظهار التنبيه اللحظي المنبثق (Toast Notification)
+        function showLiveToast(title, message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notif';
+            toast.innerHTML = `
+                <div style="color: var(--primary-purple); font-size: 20px;"><i class="fa-solid fa-bell fa-bounce"></i></div>
+                <div>
+                    <strong style="display:block; font-size:14px; color:var(--text-main);">${title}</strong>
+                    <span style="font-size:12px; color:var(--text-muted);">${message}</span>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            
+            // إخفاء التنبيه تلقائياً بعد 5 ثوانٍ
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        // 4. دالة الاستماع والربط اللحظي مع الفايربيس (Real-time Listener)
+function startLiveActivityListener(userId) {
+    // 👈 التعديل الأول: تغيير اسم الكولكشن إلى user_activities
+    const activityRef = collection(db, "user_activities"); 
+    
+    // 👈 التعديل الثاني: الترتيب بناءً على timestamp وليس createdAt
+    const q = query(activityRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
+
+    // الاتصال اللحظي المفتوح (onSnapshot)
+    onSnapshot(q, (snapshot) => {
+        tableBody.innerHTML = ''; 
+
+        if (snapshot.empty) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: var(--text-muted);">لا توجد نشاطات أو عمليات مسجلة في حسابك حتى الآن.</td></tr>';
+            isInitialLoad = false;
+            return;
+        }
+
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            
+            // 👈 التعديل الثالث: قراءة الوقت من timestamp
+            const dateObj = data.timestamp ? data.timestamp.toDate() : new Date();
+            const dateStr = dateObj.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+            const timeStr = dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            const details = getOperationDetails(data.type, data.title || data.details);
+            const amount = data.amount || 0;
+            const currency = data.currency || 'IQD'; // يفضل توحيد العملة الافتراضية
+
+            // إنشاء سطر الجدول
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="op-type">
+                        <div class="op-icon ${details.icon}"><i class="fa-solid ${details.symbol}"></i></div>
+                        <div>
+                            <span class="op-name">${details.name}</span>
+                            <span class="op-sub">${data.details || data.description || 'عملية نظام موثقة'}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="op-name" style="direction: ltr; text-align: right;">${dateStr}</span>
+                    <span class="op-sub" style="direction: ltr; text-align: right;">${timeStr}</span>
+                </td>
+                <td>
+                    <span class="amt-main ${details.amtClass}">
+                        ${amount > 0 ? details.prefix : ''}${Number(amount).toLocaleString()} ${currency}
+                    </span>
+                </td>
+                <td>
+                    ${getStatusBadge(data.status || 'مكتمل')}
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        if (!isInitialLoad) {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    const newDoc = change.doc.data();
+                    const details = getOperationDetails(newDoc.type, newDoc.title || newDoc.details);
+                    showLiveToast(details.name, newDoc.details || 'تم تحديث حسابك الآن.');
+                }
+            });
+        }
+        isInitialLoad = false;
+    }, (error) => {
+        console.error("خطأ في الاتصال اللحظي:", error);
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: var(--danger-red);">فشل الاتصال اللحظي بقاعدة البيانات. تأكد من قواعد الحماية (Rules).</td></tr>';
+    });
+}
+
+
+        // 5. مراقبة حالة جلسة المستخدم الفايربيس
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userName = user.displayName || 'مستخدم ريفانا';
+                if (user.photoURL) {
+                    userAvatar.src = user.photoURL;
+                } else {
+                    userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=7c3aed&color=fff&bold=true`;
+                }
+
+                // بدء الاستماع اللحظي الفوري لجميع أنواع العمليات
+                startLiveActivityListener(user.uid);
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: var(--danger-red);">يرجى تسجيل الدخول أولاً لعرض بياناتك المزامنة.</td></tr>';
+            }
+        });
+    </script>
+
+    <script>
+        function handleSmartBack(event) {
+            event.preventDefault();
+            if (window.history.length > 1 && document.referrer !== "") {
+                window.history.back(); 
+            } else {
+                window.location.href = "home.html"; 
+            }
+        }
+    </script>
+</body>
+</html>

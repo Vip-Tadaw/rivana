@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rivana - دعوة الأصدقاء المطورة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* ألوان نيوم زاهية ومضيئة الأصلية 100% */
+            --bg-main: #040610;
+            --purple-neon: #a855f7;
+            --blue-neon: #00d2ff;
+            --pink-neon: #ec4899;
+            --green-neon: #10b981;
+            --gold-neon: #fbbf24;
+            --text-light: #ffffff;
+            --text-muted: #94a3b8;
+            
+            /* تدرج لوني زجاجي شفاف */
+            --glass-bg: rgba(13, 18, 34, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-hover: rgba(0, 210, 255, 0.3);
+            
+            --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* أنيميشن حركة تدرج الألوان الانسيابية الأصلي */
+        @keyframes colorShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* حاوية ممتدة بالكامل لاستغلال حواف شاشة الهاتف الطبيعية وبدون حواف ميتة */
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            background: radial-gradient(circle at top right, rgba(0, 210, 255, 0.18), transparent 60%),
+                        radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.22), transparent 60%),
+                        #050814;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 30px;
+        }
+
+        /* الهيدر الزجاجي العلوي */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 16px;
+            z-index: 10;
+            background: rgba(5, 8, 20, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+        }
+        .header-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+        }
+        .header-title {
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        .header-btn.info-btn {
+            width: auto;
+            padding: 0 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            gap: 6px;
+            color: var(--blue-neon);
+            background: rgba(0, 210, 255, 0.1);
+            border-color: rgba(0, 210, 255, 0.2);
+        }
+
+        /* سكرول المحتوى */
+        .content-scroll {
+            flex: 1;
+            padding: 16px;
+        }
+
+        /* منطقة الهيرو وصندوق الهدايا النيوني */
+        .hero-section {
+            text-align: center;
+            padding: 20px 0 30px;
+            position: relative;
+        }
+        .hero-title {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        .hero-title span { 
+            background: linear-gradient(90deg, var(--blue-neon), var(--purple-neon), var(--pink-neon));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: colorShift 4s linear infinite;
+            font-weight: 900;
+            filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.5));
+        }
+        .hero-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+        
+        /* الصندوق المضيء المتحرك الأصلي */
+        .gift-showcase {
+            position: relative;
+            height: 190px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .glow-orb {
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            background: linear-gradient(-45deg, var(--blue-neon), var(--purple-neon), var(--pink-neon));
+            background-size: 300% 300%;
+            animation: colorShift 4s linear infinite;
+            border-radius: 50%;
+            filter: blur(30px);
+            opacity: 0.28;
+            z-index: 1;
+        }
+        .gift-box-mock {
+            font-size: 115px;
+            background: linear-gradient(90deg, var(--blue-neon), var(--purple-neon), var(--pink-neon));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            z-index: 2;
+            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5));
+            position: relative;
+            animation: float 4s ease-in-out infinite, colorShift 4s linear infinite;
+        }
+
+        /* الأيقونات الطائرة المكبرة بدقة عالية لتناسب حواف الشاشة */
+        .floating-icon {
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15px;
+            z-index: 3;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+            animation: float 4s ease-in-out infinite;
+        }
+        .fi-1 { top: 0%; right: 15%; animation-delay: 0s; color: var(--blue-neon); }
+        .fi-2 { top: 55%; right: 8%; animation-delay: 1s; color: var(--purple-neon); }
+        .fi-3 { top: 5%; left: 15%; animation-delay: 2s; color: var(--pink-neon); }
+        .fi-4 { top: 60%; left: 8%; animation-delay: 0.5s; color: var(--gold-neon); }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-12px) scale(1.05); }
+        }
+
+        /* الكروت الزجاجية الشفافة Glassmorphism الممتدة للكامل */
+        .glass-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transition: var(--transition-bounce);
+        }
+        .glass-card:hover {
+            border-color: var(--glass-border-hover);
+            box-shadow: 0 15px 40px rgba(0, 210, 255, 0.15);
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+            display: block;
+            color: var(--text-light);
+            opacity: 0.95;
+        }
+        
+        .link-input-box {
+            display: flex;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 6px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .link-input-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--blue-neon);
+            font-weight: 600;
+            padding: 0 14px;
+            font-size: 14px;
+            outline: none;
+            direction: ltr;
+            text-align: left;
+        }
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition-bounce);
+        }
+        .copy-btn:hover {
+            background: rgba(0, 210, 255, 0.15);
+            color: var(--blue-neon);
+        }
+        
+        /* زر المشاركة الرئيسي ذو الألوان المتحركة */
+        .main-share-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #00c6ff, #0072ff, #7f00ff, #ec4899);
+            background-size: 300% 100%;
+            animation: colorShift 4s linear infinite;
+            border: none;
+            padding: 18px;
+            border-radius: 16px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 198, 255, 0.35);
+            transition: var(--transition-bounce);
+        }
+        .main-share-btn:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 10px 35px rgba(0, 198, 255, 0.6);
+        }
+
+        /* شبكة أزرار التواصل الاجتماعي الدائرية */
+        .social-share-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(255,255,255,0.08);
+        }
+        .social-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+        }
+        .social-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            transition: var(--transition-bounce);
+        }
+        .social-icon:hover { transform: translateY(-5px); filter: brightness(1.2); }
+        .whatsapp { background: #25D366; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.25); }
+        .telegram { background: #0088cc; box-shadow: 0 8px 20px rgba(0, 136, 204, 0.25); }
+        .facebook { background: #1877F2; box-shadow: 0 8px 20px rgba(24, 119, 242, 0.25); }
+        .twitter { background: #000000; border: 1px solid rgba(255,255,255,0.15); }
+        .more-social { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-light); }
+        .social-name { font-size: 12px; color: var(--text-muted); }
+
+        /* منطقة الإحصائيات الشفافة */
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 0 4px;
+        }
+        .stats-title { font-size: 15px; font-weight: 700; color: var(--blue-neon); text-shadow: 0 0 10px rgba(0,210,255,0.2); }
+        .time-filter {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition-bounce);
+            cursor: pointer;
+        }
+        .stat-card:hover { 
+            border-color: var(--blue-neon); 
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.15);
+        }
+        .stat-info span {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .stat-info strong {
+            display: block;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 17px;
+            background: rgba(255,255,255,0.02);
+        }
+        .icon-purple { color: var(--purple-neon); border: 1px solid rgba(168, 85, 247, 0.3); box-shadow: 0 0 15px rgba(168, 85, 247, 0.15); }
+        .icon-green { color: var(--green-neon); border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
+        .icon-gold { color: var(--gold-neon); border: 1px solid rgba(251, 191, 36, 0.3); box-shadow: 0 0 15px rgba(251, 191, 36, 0.15); }
+        .icon-blue { color: var(--blue-neon); border: 1px solid rgba(0, 210, 255, 0.3); box-shadow: 0 0 15px rgba(0, 210, 255, 0.15); }
+
+        /* مسار الخطوات التفاعلي مع استغلال المساحة والأيقونات الكبيرة */
+        .how-to-win h3 {
+            text-align: center;
+            font-size: 15px;
+            margin-bottom: 24px;
+            color: var(--text-light);
+        }
+        .steps-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2px;
+        }
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            gap: 8px;
+        }
+        .step-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: var(--blue-neon);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
+        }
+        .step-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .step-arrow {
+            color: var(--purple-neon);
+            opacity: 0.6;
+            font-size: 12px;
+            animation: pulseArrow 2s infinite;
+        }
+        @keyframes pulseArrow {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.2); opacity: 0.9; color: var(--blue-neon); }
+        }
+
+        /* كارت الـ 10% النهائي فائق الشفافية والإضاءة */
+        .reward-banner {
+            background: linear-gradient(135deg, rgba(88, 28, 135, 0.4) 0%, rgba(30, 27, 75, 0.4) 100%);
+            border: 1px solid rgba(0, 210, 255, 0.25);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(25px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .reward-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.15) 0%, transparent 50%);
+            z-index: 1;
+        }
+        .reward-info { position: relative; z-index: 2; }
+        .reward-info h4 { font-size: 18px; font-weight: 800; margin-bottom: 6px; color: white; }
+        .reward-info .perc { 
+            font-size: 52px; 
+            font-weight: 900; 
+            background: linear-gradient(90deg, #fff, var(--blue-neon));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px; 
+            filter: drop-shadow(0 0 15px rgba(0,210,255,0.6));
+        }
+        .reward-info p { font-size: 12px; color: rgba(255,255,255,0.75); margin-bottom: 12px; }
+        .badge-limit {
+            background: rgba(0, 210, 255, 0.15);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            color: var(--blue-neon);
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .reward-icon-huge {
+            font-size: 95px;
+            color: var(--purple-neon);
+            position: relative;
+            z-index: 2;
+            opacity: 0.85;
+            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.5));
+        }
+
+        /* --------------------------------------------------------------------- */
+        /* تأثير الضغط الهيدروليكي المرن لتمثيل حركة الموجات والارتداد النيوني الحقيقي */
+        /* --------------------------------------------------------------------- */
+        .header-btn:active, 
+        .copy-btn:active, 
+        .main-share-btn:active,
+        .social-item:active,
+        .time-filter:active,
+        .stat-card:active,
+        .glass-card:active {
+            transform: scale(0.93) translateY(2px);
+            filter: brightness(0.85);
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.3) !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+       <div class="header">
+        <div class="header-btn" onclick="history.back()" style="cursor: pointer;">
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+        <div class="header-title">دعوة الأصدقاء</div>
+        <div class="header-btn info-btn"><i class="fa-regular fa-circle-question"></i> شرح</div>
+    </div>
+
+
+    <div class="content-scroll">
+        
+        <div class="hero-section">
+            <h1 class="hero-title">ادعُ أصدقائك<br>واربح المزيد مع <span>Rivana</span></h1>
+            <p class="hero-subtitle">اربح مكافآت عندما ينضم أصدقاؤك ويبدأون بالتداول</p>
+            
+            <div class="gift-showcase">
+                <div class="glow-orb"></div>
+                <i class="fa-solid fa-gift gift-box-mock"></i>
+                
+                <div class="floating-icon fi-1"><i class="fa-solid fa-user-plus"></i></div>
+                <div class="floating-icon fi-2"><i class="fa-solid fa-user-plus"></i></div>
+                <div class="floating-icon fi-3"><i class="fa-solid fa-user-plus"></i></div>
+                <div class="floating-icon fi-4"><i class="fa-solid fa-user-plus"></i></div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <span class="section-label">رابط دعوتك الخاص</span>
+            <div class="link-input-box">
+                <input type="text" id="inviteLink" value="" readonly>
+                <button class="copy-btn" onclick="copyInviteLink()" id="copyBtn">
+                    <i class="fa-regular fa-copy"></i>
+                </button>
+            </div>
+            
+            <button class="main-share-btn" id="mainShareBtn">
+                <i class="fa-solid fa-share-nodes"></i> مشاركة الرابط
+            </button>
+            
+            <div style="text-align: center; margin: 18px 0 14px;">
+                <span style="font-size: 12px; color: var(--text-muted); font-weight:600;">مشاركة عبر</span>
+            </div>
+            
+            <div class="social-share-grid">
+                <div class="social-item" id="shareWhatsapp">
+                    <div class="social-icon whatsapp"><i class="fa-brands fa-whatsapp"></i></div>
+                    <span class="social-name">واتساب</span>
+                </div>
+                <div class="social-item" id="shareTelegram">
+                    <div class="social-icon telegram"><i class="fa-brands fa-telegram"></i></div>
+                    <span class="social-name">تليجرام</span>
+                </div>
+                <div class="social-item" id="shareFacebook">
+                    <div class="social-icon facebook"><i class="fa-brands fa-facebook-f"></i></div>
+                    <span class="social-name">فيسبوك</span>
+                </div>
+                <div class="social-item" id="shareTwitter">
+                    <div class="social-icon twitter"><i class="fa-brands fa-x-twitter"></i></div>
+                    <span class="social-name">تويتر</span>
+                </div>
+                <div class="social-item" id="shareMore">
+                    <div class="social-icon more-social"><i class="fa-solid fa-ellipsis"></i></div>
+                    <span class="social-name">المزيد</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-header">
+            <span class="stats-title">عرض الكل</span>
+            <div class="time-filter">
+                آخر 30 يوم <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span>إجمالي الأصدقاء</span>
+                    <strong id="totalFriends">0</strong>
+                </div>
+                <div class="stat-icon icon-purple"><i class="fa-solid fa-user-group"></i></div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span>الأصدقاء النشطون</span>
+                    <strong id="activeFriends">0</strong>
+                </div>
+                <div class="stat-icon icon-green"><i class="fa-solid fa-user-check"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span>إجمالي المكافآت</span>
+                    <strong id="totalRewards">0 <span style="font-size:11px; color:var(--text-muted)">IQD</span></strong>
+                </div>
+                <div class="stat-icon icon-gold"><i class="fa-solid fa-coins"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span>مكافآت قيد الانتظار</span>
+                    <strong id="pendingRewards">0 <span style="font-size:11px; color:var(--text-muted)">IQD</span></strong>
+                </div>
+                <div class="stat-icon icon-blue"><i class="fa-regular fa-clock"></i></div>
+            </div>
+        </div>
+
+        <div class="glass-card how-to-win">
+            <h3>كيف تربح؟</h3>
+            <div class="steps-row">
+                <div class="step-item">
+                    <div class="step-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                    <span class="step-text">شارك الرابط</span>
+                </div>
+                <i class="fa-solid fa-arrow-left step-arrow"></i>
+                
+                <div class="step-item">
+                    <div class="step-icon" style="color:var(--purple-neon);"><i class="fa-solid fa-user-plus"></i></div>
+                    <span class="step-text">صديقك ينضم</span>
+                </div>
+                <i class="fa-solid fa-arrow-left step-arrow"></i>
+
+                <div class="step-item">
+                    <div class="step-icon" style="color:#ec4899;"><i class="fa-solid fa-chart-line"></i></div>
+                    <span class="step-text">يبدأ التداول</span>
+                </div>
+                <i class="fa-solid fa-arrow-left step-arrow"></i>
+
+                <div class="step-item">
+                    <div class="step-icon" style="color:var(--gold-neon); border-color:var(--gold-neon);"><i class="fa-solid fa-bag-shopping"></i></div>
+                    <span class="step-text">تربح المكافأة</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="reward-banner">
+            <div class="reward-info">
+                <h4>مكافآت الدعوة</h4>
+                <p>احصل على مكافآت تصل إلى</p>
+                <div class="perc">10%</div>
+                <p style="margin-bottom: 12px;">من أرباح تداول صديقك مدى الحياة</p>
+                <div class="badge-limit">بدون حد أقصى</div>
+            </div>
+            <div class="reward-icon-huge">
+                <i class="fa-solid fa-gift"></i>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function copyInviteLink() {
+        const linkInput = document.getElementById("inviteLink");
+        const copyBtn = document.getElementById("copyBtn");
+        
+        linkInput.select();
+        linkInput.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(linkInput.value);
+        
+        const originalIcon = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fa-solid fa-check" style="color: var(--green-neon);"></i>';
+        copyBtn.style.borderColor = "var(--green-neon)";
+        copyBtn.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.5)";
+        
+        setTimeout(() => {
+            copyBtn.innerHTML = originalIcon;
+            copyBtn.style.borderColor = "var(--glass-border)";
+            copyBtn.style.boxShadow = "none";
+        }, 1500);
+    }
+</script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // 1. ضع بيانات مشروعك الخاصة بـ Firebase هنا ليعمل الاتصال حقيقياً
+   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+  authDomain: "reivana-8e377.firebaseapp.com",
+  projectId: "reivana-8e377",
+  storageBucket: "reivana-8e377.firebasestorage.app",
+  messagingSenderId: "1066129522960",
+  appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+  measurementId: "G-TD9YWWDEDT"
+};
+
+    // تهيئة فايربيس
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+// دالة تسجيل نشاطات المستخدم للرادار الحي
+async function logUserActivity(type, details) {
+    // التأكد من وجود مستخدم مسجل الدخول
+    if (!currentUserId) return; 
+
+    // جلب اسم المستخدم من الواجهة أو تعيين اسم افتراضي
+    const userNameEl = document.getElementById('user-profile-name');
+    const userName = userNameEl ? userNameEl.innerText : "مستخدم ريفانا";
+
+    try {
+        await db.collection("user_activities").add({
+            userId: currentUserId,
+            userName: userName,
+            type: type,      // أمثلة: 'دخول', 'إيداع', 'سحب', 'تداول', 'باقات'
+            details: details,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error("فشل إرسال النشاط للرادار: ", error);
+    }
+}
+
+    // دالة مساعدة لتنسيق أرقام العملات (مثال: 568000 تصبح 568,000)
+    function formatNumber(num) {
+        return Number(num || 0).toLocaleString('en-US');
+    }
+
+    // 2. تتبع المستخدم وجلب بياناته من Firestore في الوقت الفعلي (Real-time)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // الاستماع الحي لوثيقة المستخدم داخل مجموعة (users) بناءً على معرفه الفريد UID
+            const userDocRef = doc(db, "users", user.uid);
+            
+            onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // أ. تغيير الرابط تلقائياً وفقاً للدومين المستضاف عليه حالياً + كود الدعوة للمستخدم
+                    const referralCode = data.referralCode || data.username || user.uid;
+                    const dynamicInviteLink = `${window.location.origin}/invite/${referralCode}`;
+                    document.getElementById("inviteLink").value = dynamicInviteLink;
+                    
+                    // ب. تحديث الأرقام الحقيقية في لوحة الإحصائيات
+                    document.getElementById("totalFriends").innerText = data.totalFriends || 0;
+                    document.getElementById("activeFriends").innerText = data.activeFriends || 0;
+                    
+                    // تحديث المبالغ المالية مع الحفاظ على العملة وتنسيق الألوان الأصلي
+                    const totalRewards = data.totalRewards || 0;
+                    document.getElementById("totalRewards").innerHTML = `${formatNumber(totalRewards)} <span style="font-size:11px; color:var(--text-muted)">IQD</span>`;
+                    
+                    const pendingRewards = data.pendingRewards || 0;
+                    document.getElementById("pendingRewards").innerHTML = `${formatNumber(pendingRewards)} <span style="font-size:11px; color:var(--text-muted)">IQD</span>`;
+                }
+            });
+        } else {
+            // في حال عدم تسجيل دخول المستخدم (افتراضي) يتم أخذ الدومين الحالي تلقائياً
+            document.getElementById("inviteLink").value = `${window.location.origin}/invite/GUEST`;
+        }
+    });
+
+    // 3. تفعيل أزرار مشاركة وسائل التواصل الاجتماعي بالرابط الحقيقي الديناميكي
+    function getSharePayload() {
+        const link = document.getElementById("inviteLink").value;
+        const text = "انضم إلي في Rivana وتداول للحصول على مكافآت مدى الحياة بلا حدود! رابط الدعوة الخاص بي:";
+        return { link, text, textWithLink: `${text}\n${link}` };
+    }
+
+    // زر المشاركة الشامل (Web Share API الخاص بأنظمة الهواتف الذكية)
+    document.getElementById("mainShareBtn").addEventListener("click", async () => {
+        const payload = getSharePayload();
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Rivana - دعوة الأصدقاء',
+                    text: payload.text,
+                    url: payload.link,
+                });
+            } catch (err) { console.log("تم إلغاء المشاركة بالنظام"); }
+        } else {
+            // كخيار بديل عند التصفح من كمبيوتر عادي يتم نسخ الرابط فوراً
+            window.copyInviteLink();
+        }
+    });
+
+    // أزرار الشبكات الاجتماعية المنفردة
+    document.getElementById("shareWhatsapp").addEventListener("click", () => {
+        const payload = getSharePayload();
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(payload.textWithLink)}`, '_blank');
+    });
+
+    document.getElementById("shareTelegram").addEventListener("click", () => {
+        const payload = getSharePayload();
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(payload.link)}&text=${encodeURIComponent(payload.text)}`, '_blank');
+    });
+
+    document.getElementById("shareFacebook").addEventListener("click", () => {
+        const payload = getSharePayload();
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(payload.link)}`, '_blank');
+    });
+
+    document.getElementById("shareTwitter").addEventListener("click", () => {
+        const payload = getSharePayload();
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(payload.link)}&text=${encodeURIComponent(payload.text)}`, '_blank');
+    });
+
+    document.getElementById("shareMore").addEventListener("click", () => {
+        document.getElementById("mainShareBtn").click();
+    });
+</script>
+
+</body>
+</html>

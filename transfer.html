@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rivana - تحويل الأموال الاحترافي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+       <style>
+        :root {
+            --bg-body: #06080e;
+            --bg-sidebar: #0a0c14;
+            --bg-card: #111424;
+            --bg-hover: #181d33;
+            --bg-input: rgba(255, 255, 255, 0.03);
+            
+            --primary-purple: #7c3aed;
+            --light-purple: #a78bfa;
+            --neon-purple: #8b5cf6;
+            
+            --text-main: #ffffff;
+            --text-muted: #8b94a5;
+            
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+            --warning-gold: #fbbf24;
+            
+            --border-color: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;  
+            display: block; 
+        }
+
+        .main-content {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-body);
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .main-content::-webkit-scrollbar { display: none; }
+        
+        .content-wrapper {
+            padding: 30px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .header-titles h1 { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .header-titles h1 i { color: var(--primary-purple); }
+        .header-titles p { font-size: 13px; color: var(--text-muted); }
+
+        .balance-display-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .user-balance-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 18px 22px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+        .user-balance-card.active-source {
+            border-color: var(--primary-purple);
+            background: linear-gradient(180deg, rgba(124, 58, 237, 0.06) 0%, rgba(17, 20, 36, 0.95) 100%);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.05);
+        }
+        .balance-info h5 { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+        .balance-info p { font-size: 20px; font-weight: 800; color: var(--text-main); }
+
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; text-align: center; color: var(--text-muted); }
+        
+        .transfer-types-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }
+        .type-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px 20px; text-align: center; cursor: pointer; transition: var(--transition); position: relative; overflow: hidden; }
+        .type-card:hover { border-color: rgba(124, 58, 237, 0.4); background: var(--bg-hover); transform: translateY(-3px); }
+        .type-card.active { background: linear-gradient(180deg, rgba(124, 58, 237, 0.12) 0%, rgba(17, 20, 36, 0.95) 100%); border: 1px solid var(--primary-purple); box-shadow: 0 10px 25px rgba(124, 58, 237, 0.15); }
+        .type-icon { font-size: 34px; color: var(--light-purple); margin-bottom: 15px; }
+        .type-card.active .type-icon { color: var(--neon-purple); filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.5)); }
+        .type-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .type-card p { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 15px; }
+        
+        .radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text-muted); margin: 0 auto; display: flex; justify-content: center; align-items: center; transition: var(--transition); }
+        .type-card.active .radio-circle { border-color: var(--primary-purple); background: var(--primary-purple); color: white; }
+        .type-card.active .radio-circle::after { content: '\f00c'; font-family: 'FontAwesome'; font-size: 11px; }
+
+        .transfer-form-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; padding: 30px; margin-bottom: 40px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+        
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper i { position: absolute; right: 15px; color: var(--text-muted); font-size: 14px; }
+        .input-wrapper i.left-icon { right: auto; left: 15px; cursor: pointer; }
+        
+        .form-control { width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 14px; padding: 15px; color: var(--text-main); font-size: 14px; transition: var(--transition); outline: none; }
+        .form-control:focus { border-color: var(--primary-purple); background: rgba(124, 58, 237, 0.05); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }
+        
+        select.form-control { appearance: none; padding-left: 40px; cursor: pointer; }
+        
+        .amount-input-wrapper .form-control { font-size: 18px; font-weight: 700; color: var(--warning-gold); }
+        .currency-label { position: absolute; left: 15px; font-size: 14px; font-weight: 700; color: var(--text-muted); }
+        .usd-equivalent { font-size: 12px; color: var(--text-muted); margin-top: 5px; font-weight: 600; }
+
+        .recipient-status-box {
+            grid-column: span 2;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+        .recipient-status-box.searching { display: flex; border-color: var(--warning-gold); color: var(--warning-gold); background: rgba(251, 191, 36, 0.02); }
+        .recipient-status-box.error { display: flex; border-color: var(--danger-red); color: var(--danger-red); background: rgba(239, 68, 68, 0.02); }
+        
+        .recipient-status-box.success { 
+            display: flex; 
+            border-color: var(--success-green); 
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, rgba(17, 20, 36, 0.8) 100%);
+            color: var(--text-main);
+        }
+        .recipient-profile-card { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            width: 100%; 
+        }
+        .recipient-avatar-circle { 
+            width: 38px;  
+            height: 38px; 
+            background: var(--bg-hover); 
+            border: 2px solid var(--success-green); 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 15px; 
+            color: var(--success-green); 
+            flex-shrink: 0;
+        }
+        .recipient-v-details {
+            flex-grow: 1;
+            min-width: 0; /* تحمي النصوص الطويلة من كسر الحاوية الخارجية */
+        }
+        .recipient-v-details h4 { 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: #fff; 
+            margin-bottom: 2px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* تجعل الاسم الطويل ينتهي بنقاط بدلاً من تدمير التصميم */
+        }
+        .recipient-v-details p { 
+            font-size: 11px; 
+            color: var(--text-muted); 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .verified-badge { 
+            background: rgba(16, 185, 129, 0.12); 
+            color: var(--success-green); 
+            font-size: 10px; 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-weight: 700; 
+            margin-right: auto; 
+            white-space: nowrap; 
+        }
+
+        .summary-box { border-top: 1px solid var(--border-color); padding-top: 20px; margin-bottom: 25px; }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; }
+        .summary-row.total { font-weight: 700; font-size: 15px; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 12px; }
+        .text-green { color: var(--success-green); font-weight: 700; }
+        .text-red { color: var(--danger-red); font-weight: 700; }
+
+        .submit-btn { width: 100%; background: linear-gradient(90deg, #7c3aed 0%, #9333ea 100%); color: white; border: none; border-radius: 16px; padding: 18px; font-size: 16px; font-weight: 800; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; transition: var(--transition); box-shadow: 0 10px 20px rgba(124, 58, 237, 0.25); }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(124, 58, 237, 0.35); }
+        .submit-btn:disabled { background: var(--bg-hover); color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none; }
+
+        .header-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .view-all { color: var(--primary-purple); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        
+        .transactions-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+        .tx-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: 16px; transition: var(--transition); }
+        .tx-item:hover { background: var(--bg-hover); }
+        
+        .tx-user { display: flex; align-items: center; gap: 15px; }
+        .tx-icon-box { width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        
+        .icon-agent { background: rgba(251, 191, 36, 0.1); color: var(--warning-gold); }
+        .icon-user { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+        .tx-details h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+        .tx-details p { font-size: 11px; color: var(--text-muted); }
+        
+        .tx-amount-col { text-align: left; }
+        .tx-type-text { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; display: block; }
+        .tx-amount { font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 4px; }
+        .tx-amount.negative { color: var(--danger-red); }
+        
+        .status-badge { font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .status-badge.completed { color: var(--success-green); }
+        .status-badge.pending { color: var(--warning-gold); }
+        
+        .tx-date { font-size: 11px; color: var(--text-muted); text-align: left; line-height: 1.4;}
+
+        .bottom-actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding-bottom: 40px; }
+        .action-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px 15px; text-align: center; cursor: pointer; transition: var(--transition); }
+        .action-card:hover { background: var(--bg-hover); border-color: rgba(124, 58, 237, 0.3); transform: translateY(-3px); }
+        .action-card i { font-size: 28px; color: var(--light-purple); margin-bottom: 12px; }
+        .action-card h4 { font-size: 14px; font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .content-wrapper { padding: 15px 12px; }
+            .transfer-types-grid { grid-template-columns: 1fr; gap: 12px; }
+            .form-grid { grid-template-columns: 1fr; gap: 14px; }
+            
+            /* حماية صندوق التحقق من الانحصار العرضي */
+            .recipient-status-box { 
+                grid-column: span 1; 
+                padding: 10px 12px !important; 
+                border-radius: 12px !important;
+                overflow: hidden;
+            }
+            .recipient-profile-card {
+                flex-wrap: wrap; /* تسمح بنزول الشارة للأسفل إذا انحصرت المساحة عرضياً */
+                gap: 8px;
+            }
+            .verified-badge {
+                margin-right: 0;
+                margin-left: auto; /* ترتيب مرن للموبايل */
+            }
+            
+            .transfer-form-box { padding: 15px 12px; border-radius: 18px; }
+            .bottom-actions-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            
+            .balance-display-box { grid-template-columns: 1fr; gap: 10px; }
+            .user-balance-card { padding: 12px 15px; }
+            .balance-info p { font-size: 16px; }
+            
+            #quickAgentsGrid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .tx-item { flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px; }
+            .tx-amount-col, .tx-date { text-align: right; width: 100%; }
+            .tx-amount { justify-content: flex-start; font-size: 14px; }
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="main-content">
+        <div class="content-wrapper">
+            
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 25px;">
+                <a href="javascript:history.back()" style="width: 44px; height: 44px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--text-muted); text-decoration: none; transition: var(--transition);" onmouseover="this.style.background='var(--bg-hover)'; this.style.color='var(--text-main)';" onmouseout="this.style.background='var(--bg-card)'; this.style.color='var(--text-muted)';">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <div class="header-titles">
+                    <h1 style="margin-bottom: 0;"><i class="fa-solid fa-arrow-right-arrow-left"></i> تحويل الأموال والوكلاء</h1>
+                    <p style="margin-top: 5px;">أرسل الأموال فورياً لحساب آخر أو عبر أقرب وكيل معتمد في منطقتك</p>
+                </div>
+            </div>
+
+            <div class="balance-display-box">
+                <div class="user-balance-card active-source" id="cardBalanceMain">
+                    <div class="balance-info">
+                        <h5>الرصيد الأساسي</h5>
+                        <p id="txtMainBalance">0.00 IQD</p>
+                    </div>
+                    <i class="fa-solid fa-wallet" style="color: var(--primary-purple); font-size: 26px;"></i>
+                </div>
+                <div class="user-balance-card" id="cardBalanceProfit">
+                    <div class="balance-info">
+                        <h5>رصيد الأرباح والمستردات</h5>
+                        <p id="txtProfitBalance">0.00 IQD</p>
+                    </div>
+                    <i class="fa-solid fa-money-bill-trend-up" style="color: var(--success-green); font-size: 26px;"></i>
+                </div>
+            </div>
+
+            <h3 class="section-title">اختر نوع وتوجيه العملية</h3>
+            <div class="transfer-types-grid">
+                <div class="type-card active" data-type="rivana" onclick="selectType(this)">
+                    <i class="fa-solid fa-user-check type-icon"></i>
+                    <h4>إلى مستخدم Rivana</h4>
+                    <p>تحويل فوري مباشر ومحمي لجميع الحسابات داخل المنصة</p>
+                    <div class="radio-circle"></div>
+                </div>
+                <div class="type-card" data-type="agent" onclick="selectType(this)">
+                    <i class="fa-solid fa-user-shield type-icon"></i>
+                    <h4>تحويل عبر وكيل معتمد</h4>
+                    <p>إيداع أو سحب نقدي مباشر من خلال منافذ وكلائنا الرسميين</p>
+                    <div class="radio-circle"></div>
+                </div>
+            </div>
+
+            <h3 class="section-title">تفاصيل التحويل والأمان</h3>
+            <div class="transfer-form-box">
+                <form action="#" method="POST" id="transferForm">
+                    <div class="form-grid">
+                        
+                        <div class="input-group">
+                            <label>محفظة مصدر التحويل</label>
+                            <div class="input-wrapper">
+                                <select class="form-control" name="balance_source" id="balanceSource">
+                                    <option value="balance" selected>الرصيد الأساسي</option>
+                                    <option value="profitBalance">رصيد الأرباح الكاش باك</option>
+                                </select>
+                                <i class="fa-solid fa-money-check-dollar" style="right: 15px;"></i>
+                                <i class="fa-solid fa-angle-down left-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label id="lblSearch">ابحث عن المستلم (الاسم، المعرف، الهاتف)</label>
+                            <div class="input-wrapper">
+                                <input type="text" class="form-control" placeholder="اكتب Rivana ID أو رقم الهاتف للتأكد..." id="searchRecipient" name="search_recipient" style="padding-right: 40px;" autocomplete="off">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                        </div>
+<div id="quickAgentsContainer" style="display: none; grid-column: span 2; margin-top: 5px; margin-bottom: 15px;">
+    <h5 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">اختر وكيلك المعتمد لتعبئة البيانات تلقائياً:</h5>
+    <div id="quickAgentsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">
+        </div>
+</div>
+
+                        <div class="recipient-status-box" id="recipientStatusBox">
+                            </div>
+
+                        <div class="input-group">
+                            <label>المبلغ المطلوب تحويله بالدينار</label>
+                            <div class="input-wrapper amount-input-wrapper">
+                                <input type="number" step="any" class="form-control" placeholder="0.00" id="inputAmount" name="amount" style="padding-left: 50px;">
+                                <span class="currency-label">IQD</span>
+                            </div>
+                            <div class="usd-equivalent" id="usdEquivalent">≈ 0.00 USD</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>رسالة أو ملاحظة العملية (اختياري)</label>
+                            <div class="input-wrapper">
+                                <input type="text" class="form-control" placeholder="اكتب سبباً أو ملاحظة تظهر للمستلم..." name="message" style="padding-right: 40px;">
+                                <i class="fa-regular fa-comment-dots"></i>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="summary-box">
+                        <div class="summary-row">
+                            <span style="color: var(--text-muted);">رسوم البوابة والشبكة</span>
+                            <span id="feeText">مجاني بالكامل 0 IQD</span>
+                        </div>
+                        <div class="summary-row">
+                            <span style="color: var(--text-muted);">عائد كاش باك فوري لمحفظتك (0.5%)</span>
+                            <span class="text-green" id="cashbackText">+0.00 IQD</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span style="color: var(--text-main);">الصافي الإجمالي المخصوم من رصيدك</span>
+                            <span class="text-red" id="totalDeductionText">0.00 IQD</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="btnSubmitTransfer" disabled>
+                        تأكيد وإرسال الحوالة الآن بأمان <i class="fa-regular fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="header-between">
+                <h3 class="section-title" style="margin:0;">آخر المعاملات والتحويلات الناجحة</h3>
+                <div class="view-all" id="btnViewAll"><i class="fa-solid fa-angle-right"></i> سجل الحساب</div>
+            </div>
+            <div class="transactions-list" id="transactionsContainer">
+                <p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px;">جاري المزامنة...</p>
+            </div>
+            <div class="bottom-actions-grid">
+                <div class="action-card"><i class="fa-solid fa-chart-pie"></i><h4>الحدود والرسوم</h4></div>
+                <div class="action-card"><i class="fa-regular fa-calendar-plus"></i><h4>التحويلات المجدولة</h4></div>
+                <div class="action-card"><i class="fa-solid fa-file-invoice"></i><h4>كشوفات الحساب</h4></div>
+                <div class="action-card"><i class="fa-solid fa-user-plus"></i><h4>إدارة المفضلين</h4></div>
+            </div>
+
+        </div>
+    </div>
+
+   <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+    getFirestore, collection, doc, getDocs, query, where, 
+    runTransaction, serverTimestamp, orderBy, limit, onSnapshot, addDoc 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+// 1. إعدادات Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+    authDomain: "reivana-8e377.firebaseapp.com",
+    projectId: "reivana-8e377",
+    storageBucket: "reivana-8e377.firebasestorage.app",
+    messagingSenderId: "1066129522960",
+    appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+    measurementId: "G-TD9YWWDEDT"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// 2. الثوابت والمتغيرات
+const AGENT_FEE_PERCENTAGE = 0.01; // رسوم الوكيل 1%
+const USER_FEE_PERCENTAGE = 0;     // رسوم المستخدم 0%
+const USD_RATE = 1530; 
+
+let currentUser = null;
+let currentBalances = { balance: 0, profitBalance: 0 };
+let verifiedRecipient = null;
+let selectedTransferType = "rivana"; 
+let searchTimeout = null;
+
+// 3. ربط عناصر الواجهة
+const elements = {
+    txtMain: document.getElementById('txtMainBalance'),
+    txtProfit: document.getElementById('txtProfitBalance'),
+    cardMain: document.getElementById('cardBalanceMain'),
+    cardProfit: document.getElementById('cardBalanceProfit'),
+    source: document.getElementById('balanceSource'),
+    search: document.getElementById('searchRecipient'),
+    statusBox: document.getElementById('recipientStatusBox'),
+    amount: document.getElementById('inputAmount'),
+    usdEq: document.getElementById('usdEquivalent'),
+    fee: document.getElementById('feeText'),
+    cashback: document.getElementById('cashbackText'),
+    total: document.getElementById('totalDeductionText'),
+    btnSubmit: document.getElementById('btnSubmitTransfer'),
+    txContainer: document.getElementById('transactionsContainer'),
+    lblSearch: document.getElementById('lblSearch'),
+    agentsContainer: document.getElementById('quickAgentsContainer'),
+    agentsGrid: document.getElementById('quickAgentsGrid'),
+    form: document.getElementById('transferForm'),
+    loader: document.getElementById('quantum-loader'),
+    // تأكد من وجود هذا العنصر في الـ HTML لديك لعرض الإشعارات، أو غير الـ ID هنا لما يناسب كودك
+    notifContainer: document.getElementById('notificationsContainer') 
+};
+
+// 4. نظام الإشعارات الفوري بالواجهة (Toasts)
+function triggerGlobalToast(message, isSuccess) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px;
+        background: ${isSuccess ? 'linear-gradient(90deg, #10b981 0%, #047857 100%)' : 'linear-gradient(90deg, #ef4444 0%, #b91c1c 100%)'};
+        color: white; padding: 15px 25px; border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999;
+        font-weight: 600; font-size: 14px; transform: translateX(150%);
+        transition: transform 0.3s ease; display: flex; align-items: center; gap: 10px;
+    `;
+    toast.innerHTML = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.style.transform = 'translateX(0)', 10);
+    setTimeout(() => {
+        toast.style.transform = 'translateX(150%)';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// 5. الوكلاء
+function renderQuickAgentsList() {
+    if (!elements.agentsGrid) return;
+    elements.agentsGrid.innerHTML = '';
+    if (typeof agentsData === 'undefined') return;
+    
+    agentsData.forEach(agent => {
+        const item = document.createElement('div');
+        item.className = 'agent-quick-item';
+        item.style.cssText = `
+            background: #161b30; border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; padding: 12px; display: flex; align-items: center;
+            gap: 12px; cursor: pointer; transition: all 0.2s ease;
+        `;
+        item.innerHTML = `
+            <img src="${agent.avatar}" style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--primary-purple);">
+            <div style="flex-grow: 1;">
+                <h4 style="font-size: 13px; font-weight: 700; color: #fff; margin:0;">${agent.name}</h4>
+                <p style="font-size: 11px; color: var(--text-muted); margin:0;">${agent.location}</p>
+            </div>
+            <span style="font-size: 10px; font-weight:700; padding: 2px 6px; border-radius:4px; background:${agent.isAvailable ? 'rgba(16,185,129,0.1)' : 'rgba(239,64,64,0.1)'}; color:${agent.isAvailable ? 'var(--success-green)' : 'var(--danger-red)'};">
+                ${agent.isAvailable ? 'متاح' : 'مغلق'}
+            </span>
+        `;
+        item.onclick = () => {
+            elements.search.value = agent.rivanaId;
+            triggerRecipientSearch(agent.rivanaId);
+        };
+        elements.agentsGrid.appendChild(item);
+    });
+}
+
+// 6. المصادقة وجلب البيانات
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        listenToUserData(user.uid);
+        listenToTransactions(user.uid);
+        listenToNotifications(user.uid); // تم تفعيل دالة الاستماع للإشعارات هنا
+    }
+});
+
+function listenToUserData(uid) {
+    onSnapshot(doc(db, "users", uid), (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            currentBalances.balance = Number(data.balance || 0);
+            currentBalances.profitBalance = Number(data.profitBalance || 0);
+            if(elements.txtMain) elements.txtMain.innerText = `${currentBalances.balance.toLocaleString()} IQD`;
+            if(elements.txtProfit) elements.txtProfit.innerText = `${currentBalances.profitBalance.toLocaleString()} IQD`;
+            calculateSummary();
+        }
+    });
+}
+
+// 7. التفاعلات (UI)
+window.selectType = function(element) {
+    document.querySelectorAll('.type-card').forEach(card => card.classList.remove('active'));
+    element.classList.add('active');
+    selectedTransferType = element.getAttribute('data-type');
+    
+    elements.search.value = '';
+    updateStatusBox('', '', false);
+    verifiedRecipient = null;
+    
+    if(selectedTransferType === 'agent') {
+        elements.lblSearch.innerText = "ابحث عن الوكيل المعتمد (معرّف الوكيل أو رقم هاتفه)";
+        elements.search.placeholder = "أدخل ID الوكيل أو اختر من القائمة أدناه...";
+        elements.agentsContainer.style.display = 'block'; 
+        renderQuickAgentsList();
+    } else {
+        elements.lblSearch.innerText = "ابحث عن المستلم (الاسم، المعرف، الهاتف)";
+        elements.search.placeholder = "اكتب Rivana ID أو رقم الهاتف للتأكد...";
+        elements.agentsContainer.style.display = 'none'; 
+    }
+    calculateSummary(); 
+}
+
+if(elements.source) {
+    elements.source.addEventListener('change', (e) => {
+        if (e.target.value === 'balance') {
+            elements.cardMain.classList.add('active-source');
+            elements.cardProfit.classList.remove('active-source');
+        } else {
+            elements.cardProfit.classList.add('active-source');
+            elements.cardMain.classList.remove('active-source');
+        }
+        calculateSummary();
+    });
+}
+
+if(elements.search) {
+    elements.search.addEventListener('input', (e) => {
+        const queryVal = e.target.value.trim();
+        clearTimeout(searchTimeout);
+        if (queryVal.length < 3) {
+            verifiedRecipient = null;
+            updateStatusBox('', '', false);
+            validateForm();
+            return;
+        }
+        searchTimeout = setTimeout(() => triggerRecipientSearch(queryVal), 600); 
+    });
+}
+
+if(elements.amount) {
+    elements.amount.addEventListener('input', calculateSummary);
+}
+
+// 8. البحث عن المستفيد
+async function triggerRecipientSearch(keyword) {
+    if (!keyword) return;
+    updateStatusBox('searching', `<i class="fa-solid fa-circle-notch fa-spin"></i> جاري فحص هوية الحساب المعتمدة...`, true);
+    
+    try {
+        if (currentUser && (keyword === currentUser.email || keyword === currentUser.phoneNumber)) {
+            updateStatusBox('error', `<i class="fa-solid fa-triangle-exclamation"></i> حظر حماية: لا يمكنك إجراء تحويل مالي لحسابك الحالي الذاتي.`, true);
+            verifiedRecipient = null;
+            validateForm();
+            return;
+        }
+
+        const usersRef = collection(db, "users");
+        let q = query(usersRef, where("inviteCode", "==", keyword));
+        let querySnap = await getDocs(q);
+
+        if (querySnap.empty) {
+            q = query(usersRef, where("email", "==", keyword));
+            querySnap = await getDocs(q);
+        }
+        if (querySnap.empty) {
+            q = query(usersRef, where("phone", "==", keyword));
+            querySnap = await getDocs(q);
+        }
+
+        if (!querySnap.empty) {
+            const docData = querySnap.docs[0];
+            const uData = docData.data();
+            
+            if (docData.id === currentUser.uid) {
+                updateStatusBox('error', `<i class="fa-solid fa-triangle-exclamation"></i> حظر حماية: لا يمكنك إجراء تحويل مالي لحسابك الحالي الذاتي.`, true);
+                verifiedRecipient = null;
+            } else {
+                if(selectedTransferType === 'agent' && uData.role !== 'agent' && !uData.isAgent) {
+                    updateStatusBox('error', `<i class="fa-solid fa-user-xmark"></i> هذا الحساب ليس وكيلاً معتمداً في النظام! يرجى التأكد من معرّف الوكلاء.`, true);
+                    verifiedRecipient = null;
+                } else {
+                    verifiedRecipient = { uid: docData.id, ...uData };
+                    const badgeText = selectedTransferType === 'agent' ? 'وكيل ريفانا معتمد' : 'حساب موثق ومستعد للقبول';
+                    const badgeIcon = selectedTransferType === 'agent' ? 'fa-user-shield' : 'fa-user-check';
+                    let avatarHTML = `<i class="fa-solid ${badgeIcon}"></i>`;
+                    if (uData.photoURL) avatarHTML = `<img src="${uData.photoURL}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    
+                    const profileCardHTML = `
+                        <div class="recipient-profile-card">
+                            <div class="recipient-avatar-circle">${avatarHTML}</div>
+                            <div class="recipient-v-details">
+                                <h4 style="margin:0;">${uData.fullName || 'مستخدم ريفانا'} <i class="fa-solid fa-circle-check" style="color:var(--success-green); font-size:13px;"></i></h4>
+                                <p style="margin:5px 0 0 0;">معرّف المنصة: ID: ${uData.inviteCode || 'غير متوفر'} | الهاتف: ${uData.phone || 'مخفي'}</p>
+                            </div>
+                            <span class="verified-badge">${badgeText}</span>
+                        </div>
+                    `;
+                    updateStatusBox('success', profileCardHTML, true);
+                }
+            }
+        } else {
+            updateStatusBox('error', `<i class="fa-solid fa-user-slash"></i> لم يعثر النظام على أي حساب مطابق. تأكد من المعرف جيداً.`, true);
+            verifiedRecipient = null;
+        }
+    } catch (err) {
+        console.error("Error searching user:", err);
+        updateStatusBox('error', `عطل فني في الاتصال بالخادم. حاول مجدداً.`, true);
+        verifiedRecipient = null;
+    }
+    validateForm();
+}
+
+// 9. الحسابات والمصادقة للنموذج
+function calculateSummary() {
+    if(!elements.amount) return;
+    const amount = parseFloat(elements.amount.value) || 0;
+    if(elements.usdEq) elements.usdEq.innerText = `≈ ${(amount / USD_RATE).toFixed(2)} USD`;
+    
+    let fee = (selectedTransferType === 'agent') ? amount * AGENT_FEE_PERCENTAGE : amount * USER_FEE_PERCENTAGE;
+    const totalDeduction = amount + fee;
+
+    if(elements.fee) {
+        if (fee === 0) {
+            elements.fee.innerText = `مجاني بالكامل 0 IQD`;
+            elements.fee.style.color = 'var(--success-green)';
+        } else {
+            elements.fee.innerText = `${fee.toLocaleString()} IQD`;
+            elements.fee.style.color = 'var(--danger-red)';
+        }
+    }
+
+    if (elements.cashback) elements.cashback.innerText = `0 IQD`;
+    if (elements.total) elements.total.innerText = `${totalDeduction.toLocaleString()} IQD`;
+
+    validateForm(totalDeduction);
+}
+
+function validateForm(totalDeduction = null) {
+    if(!elements.amount || !elements.btnSubmit) return;
+    const amount = parseFloat(elements.amount.value) || 0;
+    if(totalDeduction === null) {
+        let fee = (selectedTransferType === 'agent') ? amount * AGENT_FEE_PERCENTAGE : amount * USER_FEE_PERCENTAGE;
+        totalDeduction = amount + fee;
+    }
+
+    const source = elements.source ? elements.source.value : 'balance';
+    const userAvailableFunds = currentBalances[source] || 0;
+
+    let isValid = true;
+    if (amount <= 0 || totalDeduction > userAvailableFunds || !verifiedRecipient) isValid = false;
+    elements.btnSubmit.disabled = !isValid;
+}
+
+function updateStatusBox(type, innerContent, show) {
+    if(!elements.statusBox) return;
+    elements.statusBox.className = 'recipient-status-box';
+    if (!show) {
+        elements.statusBox.style.display = 'none';
+        return;
+    }
+    elements.statusBox.style.display = 'flex';
+    elements.statusBox.innerHTML = innerContent;
+    if (type === 'success') elements.statusBox.classList.add('success');
+    if (type === 'searching') elements.statusBox.classList.add('searching');
+    if (type === 'error') elements.statusBox.classList.add('error');
+}
+
+// 10. معالجة الإرسال المطورة (Core Transaction + Sync with user_activities)
+if(elements.form) {
+    elements.form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (!navigator.onLine) return triggerGlobalToast("⚠️ لا يوجد اتصال بالإنترنت! يرجى التحقق من الشبكة.", false);
+        if (!currentUser || !verifiedRecipient) return;
+
+        const amount = parseFloat(elements.amount.value) || 0;
+        const source = elements.source.value; 
+        const msg = e.target.message ? e.target.message.value.trim() : "";
+
+        if (amount <= 0) return triggerGlobalToast('الرجاء كتابة مبلغ تحويل صالح.', false);
+
+        const fee = (selectedTransferType === 'agent') ? amount * AGENT_FEE_PERCENTAGE : amount * USER_FEE_PERCENTAGE;
+        const totalDeduction = amount + fee;
+
+        elements.btnSubmit.disabled = true;
+        elements.btnSubmit.innerHTML = `جاري التشفير والتحويل الآمن... <i class="fa-solid fa-spinner fa-spin"></i>`;
+        if (elements.loader) elements.loader.style.display = 'flex';
+
+        const senderDocRef = doc(db, "users", currentUser.uid);
+        const receiverDocRef = doc(db, "users", verifiedRecipient.uid);
+
+        try {
+            let senderName = "مستخدم ريفانا";
+            let receiverName = verifiedRecipient.fullName || "مستفيد ريفانا";
+
+            await runTransaction(db, async (transaction) => {
+                const senderDoc = await transaction.get(senderDocRef);
+                const receiverDoc = await transaction.get(receiverDocRef);
+
+                if (!senderDoc.exists() || !receiverDoc.exists()) throw "أحد الحسابات المعنية بالعملية غير مسجل بالمنصة حالياً!";
+
+                const senderData = senderDoc.data();
+                const receiverData = receiverDoc.data(); 
+
+                senderName = senderData.fullName || senderName;
+
+                if (selectedTransferType === 'agent') {
+                    if (receiverData.role !== 'agent' && receiverData.isAgent !== true) {
+                        throw "حظر أمني: الحساب المستلم ليس وكيلاً معتمداً في قاعدة البيانات الأساسية!";
+                    }
+                }
+
+                const currentSenderFund = Number(senderData[source] || 0);
+
+                if (currentSenderFund < totalDeduction) throw "رصيدك الحالي غير كافي لإتمام الحوالة والرسوم المطلوبة!";
+
+                // خصم الرصيد من المرسل
+                transaction.update(senderDocRef, { [source]: currentSenderFund - totalDeduction });
+
+                // إضافة الرصيد الصافي للحساب الأساسي للمستلم
+                transaction.update(receiverDocRef, { balance: Number(receiverData.balance || 0) + amount });
+
+                // تسجيل المعاملة في جدول الحوالات العام
+                const txRef = doc(collection(db, "transactions"));
+                transaction.set(txRef, {
+                    type: selectedTransferType === 'agent' ? "agent_transfer" : "user_transfer",
+                    senderId: currentUser.uid,
+                    senderName: senderName,
+                    receiverId: verifiedRecipient.uid,
+                    receiverName: receiverName,
+                    amount: amount,
+                    fee: fee,
+                    totalDeducted: totalDeduction,
+                    cashback: 0,
+                    sourceUsed: source,
+                    message: msg,
+                    status: "completed",
+                    timestamp: serverTimestamp()
+                });
+            });
+
+            // 🌟 الربط اللحظي: إرسال النشاطات إلى كولكشن user_activities ليقرأها الجدول (الكود الأول)
+            await Promise.all([
+                // 1. تسجيل العملية في سجل المرسل (سحب / إرسال)
+                addDoc(collection(db, "user_activities"), {
+                    userId: currentUser.uid,
+                    userName: senderName,
+                    type: selectedTransferType === 'agent' ? 'withdraw' : 'withdraw', // سيظهر أيقونة السحب باللون الأحمر
+                    details: `إلى: ${receiverName} (${msg || 'تحويل رصيد'})`,
+                    amount: amount,
+                    currency: 'IQD',
+                    status: 'completed',
+                    timestamp: serverTimestamp()
+                }),
+                // 2. تسجيل العملية في سجل المستلم (إيداع / استقبال)
+                addDoc(collection(db, "user_activities"), {
+                    userId: verifiedRecipient.uid,
+                    userName: receiverName,
+                    type: 'deposit', // سيظهر أيقونة الإيداع باللون الأخضر بلس (+)
+                    details: `من: ${senderName}`,
+                    amount: amount,
+                    currency: 'IQD',
+                    status: 'completed',
+                    timestamp: serverTimestamp()
+                }),
+
+                // 3. إرسال الإشعارات التاريخية وجدول الإدارة
+                addDoc(collection(db, "admin_notifications"), {
+                    title: `حركة تحويل (${selectedTransferType === 'agent' ? 'عبر وكيل' : 'داخلي'}) جديدة`,
+                    body: `قام العميل [${senderName}] بتحويل [${amount.toLocaleString()} IQD] إلى [${receiverName}]. رسوم: ${fee} IQD`,
+                    senderId: currentUser.uid,
+                    receiverId: verifiedRecipient.uid,
+                    amount: amount,
+                    fee: fee,
+                    transferType: selectedTransferType,
+                    timestamp: serverTimestamp(),
+                    status: "unresolved"
+                }),
+                addDoc(collection(db, "notifications"), {
+                    userId: verifiedRecipient.uid,
+                    title: "استلام دفعة مالية واردة 🎉",
+                    body: `لقد تلقيت للتو مبلغ قدره ${amount.toLocaleString()} IQD من الحساب [${senderName}].`,
+                    type: "receive_money",
+                    read: false,
+                    timestamp: serverTimestamp()
+                }),
+                addDoc(collection(db, "notifications"), {
+                    userId: currentUser.uid,
+                    title: "تم إرسال حوالتك بنجاح 💸",
+                    body: `تم خصم ${totalDeduction.toLocaleString()} IQD بنجاح وإرسالها إلى [${receiverName}].`,
+                    type: "send_money",
+                    read: false,
+                    timestamp: serverTimestamp()
+                })
+            ]);
+
+            triggerGlobalToast(`🎉 عظيم! تم إرسال الحوالة بنجاح وتوثيقها في سجل حسابك.`, true);
+            
+            // إعادة تعيين النموذج
+            elements.amount.value = '';
+            if(e.target.message) e.target.message.value = '';
+            elements.search.value = '';
+            updateStatusBox('', '', false);
+            verifiedRecipient = null;
+
+        } catch (error) {
+            console.error("فشل العملية البنكية: ", error);
+            triggerGlobalToast(`رفضت خوادم الأمان العملية: ${error}`, false);
+        } finally {
+            if (elements.loader) elements.loader.style.display = 'none';
+            elements.btnSubmit.innerHTML = `تأكيد وإرسال الحوالة الآن بأمان <i class="fa-regular fa-paper-plane"></i>`;
+            calculateSummary();
+        }
+    });
+}
+
+
+// 11. جلب السجل (تمت إضافة ميزة التقاط الأخطاء لطباعة رابط إنشاء الفهرس الناقص في الـ Console)
+function listenToTransactions(uid) {
+    if(!elements.txContainer) return;
+    const txRef = collection(db, "transactions");
+    const q = query(txRef, where("senderId", "==", uid), orderBy("timestamp", "desc"), limit(5));
+
+    onSnapshot(q, (snapshot) => {
+        elements.txContainer.innerHTML = '';
+        if (snapshot.empty) {
+            elements.txContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px;">لا توجد حوالات صادرة من هذا الحساب حتى الآن.</p>`;
+            return;
+        }
+
+        snapshot.forEach((doc) => {
+            const tx = doc.data();
+            const date = tx.timestamp ? tx.timestamp.toDate() : new Date();
+            const formattedDate = date.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+            const formattedTime = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+            const iconClass = tx.type === 'agent_transfer' ? "icon-agent" : "icon-user";
+            const typeText = tx.type === 'agent_transfer' ? "سحب/إيداع عبر وكيل" : "تحويل ريفانا فوري";
+
+            elements.txContainer.innerHTML += `
+                <div class="tx-item">
+                    <div class="tx-user">
+                        <div class="tx-icon-box ${iconClass}"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+                        <div class="tx-details">
+                            <h4 style="margin:0;">${tx.receiverName || 'مستفيد ريفانا'}</h4>
+                            <p style="margin:5px 0 0 0;">${tx.message ? tx.message : 'بدون رسائل مرفقة'}</p>
+                        </div>
+                    </div>
+                    <div class="tx-amount-col">
+                        <span class="tx-type-text">${typeText}</span>
+                    </div>
+                    <div class="tx-amount-col">
+                        <div class="tx-amount negative">-${Number(tx.amount).toLocaleString()} IQD <span class="status-badge completed"><i class="fa-solid fa-check"></i> مكتمل</span></div>
+                    </div>
+                    <div class="tx-date">${formattedTime}<br>${formattedDate}</div>
+                </div>
+            `;
+        });
+    }, (error) => {
+        console.error("🔴 خطأ حرج في جلب سجل العمليات! اضغط على الرابط التالي في الـ Console لإنشاء الفهرس المركب فوراً في Firebase:", error);
+    });
+}
+
+// 12. دالة جلب وعرض الإشعارات التاريخية فور حدوثها في النظام
+function listenToNotifications(uid) {
+    if(!elements.notifContainer) return;
+    const notifyRef = collection(db, "notifications");
+    const q = query(notifyRef, where("userId", "==", uid), orderBy("timestamp", "desc"), limit(10));
+
+    onSnapshot(q, (snapshot) => {
+        elements.notifContainer.innerHTML = '';
+        if (snapshot.empty) {
+            elements.notifContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 15px;">لا توجد إشعارات جديدة لديك.</p>`;
+            return;
+        }
+
+        snapshot.forEach((doc) => {
+            const notif = doc.data();
+            elements.notifContainer.innerHTML += `
+                <div class="notification-item ${notif.read ? 'read' : 'unread'}" style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;">
+                    <h5 style="margin: 0; color: #fff; font-size: 13px; font-weight: 700;">${notif.title}</h5>
+                    <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 11px; line-height: 1.4;">${notif.body}</p>
+                </div>
+            `;
+        });
+    }, (error) => {
+        console.error("🔴 خطأ حرج في جلب الإشعارات! اضغط على الرابط التالي في الـ Console لإنشاء الفهرس المركب لجدول الإشعارات في Firebase:", error);
+    });
+}
+</script>
+
+</body>
+</html>

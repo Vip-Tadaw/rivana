@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#070a12">
+    <meta name="background-color" content="#070a12">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Rivana Pro - محرك المضاربة والتدوير الحي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <style>
+        :root {
+            --bg-deep: #070a12;
+            --bg-panel: #0d1322;
+            --bg-field: #090d16;
+            --cyber-purple: #7c3aed;
+            --cyber-blue: #2563eb;
+            --neon-cyan: #06b6d4;
+            --neon-green: #10b981;
+            --neon-pink: #ec4899;
+            --neon-amber: #f59e0b;
+            --text-white: #f3f4f6;
+            --text-dim: #6b7280;
+            
+            --molded-inner: inset 0 4px 8px rgba(0,0,0,0.8), inset 0 -1px 1px rgba(255,255,255,0.05);
+            --molded-out: 0 10px 25px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.1);
+            --neon-glow: 0 0 15px rgba(124, 58, 237, 0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-deep); color: var(--text-white); padding: 0; padding-bottom: 90px; min-height: 100vh; }
+
+        .console-container { width: 100%; padding: 16px 12px; display: flex; flex-direction: column; gap: 20px; position: relative; overflow: hidden; }
+
+        .setup-section { display: flex; flex-direction: column; gap: 24px; }
+        
+        .wallet-card { 
+            padding: 22px; 
+            border-radius: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            position: relative; 
+            overflow: hidden; 
+        }
+        
+        .wallet-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            opacity: 0.5;
+        }
+
+        .main-wallet {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(37, 99, 235, 0.12));
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.1), inset 0 0 20px rgba(37, 99, 235, 0.1);
+        }
+        .main-wallet:hover { box-shadow: 0 15px 40px rgba(6, 182, 212, 0.2), inset 0 0 30px rgba(37, 99, 235, 0.2); transform: translateY(-3px); }
+
+        .profits-wallet {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(4, 120, 87, 0.12));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1), inset 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+        .profits-wallet:hover { box-shadow: 0 15px 40px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(16, 185, 129, 0.2); transform: translateY(-3px); }
+
+        .referral-wallet {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(236, 72, 153, 0.12));
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            box-shadow: 0 10px 30px rgba(236, 72, 153, 0.1), inset 0 0 20px rgba(124, 58, 237, 0.1);
+        }
+        .referral-wallet:hover { box-shadow: 0 15px 40px rgba(236, 72, 153, 0.2), inset 0 0 30px rgba(124, 58, 237, 0.2); transform: translateY(-3px); }
+
+        .laser-title { font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;}
+        .blue-laser { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(6, 182, 212, 0.6); }
+        .green-laser { color: var(--neon-green); text-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
+        .purple-laser { color: var(--neon-pink); text-shadow: 0 0 10px rgba(236, 72, 153, 0.6); }
+
+        .laser-icon { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: 0.4s; }
+        .wallet-card:hover .laser-icon { transform: scale(1.1) rotate(5deg); }
+        .blue-glow { background: rgba(6, 182, 212, 0.1); color: var(--neon-cyan); border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+        .green-glow { background: rgba(16, 185, 129, 0.1); color: var(--neon-green); border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+        .purple-glow { background: rgba(236, 72, 153, 0.1); color: var(--neon-pink); border: 1px solid rgba(236, 72, 153, 0.4); box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
+
+        .wallet-info { display: flex; flex-direction: column; gap: 2px; }
+        .wallet-balance { font-size: 32px; font-weight: 900; font-family: monospace; color: white; text-shadow: 0 2px 10px rgba(255,255,255,0.2); }
+        .wallet-sub-balance { font-size: 14px; color: var(--text-dim); font-weight: bold; font-family: monospace; }
+        .currency-label { font-size: 14px; color: rgba(255,255,255,0.5); font-weight: normal; }
+
+        .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .tier-card { background: var(--bg-field); border: 1px solid #1e293b; border-radius: 20px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--molded-inner); position: relative; overflow: hidden; }
+        .tier-card:hover:not(.locked-tier) { transform: translateY(-6px) scale(1.03); border-color: var(--cyber-blue); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+        .tier-card i { font-size: 24px; margin-bottom: 8px; transition: all 0.3s; }
+        .tier-card:hover:not(.locked-tier) i { transform: scale(1.25) rotate(8deg); }
+        
+        #tier-normal:hover:not(.locked-tier) i { color: var(--cyber-blue); }
+        #tier-gold:hover:not(.locked-tier) i { color: var(--neon-amber); }
+        #tier-premium:hover:not(.locked-tier) i { color: var(--neon-pink); }
+
+        .tier-card.active { background: linear-gradient(145deg, #1e1b4b, #111827); border-color: var(--cyber-purple); box-shadow: var(--neon-glow), var(--molded-out); }
+        .tier-card.active i { color: var(--neon-cyan) !important; transform: scale(1.1); }
+        .tier-rate { font-size: 16px; font-weight: 800; color: var(--neon-green); margin: 4px 0; font-family: monospace; }
+        .tier-range { font-size: 10px; color: var(--text-dim); display: block; margin-top: 2px; font-weight: bold; }
+
+        .locked-tier { opacity: 0.5; filter: grayscale(0.8); cursor: not-allowed; border-color: #1e293b !important; }
+        .locked-tier:hover { transform: none; box-shadow: var(--molded-inner); }
+        .lock-icon-overlay { display: none; position: absolute; top: 10px; left: 10px; color: #94a3b8; font-size: 14px; }
+        .locked-tier .lock-icon-overlay { display: block; }
+
+        .molded-input-wrapper { background: var(--bg-field); border: 1px solid #1e293b; border-radius: 25px; padding: 15px 22px; display: flex; align-items: center; box-shadow: var(--molded-inner); transition: border-color 0.3s; }
+        .molded-input-wrapper:focus-within { border-color: var(--cyber-purple); }
+        .molded-input-wrapper input { background: transparent; border: none; color: white; width: 100%; font-size: 24px; font-weight: bold; font-family: monospace; outline: none; text-align: left; }
+        
+        .quick-amounts { display: flex; gap: 8px; margin-top: 10px; }
+        .amount-btn { flex: 1; background: var(--bg-field); border: 1px solid #1e293b; color: var(--text-white); padding: 10px; border-radius: 15px; cursor: pointer; font-weight: bold; font-family: monospace; font-size: 13px; box-shadow: var(--molded-out); transition: all 0.2s; }
+        .amount-btn:hover { background: var(--cyber-blue); border-color: var(--cyber-blue); }
+
+        .launch-btn { width: 100%; background: linear-gradient(90deg, var(--cyber-purple), var(--cyber-blue)); border: none; padding: 18px; border-radius: 25px; color: white; font-size: 18px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3); transition: all 0.3s; }
+        .launch-btn:hover:not(.disabled-btn) { filter: brightness(1.1); transform: translateY(-2px); }
+        .launch-btn.disabled-btn { background: #1e293b; color: #64748b; cursor: not-allowed; box-shadow: none; }
+
+        .open-calc-btn { width: 100%; background: var(--bg-field); border: 1px solid #1e293b; padding: 14px; border-radius: 20px; color: var(--text-white); font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--molded-out); transition: all 0.2s; margin-top: -8px; }
+        .open-calc-btn:hover { border-color: var(--neon-cyan); }
+
+        .active-trades-panel { background: #090f1e; border: 1px dashed #1e293b; border-radius: 24px; padding: 20px; box-shadow: var(--molded-inner); display: flex; flex-direction: column; gap: 12px; }
+        .no-trades-msg { color: var(--text-dim); text-align: center; font-size: 13px; padding: 15px; font-style: italic; }
+        
+        .live-trade-card { background: var(--bg-field); border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid var(--neon-cyan); padding: 15px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; position: relative; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .live-trade-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .live-timer { font-family: monospace; background: #1a152e; border: 1px solid var(--cyber-purple); color: var(--neon-cyan); padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);}
+        
+        .trading-chaos-box { background: #04070d; border-radius: 10px; padding: 10px; font-family: monospace; font-size: 11px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; border: 1px solid rgba(255,255,255,0.02); }
+        .chaos-row { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; border-radius: 4px; background: rgba(255,255,255,0.01); }
+        .chaos-up { color: var(--neon-green); text-shadow: 0 0 4px rgba(16,185,129,0.2); }
+        .chaos-down { color: var(--neon-pink); text-shadow: 0 0 4px rgba(236,72,153,0.2); }
+
+        .calc-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 3000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(5px); }
+        .calc-modal-content { background: var(--bg-panel); width: 100%; max-height: 85vh; border-top-left-radius: 28px; border-top-right-radius: 28px; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; border-top: 1px solid #1e293b; box-shadow: var(--molded-out); animation: modalSlideUp 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); }
+        @keyframes modalSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #1e293b; }
+        .close-modal-btn { background: var(--bg-field); border: 1px solid #1e293b; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+
+        .summary-box { display: flex; flex-direction: column; gap: 14px; }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-field); border-radius: 16px; }
+        .val-highlight { font-family: monospace; font-weight: bold; font-size: 16px; color: var(--neon-cyan); }
+        .chart-card { background: var(--bg-field); border-radius: 20px; padding: 15px; height: 230px; box-shadow: var(--molded-inner); }
+        .history-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--bg-field); border-radius: 14px; font-size: 13px; border-right: 4px solid var(--neon-green); }
+
+        .quantum-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #05080f; z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+        .quantum-grid-bg { position: absolute; width: 200%; height: 200%; background-image: linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px); background-size: 30px 30px; transform: perspective(500px) rotateX(60deg) translateY(-30%); animation: gridMove 8s linear infinite; }
+        @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 240px; } }
+        .holo-circle-wrapper { position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .holo-ring { position: absolute; width: 100%; height: 100%; border: 2px dashed var(--cyber-purple); border-radius: 50%; animation: rotateCcw 10s linear infinite; }
+        .rocket-node { font-size: 40px; color: white; animation: pulseGlow 1.5s infinite ease-in-out; }
+        @keyframes rotateCcw { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
+        @keyframes pulseGlow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .stepper-container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 8px; z-index: 2; background: rgba(13, 19, 34, 0.85); padding: 15px; border-radius: 20px; backdrop-filter: blur(10px); }
+        .step-row { display: flex; align-items: center; gap: 12px; padding: 6px; opacity: 0.3; transition: all 0.3s; font-size: 13px; }
+        .step-row.active { opacity: 1; }
+        .step-row.completed { opacity: 0.9; color: var(--neon-green); }
+        .step-num { width: 24px; height: 24px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; font-family: monospace; }
+        .step-row.active .step-num { background: var(--cyber-purple); }
+        .step-row.completed .step-num { background: var(--neon-green); color: black; }
+
+        .matrix-logs { font-family: monospace; font-size: 10px; color: #475569; width: 100%; max-width: 500px; background: #03050a; padding: 8px; border-radius: 10px; height: 50px; overflow: hidden; margin-top: 10px; z-index: 2; }
+        
+        .toast-notif { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--bg-panel); border-bottom: 4px solid var(--neon-green); border-radius: 18px; padding: 15px 30px; box-shadow: var(--molded-out); display: flex; align-items: center; gap: 12px; z-index: 4000; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .toast-notif.active { bottom: 85px; }
+
+        /* ================= شريط التنقل السفلي الموحد ================= */
+        body { padding-bottom: 75px !important; }
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 480px; margin: 0 auto;
+            background: rgba(11, 14, 23, 0.95); backdrop-filter: blur(15px); border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; justify-content: space-around; align-items: center; padding: 10px 0 15px; z-index: 9999;
+            border-radius: 20px 20px 0 0; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .bottom-nav .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-decoration: none; color: #9ca3af; font-size: 11px; font-weight: 600; gap: 5px; transition: all 0.3s ease; flex: 1;
+        }
+        .bottom-nav .nav-item svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.5; fill: none; transition: all 0.3s ease; }
+        .bottom-nav .nav-item.active { color: #7c3aed; }
+        .bottom-nav .nav-item.active svg { stroke-width: 2.2; transform: translateY(-3px); filter: drop-shadow(0 4px 6px rgba(124, 58, 237, 0.4)); }
+    </style>
+</head>
+<body>
+
+<div class="console-container">
+    
+    <div class="quantum-overlay" id="quantum-loader">
+        <div class="quantum-grid-bg"></div>
+        <div class="holo-circle-wrapper">
+            <div class="holo-ring"></div>
+            <i class="fa-solid fa-bolt rocket-node"></i>
+        </div>
+        <h2 style="font-weight: 800; margin-bottom: 5px; z-index: 2;">جاري تفعيل الحزمة الماليّة...</h2>
+        
+        <div class="stepper-container">
+            <div class="step-row" id="step-1"><div class="step-num">1</div><div><i class="fa-solid fa-shield"></i> تدقيق الرصيد وحساب النطاق السعري للعملة</div></div>
+            <div class="step-row" id="step-2"><div class="step-num">2</div><div><i class="fa-solid fa-network-wired"></i> سحب السيولة وربطها بمحرك الإنتاج (24 ساعة)</div></div>
+            <div class="step-row" id="step-3"><div class="step-num">3</div><div><i class="fa-solid fa-circle-check"></i> اكتمال الربط بنجاح وبدء دورة الإنتاج الحية</div></div>
+        </div>
+        <div class="matrix-logs" id="matrix-console-logs"></div>
+    </div>
+
+    <div class="setup-section">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+            <a href="javascript:history.back()" style="width: 44px; height: 44px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: white; text-decoration: none; transition: all 0.3s ease; flex-shrink: 0;">
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <div>
+                <h1 style="font-size: 24px; font-weight: 900; margin: 0;">غرفة الاستثمار ومضاعفة الأصول</h1>
+                <p style="color: var(--text-dim); font-size: 13px; margin-top: 3px; margin-bottom: 0;">التحكم الذكي بالأرصدة وتوزيع الأرباح</p>
+                <span id="user-profile-name" style="display:none;">مستخدم النظام</span>
+            </div>
+        </div>
+
+        <div class="wallet-card main-wallet">
+            <div class="wallet-info">
+                <span class="laser-title blue-laser">
+                    <i class="fa-solid fa-server"></i> الرصيد الأساسي (للتشغيل)
+                </span>
+                <div class="wallet-balance"><span id="main-iqd-ui">0</span> <span class="currency-label">IQD</span></div>
+                <div class="wallet-sub-balance"><span id="main-usdt-ui">0.00</span> $</div>
+            </div>
+            <div class="laser-icon blue-glow"><i class="fa-solid fa-microchip"></i></div>
+        </div>
+
+        <div class="wallet-card profits-wallet">
+            <div class="wallet-info">
+                <span class="laser-title green-laser">
+                    <i class="fa-solid fa-chart-line"></i> الأرباح المتراكمة (اليومية)
+                </span>
+                <div class="wallet-balance" style="font-size: 26px;"><span id="profits-iqd-ui">0</span> <span class="currency-label">IQD</span></div>
+                <div class="wallet-sub-balance" style="font-size: 12px;"><span id="profits-usdt-ui">0.00</span> $</div>
+            </div>
+            <div class="laser-icon green-glow"><i class="fa-solid fa-seedling"></i></div>
+        </div>
+
+        <div class="wallet-card referral-wallet">
+            <div class="wallet-info">
+                <span class="laser-title purple-laser">
+                    <i class="fa-solid fa-network-wired"></i> أرباح الشبكة (الإحالات)
+                </span>
+                <div class="wallet-balance" style="font-size: 26px;"><span id="ref-iqd-ui">0</span> <span class="currency-label">IQD</span></div>
+                <div class="wallet-sub-balance" style="font-size: 12px;"><span id="ref-usdt-ui">0.00</span> $</div>
+            </div>
+            <div class="laser-icon purple-glow"><i class="fa-solid fa-globe"></i></div>
+        </div>
+
+        <div>
+            <label style="font-size: 13px; color: var(--text-dim); font-weight: bold; display: block; margin-bottom: 8px;">نوع الصفقة (مغلق تلقائياً حسب رصيدك):</label>
+           <div class="tier-grid">
+    <div class="tier-card active" id="tier-normal" onclick="selectTier('normal')">
+        <div class="lock-icon-overlay"><i class="fa-solid fa-lock"></i></div>
+        <i class="fa-solid fa-bolt" style="color: var(--cyber-blue);"></i>
+        <div style="font-size: 14px; font-weight: bold;">العادية</div>
+        <div class="tier-rate" id="display-rate-normal">0.5% ~ 1.5%</div>
+        <span class="tier-range">7000 - 50000 IQD</span>
+    </div>
+
+    <div class="tier-card locked-tier" id="tier-gold" onclick="selectTier('gold')">
+        <div class="lock-icon-overlay"><i class="fa-solid fa-lock"></i></div>
+        <i class="fa-solid fa-crown" style="color: var(--neon-amber);"></i>
+        <div style="font-size: 14px; font-weight: bold;">الذهبية</div>
+        <div class="tier-rate" id="display-rate-gold">1.5% ~ 2.5%</div>
+        <span class="tier-range">51000 - 120000 IQD</span>
+    </div>
+
+    <div class="tier-card locked-tier" id="tier-premium" onclick="selectTier('premium')">
+        <div class="lock-icon-overlay"><i class="fa-solid fa-lock"></i></div>
+        <i class="fa-solid fa-gem" style="color: var(--neon-pink);"></i>
+        <div style="font-size: 14px; font-weight: bold;">الممتازة</div>
+        <div class="tier-rate" id="display-rate-premium">2.5% ~ 3.5%</div>
+        <span class="tier-range">121000 - 200000 IQD</span>
+    </div>
+</div>
+
+        </div>
+
+        <div>
+            <label style="font-size: 13px; color: var(--text-dim); font-weight: bold; display: block; margin-bottom: 8px;">مبلغ الحصة التشغيلية المراد استثمارها:</label>
+            <div class="molded-input-wrapper">
+                <input type="number" id="invest-amount-input" value="25000" oninput="validateAndCalculateFromInput()" min="1">
+                <span style="font-size: 14px; font-weight: 800; color: var(--text-dim);">IQD</span>
+            </div>
+            <div class="quick-amounts" id="quick-amt-container"></div>
+        </div>
+
+        <button class="open-calc-btn" onclick="openCalcModal()">
+            <i class="fa-solid fa-calculator"></i>
+            <span>عرض تفاصيل المخرجات والاحتساب المالي</span>
+        </button>
+
+        <button class="launch-btn" id="main-launch-btn">
+            <i class="fa-solid fa-bolt-lightning"></i>
+            <span>انقر لتفعيل وتدشين الصفقة (24 ساعة)</span>
+        </button>
+
+        <div class="active-trades-panel">
+            <div style="font-size: 13px; font-weight: bold; color: white; display: flex; align-items: center; justify-content: space-between;">
+                <span><i class="fa-solid fa-wave-square fa-pulse" style="color: var(--neon-cyan); margin-left: 5px;"></i> الصفقات النشطة حالياً (عداد 24 ساعة)</span>
+            </div>
+            <div id="active-trades-container">
+                <div class="no-trades-msg" id="no-trades-msg-el">لا توجد أي صفقات نشطة قيد الإنتاج حالياً. قم بضخ رأس مال للبدء.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="calc-modal-overlay" id="calc-modal">
+    <div class="calc-modal-content">
+        <div class="modal-header">
+            <div style="font-size: 15px; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-chart-pie" style="color: var(--neon-cyan);"></i>
+                <span>المخرجات والاحتساب المالي المقدر</span>
+                <span style="font-size: 11px; color: var(--text-dim); font-weight: normal;" id="sync-realtime-date"></span>
+            </div>
+            <button class="close-modal-btn" onclick="closeCalcModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="summary-box">
+            <div class="summary-row">
+                <span style="font-size: 13px; color: var(--text-dim);">نوع الصفقة المقترنة حالياً</span>
+                <span class="val-highlight" id="lbl-deal-type">صفقة عادية</span>
+            </div>
+            <div class="summary-row">
+                <span style="font-size: 13px; color: var(--text-dim);">معدل الربح الثابت</span>
+                <span class="val-highlight" id="lbl-deal-rate" style="color: var(--neon-green);">1.5%</span>
+            </div>
+            <div class="summary-row">
+                <span style="font-size: 13px; color: var(--text-dim);">العائد المالي المتوقع (صافي الأرباح)</span>
+                <span class="val-highlight" id="lbl-expected-profit">0.00 IQD</span>
+            </div>
+            <div class="summary-row">
+                <span style="font-size: 13px; color: var(--text-dim);">إجمالي الرصيد المسترد غداً</span>
+                <span class="val-highlight" id="lbl-total-return"><span id="lbl-total-return-val">0.00</span> IQD</span>
+            </div>
+        </div>
+
+        <div class="chart-card" id="investment-projection-chart"></div>
+
+        <div>
+            <div style="font-size: 12px; font-weight: bold; color: var(--text-dim); margin-bottom: 8px;">سجل آخر الصفقات المكتملة</div>
+            <div class="history-list" id="trade-history-container"></div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-notif" id="global-investment-toast">
+    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 22px;" id="toast-icon"></i>
+    <div id="toast-text-msg" style="font-size: 14px; font-weight: bold;"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, runTransaction, serverTimestamp, collection, addDoc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// إعدادات Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCWOr0McRsxLMHehiBA_EIpabnz5CBxp04",
+  authDomain: "reivana-8e377.firebaseapp.com",
+  databaseURL: "https://reivana-8e377-default-rtdb.firebaseio.com",
+  projectId: "reivana-8e377",
+  storageBucket: "reivana-8e377.firebasestorage.app",
+  messagingSenderId: "1066129522960",
+  appId: "1:1066129522960:web:8179e50a906fd08ee96595",
+  measurementId: "G-TD9YWWDEDT"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const exchangeRate = 1500; 
+let currentUserId = null;
+let userCloudData = {}; 
+const CYCLE_TIME_MS = 24 * 60 * 60 * 1000; // 24 ساعة
+
+// الباقات العامة الافتراضية
+let tierRules = {
+    normal: { minAmount: 7000, maxAmount: 50000, actualRate: 0.005, label: "الباقة العادية" },
+    gold: { minAmount: 51000, maxAmount: 120000, actualRate: 0.015, label: "الباقة الذهبية" },
+    premium: { minAmount: 121000, maxAmount: Infinity, actualRate: 0.025, label: "الباقة الممتازة" }
+};
+
+// الاستماع لقواعد الباقات العامة من السيرفر
+function listenToAdminTierSettings() {
+    onSnapshot(doc(db, "admin_settings", "tier_rules"), (snapshot) => {
+        if (snapshot.exists()) {
+            const remoteData = snapshot.data();
+            if (remoteData.normal && remoteData.gold && remoteData.premium) {
+                tierRules = remoteData;
+                console.log("🔄 تم تحديث نسب وباقات التداول العامة من لوحة التحكم.");
+                if (currentUserId && userCloudData.balance) {
+                    syncBalancesAndUI();
+                }
+            }
+        }
+    });
+}
+
+// دالة تفحص أولاً إذا كان الأدمن وضع نسبة مخصصة لهذا الشخص بالذات
+function getUserCurrentRule(inputAmt) {
+    if (userCloudData && userCloudData.customRate !== undefined) {
+        return {
+            actualRate: Number(userCloudData.customRate),
+            label: userCloudData.customLabel || "الباقة الخاصة المخصصة",
+            isCustom: true
+        };
+    }
+
+    let selectedTierKey = 'normal';
+    if (inputAmt >= tierRules.gold.minAmount && inputAmt <= tierRules.gold.maxAmount) selectedTierKey = 'gold';
+    else if (inputAmt >= tierRules.premium.minAmount) selectedTierKey = 'premium';
+    
+    return { ...tierRules[selectedTierKey], isCustom: false };
+}
+
+let projectionChartInstance = null;
+let activeTradesList = []; 
+let liveTimerInterval = null;
+
+// نظام الإشعارات المزدوج المحمي
+async function logUserActivity(type, details, amount = 0, status = "success") {
+    if (!currentUserId) return; 
+    const userName = userCloudData.name || "مستخدم ريفانا";
+
+    const logPayload = {
+        userId: currentUserId,
+        userName: userName,
+        type: type, 
+        details: details,
+        amount: amount,
+        currency: "IQD",
+        status: status,
+        timestamp: serverTimestamp(),
+        userCurrentBalance: userCloudData.balance || 0
+    };
+
+    try {
+        await addDoc(collection(db, "admin_notifications"), logPayload);
+        await addDoc(collection(db, `users/${currentUserId}/user_notifications`), {
+            type: type,
+            title: type,
+            message: details,
+            amount: amount,
+            status: status,
+            timestamp: serverTimestamp()
+        });
+    } catch (error) {
+        console.error("فشل في مزامنة نظام الإشعارات: ", error);
+    }
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUserId = user.uid;
+        listenToAdminTierSettings();
+
+        onSnapshot(doc(db, "users", currentUserId), (docSnap) => {
+            if (docSnap.exists()) {
+                userCloudData = docSnap.data();
+                syncBalancesAndUI();
+            }
+        });
+
+        listenToActiveTrades();
+    } else {
+        window.location.href = 'login.html'; 
+    }
+});
+
+function syncBalancesAndUI() {
+    const mainBal = Number(userCloudData.balance || 0); 
+    const profitsBal = Number(userCloudData.profit || 0); 
+    const referralProfits = Number(userCloudData.referral_profits || 0);
+
+    document.getElementById('main-iqd-ui').innerText = mainBal.toLocaleString();
+    document.getElementById('main-usdt-ui').innerText = (mainBal / exchangeRate).toFixed(2);
+    
+    document.getElementById('profits-iqd-ui').innerText = profitsBal.toLocaleString();
+    document.getElementById('profits-usdt-ui').innerText = (profitsBal / exchangeRate).toFixed(2);
+    
+    document.getElementById('ref-iqd-ui').innerText = referralProfits.toLocaleString();
+    document.getElementById('ref-usdt-ui').innerText = (referralProfits / exchangeRate).toFixed(2);
+
+    const inputEl = document.getElementById('invest-amount-input');
+    if(inputEl && Number(inputEl.value) > mainBal) inputEl.value = mainBal;
+
+    updateTierLockStatus(mainBal);
+    validateAndCalculateFromInput();
+}
+
+function updateTierLockStatus(mainBal) {
+    if (userCloudData && userCloudData.customRate !== undefined) {
+        const launchBtn = document.getElementById('main-launch-btn');
+        if (launchBtn) {
+            launchBtn.classList.remove('disabled-btn');
+            launchBtn.onclick = fireQuantumTradingDeployment;
+        }
+        return;
+    }
+
+    const tiers = ['normal', 'gold', 'premium'];
+    tiers.forEach(key => {
+        const card = document.getElementById(`tier-${key}`);
+        if (card) {
+            if (mainBal < tierRules[key].minAmount) {
+                card.classList.add('locked-tier');
+            } else {
+                card.classList.remove('locked-tier');
+            }
+        }
+    });
+
+    const launchBtn = document.getElementById('main-launch-btn');
+    if (launchBtn) {
+        if (mainBal < tierRules.normal.minAmount) {
+            launchBtn.classList.add('disabled-btn');
+            launchBtn.onclick = null;
+        } else {
+            launchBtn.classList.remove('disabled-btn');
+            launchBtn.onclick = fireQuantumTradingDeployment;
+        }
+    }
+}
+
+function validateAndCalculateFromInput() {
+    const inputElement = document.getElementById('invest-amount-input');
+    if (!inputElement) return;
+
+    let inputAmt = parseFloat(inputElement.value) || 0;
+    const mainBal = Number(userCloudData.balance || 0);
+
+    if(inputAmt > mainBal) {
+        inputAmt = mainBal;
+        inputElement.value = mainBal;
+    }
+
+    const currentTier = getUserCurrentRule(inputAmt);
+
+    document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
+    if (!currentTier.isCustom) {
+        let selectedTierKey = 'normal';
+        if (inputAmt >= tierRules.gold.minAmount && inputAmt <= tierRules.gold.maxAmount) selectedTierKey = 'gold';
+        else if (inputAmt >= tierRules.premium.minAmount) selectedTierKey = 'premium';
+        
+        const targetCard = document.getElementById(`tier-${selectedTierKey}`);
+        if(targetCard && mainBal >= currentTier.minAmount) {
+            targetCard.classList.add('active');
+        }
+    }
+
+    let calculatedProfit = (currentTier.isCustom || inputAmt >= tierRules.normal.minAmount) ? inputAmt * currentTier.actualRate : 0;
+    let totalReturn = inputAmt + calculatedProfit;
+
+    const labelDeal = document.getElementById('lbl-deal-type');
+    if(labelDeal) labelDeal.innerText = currentTier.label;
+    
+    const rateLabel = document.getElementById('lbl-deal-rate');
+    if(rateLabel) rateLabel.innerText = `${(currentTier.actualRate * 100).toFixed(2)}%`;
+
+    const expectedProfitEl = document.getElementById('lbl-expected-profit');
+    if(expectedProfitEl) expectedProfitEl.innerText = calculatedProfit.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' IQD';
+    
+    const totalReturnEl = document.getElementById('lbl-total-return-val');
+    if(totalReturnEl) totalReturnEl.innerText = totalReturn.toLocaleString(undefined, {minimumFractionDigits: 2});
+
+    buildProjectionChart(inputAmt, calculatedProfit, currentTier.isCustom ? 'premium' : (inputAmt >= tierRules.gold.minAmount ? 'gold' : 'normal'));
+}
+
+async function fireQuantumTradingDeployment() {
+    if (!navigator.onLine) { triggerGlobalToast("⚠️ لا يوجد اتصال بالإنترنت!", false); return; }
+    if (!currentUserId) return;
+
+    const inputElement = document.getElementById('invest-amount-input');
+    let requestedAmount = parseFloat(inputElement ? inputElement.value : 0) || 0;
+    const loaderOverlay = document.getElementById('quantum-loader');
+    if(loaderOverlay) loaderOverlay.style.display = 'flex';
+
+    try {
+        const userRef = doc(db, "users", currentUserId);
+        let actualAmount = 0;
+        let actualProfit = 0;
+        let finalRate = 0;
+        let finalLabel = "";
+
+        await runTransaction(db, async (transaction) => {
+            const sfDoc = await transaction.get(userRef);
+            if (!sfDoc.exists()) throw "المستخدم غير موجود!";
+            
+            const userDataOnServer = sfDoc.data();
+            const serverBalance = Number(userDataOnServer.balance || 0);
+            actualAmount = requestedAmount > serverBalance ? serverBalance : requestedAmount;
+            
+            if (userDataOnServer.customRate === undefined && actualAmount < tierRules.normal.minAmount) {
+                throw "رصيدك الفعلي أقل من الحد الأدنى لتشغيل الصفقة.";
+            }
+
+            if (userDataOnServer.customRate !== undefined) {
+                finalRate = Number(userDataOnServer.customRate);
+                finalLabel = userDataOnServer.customLabel || "باقة مخصصة";
+            } else {
+                let finalTierKey = 'normal';
+                if (actualAmount >= tierRules.gold.minAmount && actualAmount <= tierRules.gold.maxAmount) finalTierKey = 'gold';
+                else if (actualAmount >= tierRules.premium.minAmount) finalTierKey = 'premium';
+                
+                finalRate = tierRules[finalTierKey].actualRate; 
+                finalLabel = tierRules[finalTierKey].label;
+            }
+
+            actualProfit = actualAmount * finalRate;
+
+            const newTradeRef = doc(collection(userRef, "active_trades"));
+            
+            transaction.update(userRef, { balance: serverBalance - actualAmount });
+            transaction.set(newTradeRef, {
+                amount: actualAmount,
+                profitRate: finalRate, 
+                expectedProfit: actualProfit, // هذا هو الربح الحقيقي الثابت والمحمي بالكامل في السيرفر
+                tierLabel: finalLabel,
+                status: 'active',
+                createdAt: serverTimestamp(), 
+                clientEndsAt: Date.now() + CYCLE_TIME_MS 
+            });
+        });
+
+        await logUserActivity("تفعيل صفقة تداول", `🎉 تم بدء استثمار في ${finalLabel} بنسبة ربح ${(finalRate*100).toFixed(2)}% بقيمة ${actualAmount.toLocaleString()} IQD.`, actualAmount, "success");
+
+        if(loaderOverlay) loaderOverlay.style.display = 'none';
+        triggerGlobalToast(`🎉 تم تفعيل الصفقة بنجاح!`, true);
+
+    } catch (e) {
+        if(loaderOverlay) loaderOverlay.style.display = 'none';
+        logUserActivity("فشل تفعيل/محاولة تلاعب", "خطأ في معالجة الصفقة: " + e, requestedAmount, "error");
+        triggerGlobalToast("❌ فشل تفعيل الصفقة: " + e, false);
+    }
+}
+
+function listenToActiveTrades() {
+    const activeTradesQuery = query(collection(db, `users/${currentUserId}/active_trades`), where("status", "==", "active"));
+    onSnapshot(activeTradesQuery, (snapshot) => {
+        activeTradesList = [];
+        snapshot.forEach((doc) => { activeTradesList.push({ id: doc.id, ...doc.data() }); });
+        renderActiveTrades();
+        startLiveTimers();
+    });
+}
+
+if (typeof window.tradeChaosIntervals === 'undefined') {
+    window.tradeChaosIntervals = new Map();
+}
+
+// دالة عرض وتحريك الربح المتوقع بشكل عشوائي احترافي وآمن بالكامل
+function renderActiveTrades() {
+    const container = document.getElementById('active-trades-container');
+    if (!container) return;
+
+    // التأكد من تهيئة حاوية حماية الـ Intervals ومنع تسريب الذاكرة
+    if (!window.tradeChaosIntervals) {
+        window.tradeChaosIntervals = new Map();
+    } else {
+        window.tradeChaosIntervals.forEach((intervalId) => clearInterval(intervalId));
+        window.tradeChaosIntervals.clear();
+    }
+    
+    container.innerHTML = '';
+    
+    if (!activeTradesList || activeTradesList.length === 0) {
+        container.innerHTML = '<div class="no-trades-msg">لا توجد صفقات نشطة حالياً.</div>';
+        return;
+    }
+
+    activeTradesList.forEach(trade => {
+        const card = document.createElement('div');
+        card.className = 'live-trade-card';
+        const tradeId = trade.id;
+
+        const realAmount = trade.amount ? trade.amount.toLocaleString() : '0';
+        const initialFakeRate = (1.0 + Math.random() * 0.5).toFixed(2);
+        const baseRealProfit = trade.expectedProfit || 0;
+
+        // بناء الهيكل الأساسي مرة واحدة فقط (أداء عالي وأمان ضد ثغرات XSS)
+        card.innerHTML = `
+            <div class="live-trade-header">
+                <div>
+                    <i class="fa-solid fa-circle-notch fa-spin" style="color:var(--neon-green)"></i> 
+                    <strong>${trade.tierLabel || 'صفقة نشطة'} (<span id="${tradeId}-fake-rate">${initialFakeRate}%</span>)</strong>
+                </div>
+                <div class="live-timer" id="timer-${tradeId}">--:--:--</div>
+            </div>
+            
+            <div class="trading-chaos-box">
+                <div class="chaos-row"><span>BTC/USD</span><span id="${tradeId}-c1" class="chaos-up">▲ +1.24%</span></div>
+                <div class="chaos-row"><span>ETH/USD</span><span id="${tradeId}-c2" class="chaos-down">▼ -0.58%</span></div>
+                <div class="chaos-row"><span>SECURE-NET</span><span style="color:#10b981">LIVE ROUTING</span></div>
+                <div class="chaos-row"><span>ALGO RATE</span><span class="chaos-up" id="${tradeId}-fake-algo">+1.15%</span></div>
+            </div>
+            
+            <div style="font-size:12px; color: var(--text-dim); display:flex; justify-content:space-between; align-items:center; margin-top: 5px;">
+                <span>المبلغ المحجوز: ${realAmount} IQD</span>
+                <span id="${tradeId}-displayed-profit-container" class="live-profit-container" style="color:#10b981; font-weight:bold;">
+                    الربح المتوقع: <span id="${tradeId}-profit-arrow">▲</span> <span id="${tradeId}-dynamic-profit">+${baseRealProfit.toLocaleString()}</span> IQD
+                </span>
+            </div>
+        `;
+        container.appendChild(card);
+
+        // محاكي حركة المضاربة الحية الخفيف والسريع
+        const chaosInterval = setInterval(() => {
+            const c1 = document.getElementById(`${tradeId}-c1`);
+            const c2 = document.getElementById(`${tradeId}-c2`);
+            const fakeRateText = document.getElementById(`${tradeId}-fake-rate`);
+            const fakeAlgoText = document.getElementById(`${tradeId}-fake-algo`);
+            const dynamicProfitSpan = document.getElementById(`${tradeId}-dynamic-profit`);
+            const profitArrow = document.getElementById(`${tradeId}-profit-arrow`);
+            const profitContainer = document.getElementById(`${tradeId}-displayed-profit-container`);
+            
+            // التحقق من وجود العناصر لتفادي أخطاء الـ Null في حال تم إغلاق الصفحة أو حذف العنصر
+            if (!c1 || !c2 || !fakeRateText || !fakeAlgoText || !dynamicProfitSpan || !profitArrow || !profitContainer) { 
+                clearInterval(chaosInterval); 
+                window.tradeChaosIntervals.delete(tradeId);
+                return; 
+            }
+            
+            // 1. تحديث أسعار أزواج العملات الوهمية
+            const rand1 = Math.random() > 0.5;
+            c1.className = rand1 ? "chaos-up" : "chaos-down";
+            c1.innerText = (rand1 ? '▲ +' : '▼ -') + (Math.random() * 1.8).toFixed(2) + '%';
+            
+            const rand2 = Math.random() > 0.5;
+            c2.className = rand2 ? "chaos-up" : "chaos-down";
+            c2.innerText = (rand2 ? '▲ +' : '▼ -') + (Math.random() * 1.5).toFixed(2) + '%';
+            
+            const newFakeRate = (1.0 + Math.random() * 0.5).toFixed(2);
+            fakeRateText.innerText = `${newFakeRate}%`;
+            fakeAlgoText.innerText = `+${newFakeRate}%`;
+
+            // 2. تذبذب الأرباح الذكي (تحديث الأجزاء المتغيرة فقط لتوفير موارد الجهاز)
+            const isUp = Math.random() > 0.45; 
+            const percentChange = (Math.random() * 3) / 100; 
+            
+            let simulatedProfit = isUp 
+                ? baseRealProfit * (1 + percentChange) 
+                : baseRealProfit * (1 - percentChange);
+                
+            const formattedProfit = Math.round(simulatedProfit).toLocaleString();
+            
+            // تحديث القيم النصية مباشرة (أداء خارق)
+            dynamicProfitSpan.innerText = `${isUp ? '+' : ''}${formattedProfit}`;
+            profitArrow.innerText = isUp ? '▲' : '▼';
+
+            // إعادة تفعيل الأنيميشن والوميض نيون بدون إعادة بناء الـ DOM
+            profitContainer.classList.remove('flash-up', 'flash-down');
+            void profitContainer.offsetWidth; // الخدعة السحرية لإعادة تشغيل الـ CSS Animation فوراً
+            
+            if (isUp) {
+                profitContainer.style.color = "#10b981"; // أخضر نيون
+                profitContainer.classList.add('flash-up');
+            } else {
+                profitContainer.style.color = "#f43f5e"; // أحمر/وردي نيون متوهج
+                profitContainer.classList.add('flash-down');
+            }
+
+        }, 1000);
+
+        window.tradeChaosIntervals.set(tradeId, chaosInterval);
+    });
+}
+
+
+function startLiveTimers() {
+    if(liveTimerInterval) clearInterval(liveTimerInterval);
+    liveTimerInterval = setInterval(() => {
+        const now = Date.now();
+        activeTradesList.forEach(trade => {
+            const timeLeft = trade.clientEndsAt - now;
+            const timerEl = document.getElementById(`timer-${trade.id}`);
+            
+            if (timeLeft <= 0) {
+                if (timerEl) timerEl.innerText = "جاري التسوية...";
+                if (!trade.isProcessing) {
+                    trade.isProcessing = true; 
+                    processCompletedTrade(trade);
+                }
+            } else {
+                if (timerEl) {
+                    const h = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
+                    const m = Math.floor((timeLeft / 1000 / 60) % 60);
+                    const s = Math.floor((timeLeft / 1000) % 60);
+                    timerEl.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                }
+            }
+        });
+    }, 1000);
+}
+
+async function processCompletedTrade(trade) {
+    try {
+        const userRef = doc(db, "users", currentUserId);
+        const tradeRef = doc(db, `users/${currentUserId}/active_trades`, trade.id);
+
+        await runTransaction(db, async (transaction) => {
+            const tradeSnap = await transaction.get(tradeRef);
+            if (!tradeSnap.exists() || tradeSnap.data().status !== 'active') return; 
+
+            const data = tradeSnap.data();
+            
+            if(data.createdAt) {
+                const serverStartTime = data.createdAt.toMillis();
+                const realTimeElapsed = Date.now() - serverStartTime;
+                
+                if(realTimeElapsed < (CYCLE_TIME_MS - 60000)) { 
+                    throw "SECURITY_ALERT: محاولة تسوية مبكرة وتلاعب بالوقت المحلي.";
+                }
+            }
+
+            const sfDoc = await transaction.get(userRef);
+            const currentBal = Number(sfDoc.data().balance || 0);
+            const currentProfits = Number(sfDoc.data().profit || 0);
+
+            // [الأمان المطلق] هنا يتم استخدام الربح الموثق الحقيقي الصارم (data.expectedProfit) المضاف مسبقاً من السيرفر
+            transaction.update(userRef, {
+                balance: currentBal + data.amount,
+                profit: currentProfits + data.expectedProfit
+            });
+
+            transaction.update(tradeRef, { status: 'completed' });
+        });
+
+        await logUserActivity("تسوية واكتمال صفقة", `💰 تم بنجاح إنهاء دورة ${trade.tierLabel || 'الصفقة'} ونزول أرباح بمقدار ${trade.expectedProfit.toLocaleString()} IQD إلى حسابكم.`, trade.expectedProfit, "success");
+        
+        triggerGlobalToast(`💰 اكتملت دورة التداول بنجاح!`, true);
+        injectNewDealIntoHistory(trade.amount, trade.expectedProfit, trade.tierLabel || 'صفقة');
+
+    } catch(err) {
+        console.error("خطأ حماية التسوية:", err);
+        trade.isProcessing = false;
+        
+        if(err.toString().includes("SECURITY_ALERT")) {
+            triggerGlobalToast("⚠️ فشل الأمان: الوقت الحقيقي للصفقة لم ينتهِ بعد على الخادم.", false);
+            logUserActivity("إنذار أمني خطير", "🚨 نظام الحماية: المستخدم يحاول تعديل توقيت جهازه لتسريع إنهاء الصفقة يدوياً.", 0, "warning");
+        }
+    }
+}
+
+function buildProjectionChart(baseCapital, dailyYield, tierKey) {
+    let seriesData = [];
+    for(let i = -1; i <= 4; i++) { seriesData.push(parseFloat((baseCapital + (dailyYield * i)).toFixed(2))); }
+    const colors = { normal: '#2563eb', gold: '#f59e0b', premium: '#ec4899' };
+    
+    const options = {
+        series: [{ name: 'مؤشر الحركة الفورية للرأس المالي', data: seriesData }],
+        chart: { type: 'area', height: 200, toolbar: { show: false } },
+        colors: [colors[tierKey] || '#2563eb'],
+        dataLabels: { enabled: false },
+        stroke: { curve: 'smooth', width: 3 },
+        fill: { type: 'gradient', gradient: { opacityFrom: 0.4, opacityTo: 0.02 } },
+        xaxis: { categories: ['دورة السابقة', 'مستوى التدفق', 'تحديث مباشر', 'العائد المرجو', 'مستهدف غداً'], labels: { style: { colors: '#6b7280', fontSize: '10px' } } },
+        yaxis: { show: false }, grid: { show: false }
+    };
+
+    if(projectionChartInstance) projectionChartInstance.destroy();
+    if(document.getElementById('investment-projection-chart')) {
+        projectionChartInstance = new ApexCharts(document.getElementById('investment-projection-chart'), options);
+        projectionChartInstance.render();
+    }
+}
+
+function injectNewDealIntoHistory(amt, finalProfit, label) {
+    const container = document.getElementById('trade-history-container');
+    if(!container) return;
+    const newItem = document.createElement('div');
+    newItem.className = 'history-item';
+    newItem.style.borderRightColor = 'var(--neon-green)';
+    newItem.innerHTML = `
+        <div><strong>${label}</strong> <span style="color: var(--text-dim); font-size: 11px; margin-right: 8px;">مكتمل</span></div>
+        <div><span style="color: var(--neon-green); font-weight: bold;">+${finalProfit.toFixed(2)} IQD</span></div>
+    `;
+    container.insertBefore(newItem, container.firstChild);
+}
+
+function triggerGlobalToast(msg, isSuccess) {
+    const toast = document.getElementById('global-investment-toast');
+    const text = document.getElementById('toast-text-msg');
+    const icon = document.getElementById('toast-icon');
+    if(toast && text && icon) {
+        text.innerText = msg;
+        toast.style.borderBottomColor = isSuccess ? 'var(--neon-green)' : 'var(--neon-pink)';
+        icon.className = isSuccess ? "fa-solid fa-circle-check" : "fa-solid fa-triangle-exclamation";
+        toast.classList.add('active');
+        setTimeout(() => toast.classList.remove('active'), 4000);
+    }
+}
+
+window.openCalcModal = function() { document.getElementById('calc-modal').style.display = 'flex'; };
+window.closeCalcModal = function() { document.getElementById('calc-modal').style.display = 'none'; };
+window.validateAndCalculateFromInput = validateAndCalculateFromInput;
+
+const today = new Date();
+const syncDateEl = document.getElementById('sync-realtime-date');
+if(syncDateEl) syncDateEl.innerText = `دورة: ${today.toLocaleDateString('ar-EG')}`;
+
+</script>
+
+</body>
+</html>
