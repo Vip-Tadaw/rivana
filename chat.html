@@ -293,6 +293,71 @@
             transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .toast-notification.active { bottom: 100px; }
+        /* ستايل نافذة الحذف المخصصة */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(7, 10, 18, 0.85);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.custom-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.custom-modal-box {
+    background: var(--bg-panel);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    width: 90%;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: var(--molded-out);
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.custom-modal-overlay.active .custom-modal-box {
+    transform: translateY(0) scale(1);
+}
+.modal-icon {
+    font-size: 36px;
+    color: var(--neon-pink);
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.4));
+}
+.modal-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; color: white; }
+.modal-text { font-size: 12px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+.cancel-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.cancel-btn:hover { background: rgba(255, 255, 255, 0.1); }
+.confirm-btn {
+    background: var(--neon-pink);
+    color: white;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+.confirm-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
     </style>
 </head>
 <body>
@@ -363,6 +428,8 @@
     let currentUserId = null;
     let currentUserProfile = { name: "مستثمر ريفانا", avatar: "https://placedog.net/100/100" };
     let typingTimeout = null;
+    let messageIdToDelete = null;
+
 
     const badWordsDictionary = [
         "كلب", "حمار", "تفو", "كواد", "منيوك", "كس", "عير", "طيز", "قحبة", "شرموط", 
@@ -504,24 +571,18 @@
         const msgQuery = query(collection(db, "public_messages"), orderBy("timestamp", "asc"), limit(60));
         const container = document.getElementById('chat-messages-container');
 
-        // 🔥 إضافة مستمع حدث الضغط على زر الحذف لمرة واحدة داخل صندوق المحادثة 🔥
+                // 🔥 إضافة مستمع حدث الضغط على زر الحذف لمرة واحدة داخل صندوق المحادثة 🔥
         if (!container.dataset.listenerAdded) {
-            container.addEventListener('click', async (e) => {
+            container.addEventListener('click', (e) => {
                 if (e.target.classList.contains('delete-msg-icon')) {
-                    const msgId = e.target.getAttribute('data-id');
-                    if (confirm("هل أنت متأكد من حذف هذه الرسالة نهائياً؟")) {
-                        try {
-                            await deleteDoc(doc(db, "public_messages", msgId));
-                            triggerChatToast("🗑️ تم حذف الرسالة بنجاح.");
-                        } catch (error) {
-                            triggerChatToast("❌ فشل حذف الرسالة، حاول مرة أخرى.");
-                            console.error("Delete Error: ", error);
-                        }
-                    }
+                    // هنا لغينا رسالة المتصفح (confirm) وبدلناها بالنافذة المنبثقة مالتنا
+                    messageIdToDelete = e.target.getAttribute('data-id');
+                    document.getElementById('delete-confirm-modal').classList.add('active');
                 }
             });
             container.dataset.listenerAdded = true;
         }
+
 
         onSnapshot(msgQuery, (snapshot) => {
             container.innerHTML = '';
@@ -591,7 +652,38 @@
         toast.classList.add('active');
         setTimeout(() => toast.classList.remove('active'), 3500);
     }
+        // --- أكواد التعامل مع النافذة المنبثقة الجديدة ---
+    document.getElementById('cancel-delete-btn').addEventListener('click', () => {
+        document.getElementById('delete-confirm-modal').classList.remove('active');
+        messageIdToDelete = null; // تفريغ المتغير
+    });
+
+    document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+        if (messageIdToDelete) {
+            try {
+                await deleteDoc(doc(db, "public_messages", messageIdToDelete));
+                triggerChatToast("🗑️ تم حذف الرسالة بنجاح.");
+            } catch (error) {
+                triggerChatToast("❌ فشل حذف الرسالة، تأكد من الصلاحيات.");
+                console.error("Delete Error: ", error);
+            }
+            document.getElementById('delete-confirm-modal').classList.remove('active');
+            messageIdToDelete = null; // تفريغ المتغير بعد الحذف
+        }
+    });
+
 </script>
+<div class="custom-modal-overlay" id="delete-confirm-modal">
+    <div class="custom-modal-box">
+        <div class="modal-icon"><i class="fa-solid fa-trash-can"></i></div>
+        <h3 class="modal-title">تأكيد الحذف</h3>
+        <p class="modal-text">هل أنت متأكد من حذف هذه الرسالة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.</p>
+        <div class="modal-actions">
+            <button class="modal-btn cancel-btn" id="cancel-delete-btn">إلغاء</button>
+            <button class="modal-btn confirm-btn" id="confirm-delete-btn">نعم، احذف</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
