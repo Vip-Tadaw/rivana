@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- استبدل السطر القديم بهذا السطر -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rivana - الإعدادات المتقدمة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -431,7 +432,7 @@ body {
         }
         .btn-cancel:hover { background: rgba(255,255,255,0.05); color: white;}
 
-       @media (max-width: 768px) {
+      @media (max-width: 768px) {
     .menu-toggle { display: flex; }
     .sidebar { 
         position: fixed; right: -280px; top: 0; height: 100%; 
@@ -453,8 +454,37 @@ body {
     .settings-item { padding: 15px; }
     
     .edit-btn:not(.btn-full-width) { position: static; margin: 15px 15px 0; width: calc(100% - 30px); justify-content: center; }
-}
 
+    /* ========================================= */
+    /* 🔥 التعديلات الجديدة لتصغير العناصر والخطوط 🔥 */
+    /* ========================================= */
+    
+    /* تصغير عنوان الصفحة الرئيسي */
+    .page-title { font-size: 18px; }
+    
+    /* تصغير نصوص البانر (إعدادات الحساب) */
+    .banner-text h2 { font-size: 18px; }
+    .banner-text p { font-size: 12px; }
+    
+    /* تصغير العناوين الجانبية (مثل: معلومات الحساب، الأمان) */
+    .section-title { font-size: 14px; }
+    
+    /* تصغير النصوص داخل البطاقات والمعلومات */
+    .info-group label { font-size: 10px; }
+    .info-group .info-value { font-size: 13px; }
+    
+    /* تصغير نصوص وأحجام الأزرار */
+    .edit-btn { font-size: 12px; padding: 8px 15px; }
+    
+    /* تصغير نصوص القائمة الجانبية في الموبايل */
+    .user-name { font-size: 15px; }
+    .balance-info h3 { font-size: 16px; }
+    
+    /* تصغير نصوص إعدادات الأمان (مثل تغيير كلمة المرور) */
+    .item-text h4 { font-size: 13px; }
+    .item-text p { font-size: 11px; }
+    .item-icon { width: 36px; height: 36px; font-size: 15px; }
+}
     </style>
 </head>
 <body>
