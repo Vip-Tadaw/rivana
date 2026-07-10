@@ -848,8 +848,12 @@ async function processCompletedTrade(trade) {
     try {
         const userRef = doc(db, "users", currentUserId);
         const tradeRef = doc(db, `users/${currentUserId}/active_trades`, trade.id);
+        
+        // متغير خارجي لحفظ بيانات مكافأة الداعي حتى نرسل له إشعاراً بعد نجاح العملية
+        let referralRewardData = null;
 
         await runTransaction(db, async (transaction) => {
+            // 1. مرحلة القراءة (Reads) - يجب أن تكون أولاً في فايربيس
             const tradeSnap = await transaction.get(tradeRef);
             if (!tradeSnap.exists() || tradeSnap.data().status !== 'active') return; 
 
@@ -865,20 +869,71 @@ async function processCompletedTrade(trade) {
             }
 
             const sfDoc = await transaction.get(userRef);
-            const currentBal = Number(sfDoc.data().balance || 0);
-            const currentProfits = Number(sfDoc.data().profit || 0);
+            const userData = sfDoc.data();
+            
+            // --- 💡 التعديل هنا: البحث عن الداعي (Inviter) ---
+            let inviterRef = null;
+            let inviterDoc = null;
+            const inviterId = userData.invitedBy; 
+            
+            // إذا كان هذا المستخدم قد تم دعوته من قبل شخص آخر
+            if (inviterId) {
+                inviterRef = doc(db, "users", inviterId);
+                inviterDoc = await transaction.get(inviterRef); // نقرأ بيانات الداعي
+            }
+            // ------------------------------------------------
 
-            // [الأمان المطلق] هنا يتم استخدام الربح الموثق الحقيقي الصارم (data.expectedProfit) المضاف مسبقاً من السيرفر
-            transaction.update(userRef, {
+            // 2. مرحلة الكتابة والتحديث (Writes)
+            const currentBal = Number(userData.balance || 0);
+            const currentProfits = Number(userData.profit || 0);
+            const currentEarnedForReferrer = Number(userData.earnedForReferrer || 0); // ما كسبه للداعي سابقاً
+
+            const userUpdates = {
                 balance: currentBal + data.amount,
                 profit: currentProfits + data.expectedProfit
-            });
+            };
 
+            // --- 💡 التعديل هنا: حساب الـ 1% وتحديث أرصدة الداعي ---
+            if (inviterDoc && inviterDoc.exists() && data.expectedProfit > 0) {
+                // حساب 1% من الربح الصافي (وليس من رأس المال)
+                const rewardAmount = data.expectedProfit * 0.01; 
+                
+                // أ. إضافة المبلغ لخانة (إجمالي ما كسبه هذا المدعو للداعي) لكي تظهر في صفحة الفريق
+                userUpdates.earnedForReferrer = currentEarnedForReferrer + rewardAmount;
+                
+                // ب. تحديث رصيد الداعي لكي يتسلم الأموال فعلياً
+                const inviterData = inviterDoc.data();
+                transaction.update(inviterRef, {
+                    balance: Number(inviterData.balance || 0) + rewardAmount,
+                    totalRewards: Number(inviterData.totalRewards || 0) + rewardAmount,
+                    referral_profits: Number(inviterData.referral_profits || 0) + rewardAmount // اختياري: لحساب أرباح الإحالة بشكل منفصل
+                });
+
+                // حفظ بيانات الداعي لإرسال الإشعار لاحقاً
+                referralRewardData = { inviterId: inviterId, rewardAmount: rewardAmount };
+            }
+            // ------------------------------------------------
+
+            // تنفيذ التحديثات في قاعدة البيانات
+            transaction.update(userRef, userUpdates);
             transaction.update(tradeRef, { status: 'completed' });
         });
 
+        // 3. إرسال الإشعارات بعد نجاح العملية (خارج الـ Transaction)
         await logUserActivity("تسوية واكتمال صفقة", `💰 تم بنجاح إنهاء دورة ${trade.tierLabel || 'الصفقة'} ونزول أرباح بمقدار ${trade.expectedProfit.toLocaleString()} IQD إلى حسابكم.`, trade.expectedProfit, "success");
         
+        // --- 💡 إرسال إشعار فوري للداعي بأنه حصل على مكافأة! ---
+        if (referralRewardData) {
+            addDoc(collection(db, `users/${referralRewardData.inviterId}/user_notifications`), {
+                type: "مكافأة فريق",
+                title: "أرباح الفريق 🤝",
+                message: `تهانينا! حصلت للتو على عمولة 1% بقيمة ${referralRewardData.rewardAmount.toLocaleString()} IQD من أرباح صفقات فريقك.`,
+                amount: referralRewardData.rewardAmount,
+                status: "success",
+                timestamp: serverTimestamp()
+            }).catch(e => console.error("فشل إرسال إشعار للداعي:", e));
+        }
+
         triggerGlobalToast(`💰 اكتملت دورة التداول بنجاح!`, true);
         injectNewDealIntoHistory(trade.amount, trade.expectedProfit, trade.tierLabel || 'صفقة');
 
@@ -892,6 +947,7 @@ async function processCompletedTrade(trade) {
         }
     }
 }
+
 
 function buildProjectionChart(baseCapital, dailyYield, tierKey) {
     let seriesData = [];
