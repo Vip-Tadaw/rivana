@@ -843,7 +843,8 @@ async function logUserActivity(userId, userName, type, details) {
             fullName: name,
             phone: user.phoneNumber || "",
             email: user.email,
-            usedInviteCode: null, 
+// الكود الصحيح:
+usedInviteCode: document.getElementById('inviteCode').value.trim().toUpperCase() || null,
             inviteCode: generateUserInviteCode(), 
             balance: 0.00,        
             vipLevel: 0,          
@@ -972,6 +973,25 @@ async function logUserActivity(userId, userName, type, details) {
   }
 
 })();
+  // 🔥 إضافة جديدة: جلب كود الدعوة من الرابط ووضعه في الحقل تلقائياً 🔥
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref'); // البحث عن كلمة ref في الرابط
+    
+    if (refCode) {
+      const inviteInput = document.getElementById('inviteCode');
+      if (inviteInput) {
+        inviteInput.value = refCode.toUpperCase(); // وضع الكود في الحقل
+        touched['inviteCode'] = true; // إخبار النظام أن الحقل تم لمسه
+        
+        // تشغيل دالة الفحص الخاصة بك تلقائياً للتأكد من صحة الكود
+        if (typeof validateInviteCode === 'function') {
+          validateInviteCode();
+        }
+      }
+    }
+  });
+
 </script>
 
 
