@@ -748,11 +748,17 @@ async function logUserActivity(type, details) {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    // أ. تغيير الرابط تلقائياً وفقاً للدومين المستضاف عليه حالياً + كود الدعوة للمستخدم
-                    const referralCode = data.referralCode || data.username || user.uid;
-                    const dynamicInviteLink = `${window.location.origin}/invite/${referralCode}`;
-                    document.getElementById("inviteLink").value = dynamicInviteLink;
-                    
+                   // أ. سحب كود الدعوة القصير
+const referralCode = data.inviteCode || user.uid; 
+
+// استخراج المسار الأساسي للاستضافة الحالية تلقائياً
+const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+
+// دمج المسار مع صفحة التسجيل وكود الدعوة
+const dynamicInviteLink = `${baseUrl}/index.html?ref=${referralCode}`;
+
+document.getElementById("inviteLink").value = dynamicInviteLink;
+
                     // ب. تحديث الأرقام الحقيقية في لوحة الإحصائيات
                     document.getElementById("totalFriends").innerText = data.totalFriends || 0;
                     document.getElementById("activeFriends").innerText = data.activeFriends || 0;
@@ -765,10 +771,13 @@ async function logUserActivity(type, details) {
                     document.getElementById("pendingRewards").innerHTML = `${formatNumber(pendingRewards)} <span style="font-size:11px; color:var(--text-muted)">IQD</span>`;
                 }
             });
-        } else {
-            // في حال عدم تسجيل دخول المستخدم (افتراضي) يتم أخذ الدومين الحالي تلقائياً
-            document.getElementById("inviteLink").value = `${window.location.origin}/invite/GUEST`;
-        }
+       } else {
+    // استخراج المسار الأساسي تلقائياً للزوار غير المسجلين
+    const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+    
+    document.getElementById("inviteLink").value = `${baseUrl}/index.html?ref=GUEST`;
+}
+
     });
 
     // 3. تفعيل أزرار مشاركة وسائل التواصل الاجتماعي بالرابط الحقيقي الديناميكي
