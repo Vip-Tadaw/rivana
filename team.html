@@ -423,20 +423,28 @@ const firebaseConfig = {
         }
     });
 
-    async function loadTeamData(uid) {
+        async function loadTeamData(uid) {
         try {
-            // أ. جلب بيانات المستخدم الحالي (الأرباح والمكافآت)
+            // أ. جلب بيانات المستخدم الحالي
             const userDoc = await db.collection('users').doc(uid).get();
             const userData = userDoc.exists ? userDoc.data() : {};
             
             const totalRewards = userData.totalRewards || 0;
             const pendingRewards = userData.pendingRewards || 0;
+            
+            // 🔥 [تعديل هام] جلب كود الدعوة الخاص بالمستخدم الحالي للبحث به
+            const myInviteCode = userData.inviteCode; 
 
             document.getElementById('totalRewardsDisplay').innerHTML = `${totalRewards.toLocaleString()} <span style="font-size:14px; color:rgba(255,255,255,0.6)">IQD</span>`;
             document.getElementById('pendingRewardsDisplay').innerHTML = `<i class="fa-regular fa-clock" style="color: var(--purple-light);"></i> ${pendingRewards.toLocaleString()} IQD`;
 
-            // ب. جلب بيانات الأصدقاء الذين دعاهم المستخدم
-            const teamSnapshot = await db.collection('users').where('invitedBy', '==', uid).get();
+            // ب. جلب بيانات الأصدقاء 
+            // 🔥 [تم الإصلاح] البحث باستخدام حقل 'usedInviteCode' ومطابقته مع كود المستخدم الحالي
+            let teamSnapshot = { size: 0, forEach: () => {} }; // قيم افتراضية
+            if (myInviteCode) {
+                teamSnapshot = await db.collection('users').where('usedInviteCode', '==', myInviteCode).get();
+            }
+
             const friendsList = document.getElementById('friendsList');
             friendsList.innerHTML = ''; // تفريغ القائمة قبل الإضافة
 
@@ -445,6 +453,10 @@ const firebaseConfig = {
 
             if (totalCount === 0) {
                 friendsList.innerHTML = '<div class="loading-text">لم تقم بدعوة أي أصدقاء بعد.</div>';
+                document.getElementById('activeFriendsDisplay').innerText = "0";
+                document.getElementById('totalFriendsDisplay').innerText = "0";
+                updateLevelUI(0);
+                return; // إنهاء الدالة هنا إذا لم يكن هناك فريق
             }
 
             teamSnapshot.forEach(doc => {
@@ -452,7 +464,8 @@ const firebaseConfig = {
                 const status = member.status || 'incomplete'; // 'active', 'pending', 'incomplete'
                 if (status === 'active') activeCount++;
 
-                const name = member.name || "مستخدم جديد";
+                // 🔥 [تم الإصلاح] استخدام fullName لأنها الكلمة المستخدمة في صفحة إنشاء الحساب
+                const name = member.fullName || "مستخدم جديد"; 
                 const photoURL = member.photoURL || "https://i.pravatar.cc/150?img=0";
                 
                 // تنسيق تاريخ الانضمام
@@ -462,7 +475,7 @@ const firebaseConfig = {
                     joinDateStr = new Intl.DateTimeFormat('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }).format(dateObj);
                 }
 
-                // بناء بطاقة العضو بناءً على حالته
+                // بناء بطاقة العضو
                 let userHTML = '';
                 
                 if (status === 'active') {
@@ -568,30 +581,32 @@ const firebaseConfig = {
         }
     }
 
-    // ==========================================
-    // 4. تحديث بطاقات المستويات ديناميكياً
+
+       // ==========================================
+    // 4. تحديث بطاقات المستويات ديناميكياً (تم التعديل لنسبة 1% ثابتة)
     // ==========================================
     function updateLevelUI(friendsCount) {
         // تنظيف التحديد السابق
         document.querySelectorAll('.level-card').forEach(card => card.classList.remove('active-level'));
         
-        let rewardRate = "5%";
+        // النسبة ثابتة 1% من أرباح التداول بناءً على النظام الجديد
+        let rewardRate = "1%";
         
+        // إبقاء تفعيل المستويات لجمالية التصميم وتشجيع المستخدم لزيادة فريقه
         if (friendsCount <= 5) {
-            document.getElementById('lvl1').classList.add('active-level');
-            rewardRate = "5%";
+            if(document.getElementById('lvl1')) document.getElementById('lvl1').classList.add('active-level');
         } else if (friendsCount <= 20) {
-            document.getElementById('lvl2').classList.add('active-level');
-            rewardRate = "7%";
+            if(document.getElementById('lvl2')) document.getElementById('lvl2').classList.add('active-level');
         } else if (friendsCount <= 50) {
-            document.getElementById('lvl3').classList.add('active-level');
-            rewardRate = "8%";
+            if(document.getElementById('lvl3')) document.getElementById('lvl3').classList.add('active-level');
         } else {
-            document.getElementById('lvl4').classList.add('active-level');
-            rewardRate = "10%";
+            if(document.getElementById('lvl4')) document.getElementById('lvl4').classList.add('active-level');
         }
 
-        document.getElementById('rewardRateDisplay').innerText = rewardRate;
+        // عرض نسبة الـ 1% في المكان المخصص لها
+        if(document.getElementById('rewardRateDisplay')) {
+            document.getElementById('rewardRateDisplay').innerText = rewardRate;
+        }
     }
 
 </script>
