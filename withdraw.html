@@ -593,13 +593,13 @@ dbCapitalIQD = data.balance || 0; // تم التغيير من capital إلى bal
             return;
         }
 
-        const btn = document.getElementById('submitWithdraw');
+               const btn = document.getElementById('submitWithdraw');
         const origText = btn.innerHTML;
         btn.innerHTML = `جاري المعالجة الآمنة...`;
         btn.disabled = true;
 
         const userRef = doc(db, "users", currentUserUID);
-        const activitiesRef = collection(db, "activities");
+        const withdrawalsRef = collection(db, "withdrawals"); // تم التعديل: توجيه الطلب إلى withdrawals
 
         try {
             await runTransaction(db, async (transaction) => {
@@ -607,7 +607,7 @@ dbCapitalIQD = data.balance || 0; // تم التغيير من capital إلى bal
                 if (!userDoc.exists()) throw "الحساب غير موجود في قاعدة البيانات!";
 
                 const userData = userDoc.data();
-let currentCapital = userData.balance || 0; // تم التغيير من capital إلى balance
+                let currentCapital = userData.balance || 0; // تم التغيير من capital إلى balance
                 let currentProfit = userData.profit || 0;
 
                 // التحقق من الرصيد بدقة داخل المعاملة الآمنة لمنع الاحتيال
@@ -637,29 +637,29 @@ let currentCapital = userData.balance || 0; // تم التغيير من capital 
                     registration_date: userData.createdAt || "غير محدد"
                 };
 
-               transaction.update(userRef, {
-    balance: currentCapital, // تم التغيير من capital
-    profit: currentProfit
-});
-
+                transaction.update(userRef, {
+                    balance: currentCapital, // تم التغيير من capital
+                    profit: currentProfit
+                });
 
                 // توجيه البيانات الشاملة للوحة تحكم المدير
-                const newActivityRef = doc(activitiesRef);
-                transaction.set(newActivityRef, {
+                const newWithdrawalRef = doc(withdrawalsRef); // تم التعديل هنا
+                transaction.set(newWithdrawalRef, { // تم التعديل هنا
                     userId: currentUserUID,
                     type: "withdraw", 
                     title: `طلب سحب (${selectedSource === 'profit' ? 'أرباح' : 'رأس مال'})`, 
                     description: `سحب من وعاء ${selectedSource === 'profit' ? 'الارباح' : 'رأس المال'} عبر ${methodInfo.title}`, 
                     source_wallet: selectedSource, // الحقل الجديد لمعرفة المصدر بلوحة التحكم
                     user_info: userSnapshot, 
-                    amount: inputVal, 
+                    amount: inputVal,
+                    amountRequested: inputVal, // إضافة ضرورية لكي يظهر المبلغ في لوحة الإدارة
                     amountRequestedIQD: amountRequestedInIQD,
                     currency: activeCurrency,
                     method: activeMethod,
                     fee: calculatedFee,
                     netAmount: finalVal,
                     details: requestDetails,
-                    status: "pending", 
+                    status: "pending", // يذهب بحالة الانتظار لكي تلتقطه لوحة الإدارة
                     createdAt: serverTimestamp()
                 });
             });
@@ -677,6 +677,7 @@ let currentCapital = userData.balance || 0; // تم التغيير من capital 
             btn.disabled = false;
         }
     });
+
 
     window.addEventListener('DOMContentLoaded', () => { 
         renderCurrencyUI('usdt'); 
